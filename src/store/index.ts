@@ -1,26 +1,21 @@
-import { configureStore } from '@reduxjs/toolkit';
+import { configureStore }        from '@reduxjs/toolkit';
 import {
   persistStore,
   persistReducer,
-  FLUSH,
-  REHYDRATE,
-  PAUSE,
-  PERSIST,
-  PURGE,
-  REGISTER,
+  FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER,
 } from 'redux-persist';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import AsyncStorage              from '@react-native-async-storage/async-storage';
 
-import rootReducer from './rootReducer';
+import rootReducer               from './rootReducer';
+import { injectInterceptorDeps } from '@services/api/axios.instance';
+import { setAccessToken, forceLogout } from '@features/auth/store/authSlice';
 
 const persistConfig = {
-  key: 'root',
-  version: 1,
-  storage: AsyncStorage,
-  // Inhi slices ko persist karo
-  whitelist: ['auth', 'settings', 'theme'],
-  // Yeh persist mat karo (real-time data)
-  blacklist: ['recording', 'player'],
+  key:       'root',
+  version:   1,
+  storage:   AsyncStorage,
+  whitelist: ['auth'],        // Sirf auth persist karo
+  blacklist: ['recording', 'player', 'ai'],
 };
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
@@ -33,11 +28,22 @@ export const store = configureStore({
         ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
       },
     }),
-  devTools: __DEV__, // Only dev mein
+  devTools: __DEV__,
 });
 
 export const persistor = persistStore(store);
 
-// TypeScript types
-export type RootState = ReturnType<typeof store.getState>;
-export type AppDispatch = typeof store.dispatch;
+// Interceptors ke liye store access inject karo
+injectInterceptorDeps({
+  getAccessToken: () =>
+    (store.getState() as ReturnType<typeof store.getState>).auth?.accessToken ?? null,
+  onTokenRefreshed: (token: string) => {
+    store.dispatch(setAccessToken(token));
+  },
+  onAuthError: () => {
+    store.dispatch(forceLogout());
+  },
+});
+
+export type RootState    = ReturnType<typeof store.getState>;
+export type AppDispatch  = typeof store.dispatch;

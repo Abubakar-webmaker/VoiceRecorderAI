@@ -1,74 +1,71 @@
 import 'dotenv/config';
-import http from 'http';
+import http                       from 'http';
 import { Server as SocketIOServer } from 'socket.io';
-import mongoose from 'mongoose';
 
-import app from './app';
+import app                        from './app';
+import { connectDatabase }        from './config/database';
+import { verifyCloudinaryConnection } from './config/cloudinary';
+import { verifyOpenAIConnection } from './config/openai';
+import { initializeSockets }      from './sockets';
+import { env }                    from './config/env';
+import { logger }                 from './utils/logger';
 
-// ─── Server Setup ─────────────────────────────────────────────────
-const PORT = process.env.PORT ?? 5000;
 const httpServer = http.createServer(app);
 
-// ─── Socket.IO Setup ──────────────────────────────────────────────
+// ─── Socket.IO ────────────────────────────────────────────────────
 const io = new SocketIOServer(httpServer, {
   cors: {
-    origin: process.env.ALLOWED_ORIGINS?.split(',') ?? ['http://localhost:3000'],
-    methods: ['GET', 'POST'],
+    origin:      env.ALLOWED_ORIGINS.split(',').map((o) => o.trim()),
+    methods:     ['GET', 'POST'],
     credentials: true,
   },
+  transports:         ['websocket', 'polling'],
+  pingTimeout:        60_000,
+  pingInterval:       25_000,
+  maxHttpBufferSize:  1e7, // 10MB
 });
 
-io.on('connection', (socket) => {
-  console.warn(`[Socket] Client connected: ${socket.id}`);
-
-  socket.on('disconnect', () => {
-    console.warn(`[Socket] Client disconnected: ${socket.id}`);
-  });
-});
-
-// ─── Database Connection ──────────────────────────────────────────
-const connectDB = async (): Promise<void> => {
-  try {
-    const mongoUri = process.env.MONGODB_URI;
-    if (!mongoUri) throw new Error('MONGODB_URI is not defined in .env');
-
-    await mongoose.connect(mongoUri, {
-      serverSelectionTimeoutMS: 5000,
-      socketTimeoutMS: 45000,
-    });
-
-    console.warn('✅ MongoDB Connected Successfully');
-  } catch (error) {
-    console.error('❌ MongoDB Connection Failed:', error);
-    process.exit(1);
-  }
-};
+// Sockets initialize karo
+initializeSockets(io);
 
 // ─── Graceful Shutdown ────────────────────────────────────────────
-const gracefulShutdown = async (): Promise<void> => {
-  console.warn('\n[Server] Shutting down gracefully...');
+const gracefulShutdown = async (signal: string): Promise<void> => {
+  logger.warn(`\n[Server] ${signal} received. Shutting down...`);
   httpServer.close(async () => {
-    await mongoose.connection.close();
-    console.warn('[Server] MongoDB connection closed.');
+    const { disconnectDatabase } = await import('./config/database');
+    await disconnectDatabase();
     process.exit(0);
   });
+  setTimeout(() => process.exit(1), 10_000);
 };
 
-process.on('SIGTERM', gracefulShutdown);
-process.on('SIGINT', gracefulShutdown);
+process.on('SIGTERM', () => void gracefulShutdown('SIGTERM'));
+process.on('SIGINT',  () => void gracefulShutdown('SIGINT'));
+process.on('unhandledRejection', (reason) => logger.error('Unhandled Rejection:', reason));
+process.on('uncaughtException',  (err)    => {
+  logger.error('Uncaught Exception:', err);
+  process.exit(1);
+});
 
-// ─── Start Server ─────────────────────────────────────────────────
+// ─── Start ────────────────────────────────────────────────────────
 const startServer = async (): Promise<void> => {
-  await connectDB();
+  await connectDatabase();
+  await verifyCloudinaryConnection();
+  await verifyOpenAIConnection();
 
-  httpServer.listen(PORT, () => {
-    console.warn(`
-🚀 AI Voice Recorder Server Running!
-   URL:         http://localhost:${PORT}
-   Health:      http://localhost:${PORT}/health
-   Environment: ${process.env.NODE_ENV ?? 'development'}
-   MongoDB:     Connected
-   Socket.IO:   Ready
+  httpServer.listen(env.PORT, () => {
+    logger.info(`
+╔══════════════════════════════════════════════╗
+║       🎙️  AI Voice Recorder Backend          ║
+╠══════════════════════════════════════════════╣
+║  URL:         http://localhost:${env.PORT}          ║
+║  Health:      http://localhost:${env.PORT}/health   ║
+║  Environment: ${env.NODE_ENV.padEnd(20)}       ║
+║  MongoDB:     ✅ Connected                   ║
+║  Cloudinary:  ✅ Connected                   ║
+║  OpenAI:      ✅ Connected                   ║
+║  Socket.IO:   ✅ Ready                       ║
+╚══════════════════════════════════════════════╝
     `);
   });
 };

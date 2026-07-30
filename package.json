@@ -63,7 +63,7 @@
 
     "@react-native-firebase/app": "^21.6.1",
     "@react-native-firebase/messaging": "^21.6.1",
-    "notifee": "^9.1.7",
+    "@notifee/react-native": "^9.1.8",
 
     "react-native-safe-area-context": "^4.14.0",
     "react-native-screens": "^4.4.0",

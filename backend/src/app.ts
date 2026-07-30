@@ -1,68 +1,111 @@
 import express, { type Application, type Request, type Response } from 'express';
-import cors from 'cors';
-import helmet from 'helmet';
-import morgan from 'morgan';
-import compression from 'compression';
-import rateLimit from 'express-rate-limit';
-import cookieParser from 'cookie-parser';
+import cors          from 'cors';
+import helmet        from 'helmet';
+import morgan        from 'morgan';
+import compression   from 'compression';
+import rateLimit     from 'express-rate-limit';
+import cookieParser  from 'cookie-parser';
+
+import { env }                                 from './config/env';
+import { apiRouter }                           from './routes';
+import { errorHandler, notFoundHandler }       from './middleware/error.middleware';
+import { logger }                              from './utils/logger';
 
 const app: Application = express();
 
-// ─── Security Middleware ───────────────────────────────────────────
-app.use(helmet());  // HTTP security headers
+// ─── Trust Proxy (production load balancer ke liye) ───────────────
+app.set('trust proxy', 1);
 
+// ─── Security Headers ─────────────────────────────────────────────
 app.use(
-  cors({
-    origin: process.env.ALLOWED_ORIGINS?.split(',') ?? ['http://localhost:3000'],
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
+  helmet({
+    crossOriginResourcePolicy:  { policy: 'cross-origin' },
+    contentSecurityPolicy:      false, // Mobile API ke liye
   }),
 );
 
-// ─── Rate Limiting ─────────────────────────────────────────────────
-const limiter = rateLimit({
-  windowMs: Number(process.env.RATE_LIMIT_WINDOW_MS) || 15 * 60 * 1000, // 15 min
-  max: Number(process.env.RATE_LIMIT_MAX_REQUESTS) || 100,
-  standardHeaders: true,
-  legacyHeaders: false,
-  message: { success: false, message: 'Too many requests. Please try again later.' },
-});
-app.use('/api/', limiter);
+// ─── CORS ─────────────────────────────────────────────────────────
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      const allowed = env.ALLOWED_ORIGINS.split(',').map((o) => o.trim());
+      // Mobile app ka origin null hota hai — allow karo
+      if (!origin || allowed.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error(`CORS: Origin ${origin} not allowed`));
+      }
+    },
+    credentials:     true,
+    methods:         ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders:  ['Content-Type', 'Authorization', 'X-Requested-With'],
+    exposedHeaders:  ['X-Total-Count'],
+  }),
+);
 
-// ─── Body Parsing ──────────────────────────────────────────────────
+// ─── Rate Limiting ────────────────────────────────────────────────
+const globalLimiter = rateLimit({
+  windowMs: Number(env.RATE_LIMIT_WINDOW_MS),
+  max:      Number(env.RATE_LIMIT_MAX_REQUESTS),
+  standardHeaders: true,
+  legacyHeaders:   false,
+  handler: (_req, res) => {
+    res.status(429).json({
+      success:   false,
+      message:   'Too many requests. Please try again later.',
+      timestamp: new Date().toISOString(),
+    });
+  },
+});
+
+// Auth routes pe strict limit
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 min
+  max:      20,              // 20 auth requests per 15 min
+  message: {
+    success:   false,
+    message:   'Too many authentication attempts. Please try again after 15 minutes.',
+    timestamp: new Date().toISOString(),
+  },
+});
+
+app.use('/api/', globalLimiter);
+app.use('/api/v1/auth/login',           authLimiter);
+app.use('/api/v1/auth/register',        authLimiter);
+app.use('/api/v1/auth/forgot-password', authLimiter);
+
+// ─── Body Parsing ─────────────────────────────────────────────────
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(cookieParser());
 app.use(compression());
 
-// ─── Logging ───────────────────────────────────────────────────────
-if (process.env.NODE_ENV === 'development') {
-  app.use(morgan('dev'));
-} else {
-  app.use(morgan('combined'));
-}
+// ─── HTTP Logging ─────────────────────────────────────────────────
+app.use(
+  morgan(env.NODE_ENV === 'production' ? 'combined' : 'dev', {
+    stream: {
+      write: (message: string) => logger.info(message.trim()),
+    },
+  }),
+);
 
-// ─── Health Check ──────────────────────────────────────────────────
+// ─── Health Check ─────────────────────────────────────────────────
 app.get('/health', (_req: Request, res: Response) => {
   res.status(200).json({
-    success: true,
-    message: 'AI Voice Recorder API is running 🎙️',
-    environment: process.env.NODE_ENV,
-    timestamp: new Date().toISOString(),
+    success:     true,
+    message:     '🎙️ AI Voice Recorder API is healthy',
+    environment: env.NODE_ENV,
+    version:     env.API_VERSION,
+    timestamp:   new Date().toISOString(),
+    uptime:      `${Math.floor(process.uptime())}s`,
   });
 });
 
-// ─── API Routes (Phase 3+ mein add honge) ─────────────────────────
-// import { authRouter } from '@routes/auth.routes';
-// app.use('/api/v1/auth', authRouter);
+// ─── API Routes ───────────────────────────────────────────────────
+app.use(`/api/${env.API_VERSION}`, apiRouter);
 
-// ─── 404 Handler ───────────────────────────────────────────────────
-app.use((_req: Request, res: Response) => {
-  res.status(404).json({
-    success: false,
-    message: 'Route not found',
-  });
-});
+// ─── 404 + Error Handlers (order matters!) ───────────────────────
+app.use(notFoundHandler);
+app.use(errorHandler);
 
 export default app;
