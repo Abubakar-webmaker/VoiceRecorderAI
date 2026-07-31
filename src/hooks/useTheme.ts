@@ -1,7 +1,6 @@
-import { useColorScheme }      from 'react-native';
+import { useColorScheme } from 'react-native';
 import { darkTheme, lightTheme } from '@theme/index';
 import type { AppTheme }         from '@theme/index';
-import useAppSelector            from './useAppSelector';
 
 interface UseThemeReturn {
   theme:    AppTheme;

@@ -75,17 +75,20 @@ const PulseRing = ({ color, size }: { color: string; size: number }): React.JSX.
     ring2Opacity.value = withDelay(600, withRepeat(withTiming(0, { duration: 1200, easing }), -1, false));
   }, [ring1Opacity, ring1Scale, ring2Opacity, ring2Scale]);
 
-  const ringStyle = (scale: Animated.SharedValue<number>, opacity: Animated.SharedValue<number>) =>
-    useAnimatedStyle(() => ({
-      transform:  [{ scale: scale.value }],
-      opacity:    opacity.value,
-    }));
+  const ring1Style = useAnimatedStyle(() => ({
+    transform: [{ scale: ring1Scale.value }],
+    opacity:   ring1Opacity.value,
+  }));
+  const ring2Style = useAnimatedStyle(() => ({
+    transform: [{ scale: ring2Scale.value }],
+    opacity:   ring2Opacity.value,
+  }));
 
   return (
     <View style={{ width: size, height: size, alignItems: 'center', justifyContent: 'center' }}>
       {[
-        ringStyle(ring1Scale, ring1Opacity),
-        ringStyle(ring2Scale, ring2Opacity),
+        ring1Style,
+        ring2Style,
       ].map((aStyle, i) => (
         <Animated.View
           key={i}

@@ -19,7 +19,6 @@ import Animated, {
   FadeInDown,
 } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import LinearGradient   from 'react-native-linear-gradient';
 
 import { Button }     from '@components/common/Button';
 import { Typography, H1, BodyMd, Caption } from '@components/common/Typography';
