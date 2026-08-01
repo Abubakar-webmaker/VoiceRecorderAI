@@ -30,6 +30,29 @@ import type {
 
 // Placeholder screen — real screens Phase 7+ mein
 import { PlaceholderScreen } from './PlaceholderScreen';
+// Add these imports
+import { RecordScreen }   from '@features/recording/screens/RecordScreen';
+import { SearchScreen }   from '@features/recording/screens/SearchScreen';
+
+// RecordStackScreen update
+const RecordStackScreen = (): React.JSX.Element => (
+  <RecordStack.Navigator screenOptions={stackScreenOptions}>
+    <RecordStack.Screen
+      name="Record"
+      component={RecordScreen}
+    />
+  </RecordStack.Navigator>
+);
+
+// SearchStackScreen update
+const SearchStackScreen = (): React.JSX.Element => (
+  <SearchStack.Navigator screenOptions={stackScreenOptions}>
+    <SearchStack.Screen
+      name="Search"
+      component={SearchScreen}
+    />
+  </SearchStack.Navigator>
+);
 
 // ─── Stack Navigators ─────────────────────────────────────────────
 const HomeStack      = createNativeStackNavigator<HomeStackParamList>();
@@ -215,6 +238,34 @@ const MainNavigator = (): React.JSX.Element => {
     </Tab.Navigator>
   );
 };
+
+// Replace placeholder imports with real screens
+import { HomeScreen }             from '@features/recording/screens/HomeScreen';
+import { RecordingsScreen }       from '@features/recording/screens/RecordingsScreen';
+import { RecordingDetailScreen }  from '@features/recording/screens/RecordingDetailScreen';
+
+// HomeStack
+const HomeStackScreen = (): React.JSX.Element => (
+  <HomeStack.Navigator screenOptions={stackScreenOptions}>
+    <HomeStack.Screen name="Home" component={HomeScreen} />
+  </HomeStack.Navigator>
+);
+
+// RecordingsStack
+const RecordingsStackScreen = (): React.JSX.Element => (
+  <RecordingsStack.Navigator screenOptions={stackScreenOptions}>
+    <RecordingsStack.Screen name="Recordings"
+      component={RecordingsScreen}
+      initialParams={{ folderId: undefined, folderName: undefined }}
+    />
+    <RecordingsStack.Screen name="RecordingDetail" component={RecordingDetailScreen} />
+    <RecordingsStack.Screen name="FolderView"      component={PlaceholderScreen} />
+    <RecordingsStack.Screen name="Player"
+      component={PlaceholderScreen}
+      options={{ presentation: 'modal' }}
+    />
+  </RecordingsStack.Navigator>
+);
 
 // ─── Styles ───────────────────────────────────────────────────────
 const styles = StyleSheet.create({

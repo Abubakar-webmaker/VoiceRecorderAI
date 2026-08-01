@@ -47,7 +47,7 @@ export const getRecordingsApi = async (
   if (params.tags       != null) query['tags']       = params.tags;
   if (params.isFavorite != null) query['isFavorite'] = String(params.isFavorite);
 
-  const response = await apiClient.get
+  const response = await apiClient.get<
     ApiResponse<{ recordings: Recording[]; pagination: PaginationInfo }>
   >(ENDPOINTS.RECORDINGS.BASE, { params: query });
 
@@ -79,7 +79,7 @@ export const getFavoritesApi = async (
   page = 1,
   limit = 20,
 ): Promise<{ recordings: Recording[]; total: number }> => {
-  const response = await apiClient.get
+  const response = await apiClient.get<
     ApiResponse<{ recordings: Recording[]; total: number }>
   >(ENDPOINTS.RECORDINGS.FAVORITES, { params: { page, limit } });
 
@@ -92,7 +92,7 @@ export const getFavoritesApi = async (
 export const searchRecordingsApi = async (
   params: SearchQueryParams,
 ): Promise<{ recordings: Recording[]; total: number }> => {
-  const response = await apiClient.get
+  const response = await apiClient.get<
     ApiResponse<{ recordings: Recording[]; total: number }>
   >(ENDPOINTS.RECORDINGS.SEARCH, { params });
 
@@ -119,7 +119,7 @@ export const updateRecordingApi = async (
 export const toggleFavoriteApi = async (
   id: string,
 ): Promise<{ isFavorite: boolean }> => {
-  const response = await apiClient.patch
+  const response = await apiClient.patch<
     ApiResponse<{ isFavorite: boolean }>
   >(ENDPOINTS.RECORDINGS.FAVORITE(id));
 
@@ -180,7 +180,7 @@ export const deleteRecordingApi = async (id: string): Promise<void> => {
 export const bulkDeleteApi = async (
   recordingIds: string[],
 ): Promise<{ deleted: number; failed: number }> => {
-  const response = await apiClient.post
+  const response = await apiClient.post<
     ApiResponse<{ deleted: number; failed: number }>
   >(ENDPOINTS.RECORDINGS.BULK_DELETE, { recordingIds });
   const data = response.data.data;

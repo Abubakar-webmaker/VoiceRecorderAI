@@ -11,6 +11,8 @@ import { Loader } from '@components/common/Loader';
 import { initializeAuth } from '@features/auth/store/authSlice';
 import type { RootState } from '@store/index';
 import type { AppDispatch } from '@store/index';
+import { AIScreen } from '@features/ai/screens/AIScreen';
+
 
 const RootStack = createNativeStackNavigator<RootStackParamList>();
 
@@ -36,8 +38,21 @@ const AppNavigator = (): React.JSX.Element => {
         ) : (
           <RootStack.Screen name="Main" component={AuthNavigator} />
         )}
+        // RootStack ke andar authenticated block mein add karo:
+<RootStack.Screen name="Main" component={MainNavigator} />
+<RootStack.Screen
+  name="AIScreen"
+  component={AIScreen}
+  options={{
+    presentation:  'modal',
+    animation:     'slide_from_bottom',
+    headerShown:   false,
+    gestureEnabled: true,
+  }}
+/>
       </RootStack.Navigator>
     </NavigationContainer>
+    
   );
 };
 

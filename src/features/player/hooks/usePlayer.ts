@@ -1,4 +1,4 @@
- import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect } from 'react';
 import { useProgress }            from 'react-native-track-player';
 import useAppDispatch              from '@hooks/useAppDispatch';
 import useAppSelector              from '@hooks/useAppSelector';

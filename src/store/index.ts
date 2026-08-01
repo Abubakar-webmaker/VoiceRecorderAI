@@ -9,6 +9,16 @@ import AsyncStorage              from '@react-native-async-storage/async-storage
 import rootReducer               from './rootReducer';
 import { injectInterceptorDeps } from '@services/api/axios.instance';
 import { setAccessToken, forceLogout } from '@features/auth/store/authSlice';
+import { AppRegistry }   from 'react-native';
+import App               from './App';
+import { name as appName } from './app.json';
+import TrackPlayer       from 'react-native-track-player';
+import { PlaybackService } from './src/services/audio/playback.service';
+
+AppRegistry.registerComponent(appName, () => App);
+
+// TrackPlayer background service register karo
+TrackPlayer.registerPlaybackService(() => PlaybackService);
 
 const persistConfig = {
   key:       'root',

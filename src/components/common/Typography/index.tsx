@@ -68,6 +68,8 @@ const H3 = (p: Omit<TypographyProps, 'variant'>): React.JSX.Element =>
   <Typography {...p} variant="h3" />;
 const H4 = (p: Omit<TypographyProps, 'variant'>): React.JSX.Element =>
   <Typography {...p} variant="h4" />;
+const H5 = (p: Omit<TypographyProps, 'variant'>): React.JSX.Element =>
+  <Typography {...p} variant="h5" />;
 const BodyLg = (p: Omit<TypographyProps, 'variant'>): React.JSX.Element =>
   <Typography {...p} variant="bodyLg" />;
 const BodyMd = (p: Omit<TypographyProps, 'variant'>): React.JSX.Element =>
@@ -81,4 +83,4 @@ const Label = (p: Omit<TypographyProps, 'variant'>): React.JSX.Element =>
 const MonoText = (p: Omit<TypographyProps, 'variant'>): React.JSX.Element =>
   <Typography {...p} variant="mono" />;
 
-export { Typography, H1, H2, H3, H4, BodyLg, BodyMd, BodySm, Caption, Label, MonoText };
+export { Typography, H1, H2, H3, H4, H5, BodyLg, BodyMd, BodySm, Caption, Label, MonoText };
