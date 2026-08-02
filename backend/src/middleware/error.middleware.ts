@@ -1,83 +1,94 @@
-import type { Request, Response, NextFunction } from 'express';
+import type { Request, Response, NextFunction, ErrorRequestHandler } from 'express';
 import mongoose from 'mongoose';
 import { JsonWebTokenError, TokenExpiredError } from 'jsonwebtoken';
-import { ApiError } from '@utils/ApiError';
-import { logger } from '@utils/logger';
-import { env } from '@config/env';
+import { ApiError }  from '../utils/ApiError';
+import { logger }    from '../utils/logger';
+import { env }       from '../config/env';
 
-export const errorHandler = (
-  err: Error,
-  req: Request,
-  res: Response,
+// ─── Not Found Handler ────────────────────────────────────────────
+export const notFoundHandler = (req: Request, _res: Response, next: NextFunction): void => {
+  next(ApiError.notFound(`Route ${req.method} ${req.originalUrl} not found`));
+};
+
+// ─── Global Error Handler ─────────────────────────────────────────
+export const errorHandler: ErrorRequestHandler = (
+  error: unknown,
+  _req:  Request,
+  res:   Response,
   _next: NextFunction,
 ): void => {
-  // Error log karo
-  logger.error(`[${req.method}] ${req.url} — ${err.message}`, {
-    stack:  err.stack,
-    body:   req.body,
-    params: req.params,
-    query:  req.query,
-    userId: (req as { user?: { userId?: string } }).user?.userId,
-  });
+  let apiError: ApiError;
 
-  let error: ApiError;
+  // ── Already an ApiError ──────────────────────────────────────
+  if (error instanceof ApiError) {
+    apiError = error;
+  }
 
-  // ─── Error Type Classification ──────────────────────────────
-  if (err instanceof ApiError) {
-    error = err;
-
-  } else if (err instanceof mongoose.Error.ValidationError) {
-    const errors = Object.values(err.errors).map((e) => ({
+  // ── Mongoose Validation Error ────────────────────────────────
+  else if (error instanceof mongoose.Error.ValidationError) {
+    const errors = Object.values(error.errors).map((e) => ({
       field:   e.path,
       message: e.message,
     }));
-    error = ApiError.badRequest('Validation failed', errors);
-
-  } else if (err instanceof mongoose.Error.CastError) {
-    error = ApiError.badRequest(
-      `Invalid value "${String(err.value)}" for field "${err.path}"`,
-    );
-
-  } else if ((err as NodeJS.ErrnoException).code === '11000') {
-    // MongoDB duplicate key
-    const keyValue = (err as { keyValue?: Record<string, unknown> }).keyValue ?? {};
-    const field    = Object.keys(keyValue)[0] ?? 'Field';
-    const value    = Object.values(keyValue)[0];
-    error = ApiError.conflict(`${field} "${String(value)}" is already in use.`);
-
-  } else if (err instanceof TokenExpiredError) {
-    error = ApiError.unauthorized('Your session has expired. Please log in again.');
-
-  } else if (err instanceof JsonWebTokenError) {
-    error = ApiError.unauthorized('Invalid authentication token.');
-
-  } else {
-    // Unknown errors
-    error = ApiError.internal(
-      env.NODE_ENV === 'production'
-        ? 'An unexpected error occurred. Please try again.'
-        : err.message,
-    );
+    apiError = ApiError.unprocessable('Validation failed', errors);
   }
 
-  // ─── Response ───────────────────────────────────────────────
-  res.status(error.statusCode).json({
-    success:   false,
-    message:   error.message,
-    errors:    error.errors.length > 0 ? error.errors : undefined,
-    timestamp: new Date().toISOString(),
-    // Dev mein stack dikhao
-    ...(env.NODE_ENV === 'development' && { stack: err.stack }),
-  });
-};
+  // ── Mongoose Duplicate Key (E11000) ──────────────────────────
+  else if (
+    typeof error === 'object' &&
+    error !== null &&
+    'code' in error &&
+    (error as { code: number }).code === 11000
+  ) {
+    const keyValue = (error as { keyValue?: Record<string, unknown> }).keyValue ?? {};
+    const field    = Object.keys(keyValue)[0] ?? 'field';
+    apiError = ApiError.conflict(`${field} already exists`);
+  }
 
-// 404 — Route not found
-export const notFoundHandler = (
-  req: Request,
-  _res: Response,
-  next: NextFunction,
-): void => {
-  next(
-    ApiError.notFound(`Route [${req.method}] ${req.url} does not exist.`),
-  );
+  // ── Mongoose CastError (invalid ObjectId) ────────────────────
+  else if (error instanceof mongoose.Error.CastError) {
+    apiError = ApiError.badRequest(`Invalid ${error.path}: ${String(error.value)}`);
+  }
+
+  // ── JWT Errors ───────────────────────────────────────────────
+  else if (error instanceof TokenExpiredError) {
+    apiError = ApiError.unauthorized('Token has expired');
+  }
+  else if (error instanceof JsonWebTokenError) {
+    apiError = ApiError.unauthorized('Invalid token');
+  }
+
+  // ── Unknown Error ────────────────────────────────────────────
+  else {
+    const message = error instanceof Error ? error.message : 'Internal server error';
+    apiError = new ApiError(500, message, [], false);
+  }
+
+  // ── Log ──────────────────────────────────────────────────────
+  if (apiError.statusCode >= 500) {
+    logger.error('Server Error', {
+      message:    apiError.message,
+      statusCode: apiError.statusCode,
+      stack:      error instanceof Error ? error.stack : undefined,
+    });
+  } else {
+    logger.warn('Client Error', {
+      message:    apiError.message,
+      statusCode: apiError.statusCode,
+    });
+  }
+
+  // ── Response ─────────────────────────────────────────────────
+  res.status(apiError.statusCode).json({
+    success:   false,
+    message:   apiError.isOperational
+      ? apiError.message
+      : 'Something went wrong. Please try again.',
+    errors:    apiError.errors.length > 0 ? apiError.errors : undefined,
+    timestamp: new Date().toISOString(),
+    // Stack only in development
+    ...(env.NODE_ENV === 'development' && error instanceof Error
+      ? { stack: error.stack }
+      : {}),
+  });
 };

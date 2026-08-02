@@ -1,10 +1,13 @@
-import type { JwtPayload } from '@config/jwt';
+import type { IUser } from '../models/User.model';
 
-// Global Express namespace mein user property add karo
 declare global {
   namespace Express {
     interface Request {
-      user?: JwtPayload;
+      user?: IUser;
+      userId?: string;
+      // For file uploads (multer)
+      file?:  Express.Multer.File;
+      files?: Express.Multer.File[] | { [fieldname: string]: Express.Multer.File[] };
     }
   }
 }

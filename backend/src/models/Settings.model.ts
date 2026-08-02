@@ -1,85 +1,86 @@
-import mongoose, { type Document, Schema } from 'mongoose';
+import mongoose, { Schema, type Document } from 'mongoose';
+
+export type ThemePreference   = 'light' | 'dark' | 'system';
+export type AudioQuality      = 'low' | 'medium' | 'high';
+export type TranscribeLanguage = string; // ISO 639-1 code e.g. 'en', 'es'
 
 export interface ISettings extends Document {
-  _id: mongoose.Types.ObjectId;
-  userId: mongoose.Types.ObjectId;
-  theme: 'light' | 'dark' | 'system';
-  language: string;
-  notifications: {
-    push: boolean;
-    email: boolean;
-    transcriptionComplete: boolean;
-    syncComplete: boolean;
-    weeklyReport: boolean;
-  };
-  recording: {
-    quality: 'low' | 'medium' | 'high';
-    format: 'mp3' | 'wav' | 'm4a';
-    autoTranscribe: boolean;
-    autoSummarize: boolean;
-  };
-  ai: {
-    defaultLanguage: string;
-    summaryLength: 'short' | 'medium' | 'long';
-    autoKeywords: boolean;
-    autoActionItems: boolean;
-  };
-  storage: {
-    autoSync: boolean;
-    syncOnWifiOnly: boolean;
-    autoDelete: boolean;
-    autoDeleteAfterDays: number;
-  };
-  createdAt: Date;
-  updatedAt: Date;
+  _id:                  mongoose.Types.ObjectId;
+  userId:               mongoose.Types.ObjectId;
+  theme:                ThemePreference;
+  language:             string;
+  audioQuality:         AudioQuality;
+  autoSync:             boolean;
+  autoTranscribe:       boolean;
+  transcribeLanguage:   TranscribeLanguage;
+  notificationsEnabled: boolean;
+  syncOnWifiOnly:       boolean;
+  keepLocalCopy:        boolean;
+  defaultFolderId:      mongoose.Types.ObjectId | null;
+  createdAt:            Date;
+  updatedAt:            Date;
 }
 
 const settingsSchema = new Schema<ISettings>(
   {
     userId: {
-      type: Schema.Types.ObjectId,
-      ref: 'User',
+      type:     Schema.Types.ObjectId,
+      ref:      'User',
       required: true,
-      unique: true,
+      unique:   true,
+      index:    true,
     },
     theme: {
-      type: String,
-      enum: ['light', 'dark', 'system'],
-      default: 'system',
+      type:    String,
+      enum:    ['light', 'dark', 'system'],
+      default: 'dark',
     },
     language: {
-      type: String,
+      type:    String,
       default: 'en',
     },
-    notifications: {
-      push:                   { type: Boolean, default: true },
-      email:                  { type: Boolean, default: true },
-      transcriptionComplete:  { type: Boolean, default: true },
-      syncComplete:           { type: Boolean, default: false },
-      weeklyReport:           { type: Boolean, default: false },
+    audioQuality: {
+      type:    String,
+      enum:    ['low', 'medium', 'high'],
+      default: 'high',
     },
-    recording: {
-      quality:        { type: String, enum: ['low', 'medium', 'high'], default: 'high' },
-      format:         { type: String, enum: ['mp3', 'wav', 'm4a'], default: 'm4a' },
-      autoTranscribe: { type: Boolean, default: true },
-      autoSummarize:  { type: Boolean, default: false },
+    autoSync: {
+      type:    Boolean,
+      default: true,
     },
-    ai: {
-      defaultLanguage: { type: String, default: 'en' },
-      summaryLength:   { type: String, enum: ['short', 'medium', 'long'], default: 'medium' },
-      autoKeywords:    { type: Boolean, default: true },
-      autoActionItems: { type: Boolean, default: false },
+    autoTranscribe: {
+      type:    Boolean,
+      default: false,
     },
-    storage: {
-      autoSync:            { type: Boolean, default: true },
-      syncOnWifiOnly:      { type: Boolean, default: true },
-      autoDelete:          { type: Boolean, default: false },
-      autoDeleteAfterDays: { type: Number, default: 30, min: 1, max: 365 },
+    transcribeLanguage: {
+      type:    String,
+      default: 'en',
+    },
+    notificationsEnabled: {
+      type:    Boolean,
+      default: true,
+    },
+    syncOnWifiOnly: {
+      type:    Boolean,
+      default: false,
+    },
+    keepLocalCopy: {
+      type:    Boolean,
+      default: true,
+    },
+    defaultFolderId: {
+      type:    Schema.Types.ObjectId,
+      ref:     'Folder',
+      default: null,
     },
   },
-  { timestamps: true },
+  {
+    timestamps: true,
+    versionKey: false,
+  },
 );
 
-settingsSchema.index({ userId: 1 }, { unique: true });
+export const Settings = mongoose.model<ISettings>('Settings', settingsSchema);
 
-export const SettingsModel = mongoose.model<ISettings>('Settings', settingsSchema);
+// Alias for services that import SettingsModel
+export { Settings as SettingsModel };

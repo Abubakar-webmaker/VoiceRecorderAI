@@ -1,175 +1,49 @@
-import mongoose, { type Document, Schema } from 'mongoose';
-import { AIStatus } from './Recording.model';
+import mongoose, { Schema, type Document } from 'mongoose';
+import type { AIProcessingStatus } from '../types/common.types';
 
-// ─── Sub-document Interfaces ──────────────────────────────────────
-interface ITranscriptSegment {
-  id:         number;
-  start:      number;  // seconds
-  end:        number;  // seconds
-  text:       string;
-  confidence: number;  // 0-1
-  speaker?:   string;  // Speaker diarization (future)
+export interface ITranslation {
+  targetLanguage: string;
+  languageName:   string;
+  text:           string;
+  translatedAt:   Date;
 }
 
-interface IKeyword {
-  word:       string;
-  relevance:  number;  // 0-1 relevance score
-  count:      number;  // Frequency in transcript
-}
-
-interface IActionItem {
-  task:       string;
-  assignee?:  string;
-  deadline?:  string;
-  priority:   'low' | 'medium' | 'high';
-  completed:  boolean;
-}
-
-interface ITranslation {
-  targetLanguage:  string;
-  languageName:    string;
-  translatedText:  string;
-  translatedAt:    Date;
-  tokensUsed:      number;
-}
-
-// ─── Main Interface ───────────────────────────────────────────────
 export interface IAISummary extends Document {
-  _id:               mongoose.Types.ObjectId;
-  recordingId:       mongoose.Types.ObjectId;
-  userId:            mongoose.Types.ObjectId;
-
+  _id:          mongoose.Types.ObjectId;
+  recordingId:  mongoose.Types.ObjectId;
+  userId:       mongoose.Types.ObjectId;
   // Transcription
-  transcription: {
-    status:        AIStatus;
-    fullText:      string;
-    segments:      ITranscriptSegment[];
-    language:      string;
-    languageName:  string;
-    confidence:    number;
-    duration:      number;
-    wordCount:     number;
-    model:         string;
-    processedAt:   Date | null;
-    tokensUsed:    number;
-    error?:        string;
-  };
-
-  // Summary
-  summary: {
-    status:      AIStatus;
-    text:        string;
-    length:      'short' | 'medium' | 'long';
-    model:       string;
-    processedAt: Date | null;
-    tokensUsed:  number;
-    error?:      string;
-  };
-
-  // Keywords
-  keywords: {
-    status:      AIStatus;
-    items:       IKeyword[];
-    model:       string;
-    processedAt: Date | null;
-    tokensUsed:  number;
-    error?:      string;
-  };
-
-  // Action Items
-  actionItems: {
-    status:      AIStatus;
-    items:       IActionItem[];
-    model:       string;
-    processedAt: Date | null;
-    tokensUsed:  number;
-    error?:      string;
-  };
-
-  // AI Generated Title
-  aiTitle: {
-    status:      AIStatus;
-    text:        string;
-    model:       string;
-    processedAt: Date | null;
-    tokensUsed:  number;
-    error?:      string;
-  };
-
-  // Translations
+  transcript:   string | null;
+  transcriptLanguage: string | null;
+  transcriptConfidence: number | null;
+  // AI Generated
+  summary:      string | null;
+  aiTitle:      string | null;
+  keywords:     string[];
+  actionItems:  string[];
+  notes:        string | null;
+  // Translation
   translations: ITranslation[];
-
-  // Notes (user-editable + AI generated)
-  notes: {
-    status:      AIStatus;
-    text:        string;
-    isEdited:    boolean;  // User ne manually edit kiya
-    editedAt:    Date | null;
-    model:       string;
-    processedAt: Date | null;
-    tokensUsed:  number;
-    error?:      string;
-  };
-
-  // Totals
-  totalTokensUsed:  number;
-  totalCost:        number;  // USD estimate
-
-  createdAt: Date;
-  updatedAt: Date;
+  // Processing
+  status:       AIProcessingStatus;
+  errorMessage: string | null;
+  processingStartedAt: Date | null;
+  processingCompletedAt: Date | null;
+  // Tokens used (for billing/analytics)
+  tokensUsed:   number;
+  createdAt:    Date;
+  updatedAt:    Date;
 }
-
-// ─── Schema ───────────────────────────────────────────────────────
-const transcriptSegmentSchema = new Schema<ITranscriptSegment>(
-  {
-    id:         { type: Number,  required: true },
-    start:      { type: Number,  required: true, min: 0 },
-    end:        { type: Number,  required: true, min: 0 },
-    text:       { type: String,  required: true, trim: true },
-    confidence: { type: Number,  default: 1, min: 0, max: 1 },
-    speaker:    { type: String,  default: null },
-  },
-  { _id: false },
-);
-
-const keywordSchema = new Schema<IKeyword>(
-  {
-    word:      { type: String, required: true, trim: true },
-    relevance: { type: Number, default: 1, min: 0, max: 1 },
-    count:     { type: Number, default: 1, min: 1 },
-  },
-  { _id: false },
-);
-
-const actionItemSchema = new Schema<IActionItem>(
-  {
-    task:      { type: String, required: true, trim: true },
-    assignee:  { type: String, default: null },
-    deadline:  { type: String, default: null },
-    priority:  { type: String, enum: ['low', 'medium', 'high'], default: 'medium' },
-    completed: { type: Boolean, default: false },
-  },
-  { _id: true },
-);
 
 const translationSchema = new Schema<ITranslation>(
   {
-    targetLanguage:  { type: String, required: true },
-    languageName:    { type: String, required: true },
-    translatedText:  { type: String, required: true },
-    translatedAt:    { type: Date, default: Date.now },
-    tokensUsed:      { type: Number, default: 0 },
+    targetLanguage: { type: String, required: true },
+    languageName:   { type: String, required: true },
+    text:           { type: String, required: true },
+    translatedAt:   { type: Date,   default: Date.now },
   },
   { _id: false },
 );
-
-const aiStatusDefaults = (defaultStatus = AIStatus.NONE) => ({
-  status:      { type: String, enum: Object.values(AIStatus), default: defaultStatus },
-  model:       { type: String, default: '' },
-  processedAt: { type: Date, default: null },
-  tokensUsed:  { type: Number, default: 0 },
-  error:       { type: String, default: null },
-});
 
 const aiSummarySchema = new Schema<IAISummary>(
   {
@@ -177,79 +51,43 @@ const aiSummarySchema = new Schema<IAISummary>(
       type:     Schema.Types.ObjectId,
       ref:      'Recording',
       required: true,
-      unique:   true, // 1 recording = 1 AI summary doc
+      unique:   true, // One AI result per recording
+      index:    true,
     },
     userId: {
       type:     Schema.Types.ObjectId,
       ref:      'User',
       required: true,
+      index:    true,
     },
-
-    transcription: {
-      ...aiStatusDefaults(),
-      fullText:     { type: String, default: '' },
-      segments:     { type: [transcriptSegmentSchema], default: [] },
-      language:     { type: String, default: 'en' },
-      languageName: { type: String, default: 'English' },
-      confidence:   { type: Number, default: 0, min: 0, max: 1 },
-      duration:     { type: Number, default: 0 },
-      wordCount:    { type: Number, default: 0 },
+    transcript:           { type: String, default: null },
+    transcriptLanguage:   { type: String, default: null },
+    transcriptConfidence: { type: Number, default: null, min: 0, max: 1 },
+    summary:              { type: String, default: null },
+    aiTitle:              { type: String, default: null },
+    keywords:             { type: [String], default: [] },
+    actionItems:          { type: [String], default: [] },
+    notes:                { type: String, default: null },
+    translations:         { type: [translationSchema], default: [] },
+    status: {
+      type:    String,
+      enum:    ['pending', 'processing', 'completed', 'failed'],
+      default: 'pending',
+      index:   true,
     },
-
-    summary: {
-      ...aiStatusDefaults(),
-      text:   { type: String, default: '' },
-      length: { type: String, enum: ['short', 'medium', 'long'], default: 'medium' },
-    },
-
-    keywords: {
-      ...aiStatusDefaults(),
-      items: { type: [keywordSchema], default: [] },
-    },
-
-    actionItems: {
-      ...aiStatusDefaults(),
-      items: { type: [actionItemSchema], default: [] },
-    },
-
-    aiTitle: {
-      ...aiStatusDefaults(),
-      text: { type: String, default: '' },
-    },
-
-    translations: {
-      type:    [translationSchema],
-      default: [],
-    },
-
-    notes: {
-      ...aiStatusDefaults(),
-      text:        { type: String, default: '' },
-      isEdited:    { type: Boolean, default: false },
-      editedAt:    { type: Date, default: null },
-    },
-
-    totalTokensUsed: { type: Number, default: 0 },
-    totalCost:       { type: Number, default: 0 },
+    errorMessage:           { type: String, default: null },
+    processingStartedAt:    { type: Date,   default: null },
+    processingCompletedAt:  { type: Date,   default: null },
+    tokensUsed:             { type: Number, default: 0 },
   },
   {
     timestamps: true,
-    toJSON: {
-      transform: (_doc, ret) => {
-        delete ret.__v;
-        return ret;
-      },
-    },
+    versionKey: false,
   },
 );
 
 // ─── Indexes ──────────────────────────────────────────────────────
+aiSummarySchema.index({ userId: 1, status: 1 });
 aiSummarySchema.index({ recordingId: 1 }, { unique: true });
-aiSummarySchema.index({ userId: 1, createdAt: -1 });
-aiSummarySchema.index({ 'transcription.status': 1 });
-aiSummarySchema.index({ 'summary.status': 1 });
 
-export const AISummaryModel = mongoose.model<IAISummary>(
-  'AISummary',
-  aiSummarySchema,
-);
+export const AISummary = mongoose.model<IAISummary>('AISummary', aiSummarySchema);

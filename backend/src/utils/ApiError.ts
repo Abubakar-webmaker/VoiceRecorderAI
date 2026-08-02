@@ -1,41 +1,38 @@
 export class ApiError extends Error {
-  public readonly statusCode: number;
-  public readonly isOperational: boolean;
-  public readonly errors: Array<{ field?: string; message: string }>;
+  public readonly statusCode:    number;
+  public readonly errors:        unknown[];
+  public readonly isOperational: boolean; // true = expected, false = programmer error
 
   constructor(
-    statusCode: number,
-    message: string,
-    errors: Array<{ field?: string; message: string }> = [],
-    isOperational = true,
+    statusCode:    number,
+    message:       string,
+    errors:        unknown[] = [],
+    isOperational: boolean   = true,
   ) {
     super(message);
-    this.name = 'ApiError';
-    this.statusCode = statusCode;
+    this.name          = 'ApiError';
+    this.statusCode    = statusCode;
+    this.errors        = errors;
     this.isOperational = isOperational;
-    this.errors = errors;
 
-    // Proper stack trace
+    // Maintains proper stack trace in V8
     Error.captureStackTrace(this, this.constructor);
   }
 
-  // ─── Factory Methods ───────────────────────────────────────
-  static badRequest(
-    message: string,
-    errors: Array<{ field?: string; message: string }> = [],
-  ): ApiError {
+  // ─── Factory Methods ────────────────────────────────────────────
+  static badRequest(message: string, errors: unknown[] = []): ApiError {
     return new ApiError(400, message, errors);
   }
 
-  static unauthorized(message = 'Unauthorized. Please log in.'): ApiError {
+  static unauthorized(message = 'Unauthorized'): ApiError {
     return new ApiError(401, message);
   }
 
-  static forbidden(message = 'You do not have permission to access this resource.'): ApiError {
+  static forbidden(message = 'Forbidden'): ApiError {
     return new ApiError(403, message);
   }
 
-  static notFound(message = 'The requested resource was not found.'): ApiError {
+  static notFound(message = 'Resource not found'): ApiError {
     return new ApiError(404, message);
   }
 
@@ -43,11 +40,19 @@ export class ApiError extends Error {
     return new ApiError(409, message);
   }
 
-  static tooManyRequests(message = 'Too many requests. Please try again later.'): ApiError {
+  static unprocessable(message: string, errors: unknown[] = []): ApiError {
+    return new ApiError(422, message, errors);
+  }
+
+  static tooManyRequests(message = 'Too many requests'): ApiError {
     return new ApiError(429, message);
   }
 
-  static internal(message = 'An unexpected error occurred. Please try again.'): ApiError {
+  static internal(message = 'Internal server error'): ApiError {
     return new ApiError(500, message, [], false);
+  }
+
+  static serviceUnavailable(message = 'Service temporarily unavailable'): ApiError {
+    return new ApiError(503, message);
   }
 }

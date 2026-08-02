@@ -1,56 +1,65 @@
-import mongoose, { type Document, Schema } from 'mongoose';
+import mongoose, { Schema, type Document } from 'mongoose';
 
 export interface IRefreshToken extends Document {
-  _id: mongoose.Types.ObjectId;
-  token: string;          // Hashed token
-  userId: mongoose.Types.ObjectId;
-  ipAddress?: string;
-  userAgent?: string;
-  isRevoked: boolean;
-  expiresAt: Date;
-  createdAt: Date;
-  updatedAt: Date;
+  _id:        mongoose.Types.ObjectId;
+  userId:     mongoose.Types.ObjectId;
+  tokenHash:  string;   // bcrypt hash of the actual token
+  tokenId:    string;   // UUID — matches JwtRefreshPayload.tokenId
+  deviceInfo: string | null;
+  ipAddress:  string | null;
+  userAgent:  string | null;
+  isRevoked:  boolean;
+  expiresAt:  Date;
+  createdAt:  Date;
 }
 
 const refreshTokenSchema = new Schema<IRefreshToken>(
   {
-    token: {
-      type: String,
-      required: true,
-      unique: true,
-    },
     userId: {
-      type: Schema.Types.ObjectId,
-      ref: 'User',
+      type:     Schema.Types.ObjectId,
+      ref:      'User',
       required: true,
+      index:    true,
     },
-    ipAddress: {
-      type: String,
-      default: null,
+    tokenHash: {
+      type:     String,
+      required: true,
+      index:    true,
     },
-    userAgent: {
-      type: String,
-      default: null,
+    tokenId: {
+      type:     String,
+      required: true,
+      unique:   true,
+      index:    true,
     },
+    deviceInfo: { type: String, default: null },
+    ipAddress:  { type: String, default: null },
+    userAgent:  { type: String, default: null },
     isRevoked: {
-      type: Boolean,
+      type:    Boolean,
       default: false,
+      index:   true,
     },
     expiresAt: {
-      type: Date,
+      type:     Date,
       required: true,
-      // MongoDB TTL index — auto-delete expired tokens
-      index: { expireAfterSeconds: 0 },
+      index:    { expireAfterSeconds: 0 }, // MongoDB TTL — auto-delete on expiry
     },
   },
-  { timestamps: true },
+  {
+    timestamps: { createdAt: true, updatedAt: false },
+    versionKey: false,
+  },
 );
 
-// Compound index for fast lookup
-refreshTokenSchema.index({ token: 1, isRevoked: 1 });
+// ─── Compound Indexes ─────────────────────────────────────────────
 refreshTokenSchema.index({ userId: 1, isRevoked: 1 });
+refreshTokenSchema.index({ tokenId: 1, isRevoked: 1 });
 
-export const RefreshTokenModel = mongoose.model<IRefreshToken>(
+export const RefreshToken = mongoose.model<IRefreshToken>(
   'RefreshToken',
   refreshTokenSchema,
 );
+
+// Alias for services that import RefreshTokenModel
+export { RefreshToken as RefreshTokenModel };

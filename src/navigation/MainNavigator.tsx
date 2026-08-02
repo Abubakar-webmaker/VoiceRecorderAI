@@ -1,7 +1,5 @@
 import React from 'react';
-import {
-  createBottomTabNavigator,
-} from '@react-navigation/bottom-tabs';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import {
   View,
@@ -28,38 +26,22 @@ import type {
   RecordStackParamList,
 } from './types';
 
-// Placeholder screen — real screens Phase 7+ mein
-import { PlaceholderScreen } from './PlaceholderScreen';
-// Add these imports
-import { RecordScreen }   from '@features/recording/screens/RecordScreen';
-import { SearchScreen }   from '@features/recording/screens/SearchScreen';
-
-// RecordStackScreen update
-const RecordStackScreen = (): React.JSX.Element => (
-  <RecordStack.Navigator screenOptions={stackScreenOptions}>
-    <RecordStack.Screen
-      name="Record"
-      component={RecordScreen}
-    />
-  </RecordStack.Navigator>
-);
-
-// SearchStackScreen update
-const SearchStackScreen = (): React.JSX.Element => (
-  <SearchStack.Navigator screenOptions={stackScreenOptions}>
-    <SearchStack.Screen
-      name="Search"
-      component={SearchScreen}
-    />
-  </SearchStack.Navigator>
-);
+import { PlaceholderScreen }       from './PlaceholderScreen';
+import { HomeScreen }              from '@features/recording/screens/HomeScreen';
+import { RecordingsScreen }        from '@features/recording/screens/RecordingsScreen';
+import { RecordingDetailScreen }   from '@features/recording/screens/RecordingDetailScreen';
+import { RecordScreen }            from '@features/recording/screens/RecordScreen';
+import { SearchScreen }            from '@features/recording/screens/SearchScreen';
+import { SettingsScreen }          from '@features/settings/screens/SettingsScreen';
+import { ProfileScreen }           from '@features/settings/screens/ProfileScreen';
+import { SubscriptionScreen }      from '@features/settings/screens/SubscriptionScreen';
 
 // ─── Stack Navigators ─────────────────────────────────────────────
-const HomeStack      = createNativeStackNavigator<HomeStackParamList>();
+const HomeStack       = createNativeStackNavigator<HomeStackParamList>();
 const RecordingsStack = createNativeStackNavigator<RecordingsStackParamList>();
-const RecordStack    = createNativeStackNavigator<RecordStackParamList>();
-const SearchStack    = createNativeStackNavigator<SearchStackParamList>();
-const SettingsStack  = createNativeStackNavigator<SettingsStackParamList>();
+const RecordStack     = createNativeStackNavigator<RecordStackParamList>();
+const SearchStack     = createNativeStackNavigator<SearchStackParamList>();
+const SettingsStack   = createNativeStackNavigator<SettingsStackParamList>();
 
 const stackScreenOptions = {
   headerShown:  false,
@@ -67,38 +49,46 @@ const stackScreenOptions = {
   contentStyle: { backgroundColor: colors.bg.primary },
 };
 
-const HomeStackScreen   = (): React.JSX.Element => (
+const HomeStackScreen = (): React.JSX.Element => (
   <HomeStack.Navigator screenOptions={stackScreenOptions}>
-    <HomeStack.Screen name="Home" component={PlaceholderScreen} />
+    <HomeStack.Screen name="Home" component={HomeScreen} />
   </HomeStack.Navigator>
 );
 
 const RecordingsStackScreen = (): React.JSX.Element => (
   <RecordingsStack.Navigator screenOptions={stackScreenOptions}>
-    <RecordingsStack.Screen name="Recordings"      component={PlaceholderScreen} />
-    <RecordingsStack.Screen name="RecordingDetail" component={PlaceholderScreen} />
+    <RecordingsStack.Screen
+      name="Recordings"
+      component={RecordingsScreen}
+      initialParams={{ folderId: undefined, folderName: undefined }}
+    />
+    <RecordingsStack.Screen name="RecordingDetail" component={RecordingDetailScreen} />
     <RecordingsStack.Screen name="FolderView"      component={PlaceholderScreen} />
-    <RecordingsStack.Screen name="Player"          component={PlaceholderScreen} />
+    <RecordingsStack.Screen
+      name="Player"
+      component={PlaceholderScreen}
+      options={{ presentation: 'modal' }}
+    />
   </RecordingsStack.Navigator>
 );
 
 const RecordStackScreen = (): React.JSX.Element => (
   <RecordStack.Navigator screenOptions={stackScreenOptions}>
-    <RecordStack.Screen name="Record" component={PlaceholderScreen} />
+    <RecordStack.Screen name="Record" component={RecordScreen} />
   </RecordStack.Navigator>
 );
 
 const SearchStackScreen = (): React.JSX.Element => (
   <SearchStack.Navigator screenOptions={stackScreenOptions}>
-    <SearchStack.Screen name="Search" component={PlaceholderScreen} />
+    <SearchStack.Screen name="Search" component={SearchScreen} />
   </SearchStack.Navigator>
 );
 
 const SettingsStackScreen = (): React.JSX.Element => (
   <SettingsStack.Navigator screenOptions={stackScreenOptions}>
-    <SettingsStack.Screen name="Settings"          component={PlaceholderScreen} />
-    <SettingsStack.Screen name="Profile"           component={PlaceholderScreen} />
-    <SettingsStack.Screen name="Subscription"      component={PlaceholderScreen} />
+    <SettingsStack.Screen name="Settings"          component={SettingsScreen} />
+    <SettingsStack.Screen name="Profile"           component={ProfileScreen} />
+    <SettingsStack.Screen name="Subscription"      component={SubscriptionScreen} />
     <SettingsStack.Screen name="AppSettings"       component={PlaceholderScreen} />
     <SettingsStack.Screen name="NotificationPrefs" component={PlaceholderScreen} />
     <SettingsStack.Screen name="StorageManager"    component={PlaceholderScreen} />
@@ -112,14 +102,6 @@ interface TabIconProps {
   focused:  boolean;
   isRecord: boolean;
 }
-
-const TAB_ICONS: Record<string, { active: string; inactive: string }> = {
-  HomeTab:       { active: '⊕', inactive: '○' }, // Phase 7 mein vector icons
-  RecordingsTab: { active: '▦', inactive: '▢' },
-  RecordTab:     { active: '●', inactive: '●' },  // Always filled
-  SearchTab:     { active: '⊙', inactive: '◎' },
-  SettingsTab:   { active: '◈', inactive: '◇' },
-};
 
 const TabIcon = ({ name, focused, isRecord }: TabIconProps): React.JSX.Element => {
   const scale = useSharedValue(1);
@@ -148,20 +130,11 @@ const TabIcon = ({ name, focused, isRecord }: TabIconProps): React.JSX.Element =
 
   return (
     <Animated.View style={animatedStyle}>
-      <View
-        style={[
-          styles.tabIconWrapper,
-          focused && styles.tabIconActive,
-        ]}
-      >
+      <View style={[styles.tabIconWrapper, focused && styles.tabIconActive]}>
         <View
           style={[
             styles.tabIconDot,
-            {
-              backgroundColor: focused
-                ? colors.primary.default
-                : 'transparent',
-            },
+            { backgroundColor: focused ? colors.primary.default : 'transparent' },
           ]}
         />
       </View>
@@ -172,25 +145,24 @@ const TabIcon = ({ name, focused, isRecord }: TabIconProps): React.JSX.Element =
 interface CustomTabBarProps {
   state:       { index: number; routes: Array<{ name: string; key: string }> };
   descriptors: Record<string, { options: { tabBarLabel?: string } }>;
-  navigation:  { emit: (event: { type: string; target: string; canPreventDefault: boolean }) => { defaultPrevented: boolean }; navigate: (name: string) => void };
+  navigation:  {
+    emit: (event: { type: string; target: string; canPreventDefault: boolean }) => { defaultPrevented: boolean };
+    navigate: (name: string) => void;
+  };
 }
 
-const CustomTabBar = ({
-  state,
-  descriptors,
-  navigation,
-}: CustomTabBarProps): React.JSX.Element => {
+const CustomTabBar = ({ state, descriptors, navigation }: CustomTabBarProps): React.JSX.Element => {
   return (
     <View style={styles.tabBar}>
       {state.routes.map((route, index) => {
-        const isFocused  = state.index === index;
-        const isRecord   = route.name === 'RecordTab';
+        const isFocused = state.index === index;
+        const isRecord  = route.name === 'RecordTab';
 
         const onPress = (): void => {
           const event = navigation.emit({
-            type:               'tabPress',
-            target:             route.key,
-            canPreventDefault:  true,
+            type:              'tabPress',
+            target:            route.key,
+            canPreventDefault: true,
           });
           if (!isFocused && !event.defaultPrevented) {
             navigation.navigate(route.name);
@@ -206,11 +178,7 @@ const CustomTabBar = ({
             accessibilityState={{ selected: isFocused }}
             activeOpacity={0.7}
           >
-            <TabIcon
-              name={route.name}
-              focused={isFocused}
-              isRecord={isRecord}
-            />
+            <TabIcon name={route.name} focused={isFocused} isRecord={isRecord} />
           </TouchableOpacity>
         );
       })}
@@ -226,9 +194,7 @@ const MainNavigator = (): React.JSX.Element => {
     <Tab.Navigator
       initialRouteName="HomeTab"
       tabBar={(props) => <CustomTabBar {...(props as unknown as CustomTabBarProps)} />}
-      screenOptions={{
-        headerShown: false,
-      }}
+      screenOptions={{ headerShown: false }}
     >
       <Tab.Screen name="HomeTab"       component={HomeStackScreen}       />
       <Tab.Screen name="RecordingsTab" component={RecordingsStackScreen} />
@@ -238,34 +204,6 @@ const MainNavigator = (): React.JSX.Element => {
     </Tab.Navigator>
   );
 };
-
-// Replace placeholder imports with real screens
-import { HomeScreen }             from '@features/recording/screens/HomeScreen';
-import { RecordingsScreen }       from '@features/recording/screens/RecordingsScreen';
-import { RecordingDetailScreen }  from '@features/recording/screens/RecordingDetailScreen';
-
-// HomeStack
-const HomeStackScreen = (): React.JSX.Element => (
-  <HomeStack.Navigator screenOptions={stackScreenOptions}>
-    <HomeStack.Screen name="Home" component={HomeScreen} />
-  </HomeStack.Navigator>
-);
-
-// RecordingsStack
-const RecordingsStackScreen = (): React.JSX.Element => (
-  <RecordingsStack.Navigator screenOptions={stackScreenOptions}>
-    <RecordingsStack.Screen name="Recordings"
-      component={RecordingsScreen}
-      initialParams={{ folderId: undefined, folderName: undefined }}
-    />
-    <RecordingsStack.Screen name="RecordingDetail" component={RecordingDetailScreen} />
-    <RecordingsStack.Screen name="FolderView"      component={PlaceholderScreen} />
-    <RecordingsStack.Screen name="Player"
-      component={PlaceholderScreen}
-      options={{ presentation: 'modal' }}
-    />
-  </RecordingsStack.Navigator>
-);
 
 // ─── Styles ───────────────────────────────────────────────────────
 const styles = StyleSheet.create({
@@ -287,7 +225,7 @@ const styles = StyleSheet.create({
   } as ViewStyle,
 
   tabItemRecord: {
-    marginTop: -spacing[8], // Record button upar uthao
+    marginTop: -spacing[8],
   } as ViewStyle,
 
   tabIconWrapper: {
@@ -317,10 +255,10 @@ const styles = StyleSheet.create({
     justifyContent:  'center',
     ...Platform.select({
       ios: {
-        shadowColor:    colors.recording.default,
-        shadowOffset:   { width: 0, height: 0 },
-        shadowOpacity:  0.6,
-        shadowRadius:   20,
+        shadowColor:   colors.recording.default,
+        shadowOffset:  { width: 0, height: 0 },
+        shadowOpacity: 0.6,
+        shadowRadius:  20,
       },
       android: { elevation: 8 },
     }),

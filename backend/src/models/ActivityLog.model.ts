@@ -1,77 +1,80 @@
-import mongoose, { type Document, Schema } from 'mongoose';
+import mongoose, { Schema, type Document } from 'mongoose';
 
-export enum ActivityAction {
-  LOGIN                 = 'login',
-  LOGOUT                = 'logout',
-  REGISTER              = 'register',
-  PASSWORD_RESET        = 'password_reset',
-  PASSWORD_CHANGED      = 'password_changed',
-  EMAIL_VERIFIED        = 'email_verified',
-  RECORDING_CREATED     = 'recording_created',
-  RECORDING_DELETED     = 'recording_deleted',
-  RECORDING_SHARED      = 'recording_shared',
-  AI_TRANSCRIPTION      = 'ai_transcription',
-  AI_SUMMARY            = 'ai_summary',
-  SUBSCRIPTION_UPGRADED = 'subscription_upgraded',
-  PROFILE_UPDATED       = 'profile_updated',
-}
+// ActivityAction as both type and value (enum-like object)
+export const ActivityAction = {
+  REGISTER:       'auth.register',
+  LOGIN:          'auth.login',
+  LOGOUT:         'auth.logout',
+  PASSWORD_RESET: 'auth.password_reset',
+  EMAIL_VERIFIED: 'auth.email_verified',
+  RECORDING_CREATE:   'recording.create',
+  RECORDING_DELETE:   'recording.delete',
+  RECORDING_UPDATE:   'recording.update',
+  RECORDING_UPLOAD:   'recording.upload',
+  RECORDING_DOWNLOAD: 'recording.download',
+  RECORDING_FAVORITE: 'recording.favorite',
+  AI_TRANSCRIBE:  'ai.transcribe',
+  AI_SUMMARIZE:   'ai.summarize',
+  AI_TRANSLATE:   'ai.translate',
+  AI_CHAT:        'ai.chat',
+  FOLDER_CREATE:  'folder.create',
+  FOLDER_DELETE:  'folder.delete',
+  SETTINGS_UPDATE: 'settings.update',
+  SUBSCRIPTION_UPGRADE: 'subscription.upgrade',
+  SUBSCRIPTION_CANCEL:  'subscription.cancel',
+} as const;
+
+export type ActivityAction = typeof ActivityAction[keyof typeof ActivityAction];
 
 export interface IActivityLog extends Document {
-  _id: mongoose.Types.ObjectId;
-  userId: mongoose.Types.ObjectId;
-  action: ActivityAction;
-  description: string;
-  metadata: Record<string, unknown>;
-  ipAddress: string;
-  userAgent: string;
+  _id:       mongoose.Types.ObjectId;
+  userId:    mongoose.Types.ObjectId;
+  action:    ActivityAction;
+  metadata:  Record<string, unknown>;
+  ipAddress: string | null;
+  userAgent: string | null;
   createdAt: Date;
 }
 
 const activityLogSchema = new Schema<IActivityLog>(
   {
     userId: {
-      type: Schema.Types.ObjectId,
-      ref: 'User',
+      type:     Schema.Types.ObjectId,
+      ref:      'User',
       required: true,
+      index:    true,
     },
     action: {
-      type: String,
-      enum: Object.values(ActivityAction),
+      type:     String,
       required: true,
-    },
-    description: {
-      type: String,
-      required: true,
+      index:    true,
     },
     metadata: {
-      type: Schema.Types.Mixed,
+      type:    Schema.Types.Mixed,
       default: {},
     },
-    ipAddress: {
-      type: String,
-      default: 'Unknown',
-    },
-    userAgent: {
-      type: String,
-      default: '',
-    },
+    ipAddress: { type: String, default: null },
+    userAgent: { type: String, default: null },
   },
   {
     timestamps: { createdAt: true, updatedAt: false },
+    versionKey: false,
   },
 );
 
-// Compound indexes
+// ─── Indexes ──────────────────────────────────────────────────────
 activityLogSchema.index({ userId: 1, createdAt: -1 });
 activityLogSchema.index({ action: 1, createdAt: -1 });
-
-// Auto-delete after 90 days
+// TTL: auto-delete logs older than 90 days
 activityLogSchema.index(
   { createdAt: 1 },
   { expireAfterSeconds: 90 * 24 * 60 * 60 },
 );
 
-export const ActivityLogModel = mongoose.model<IActivityLog>(
+export const ActivityLog = mongoose.model<IActivityLog>(
   'ActivityLog',
   activityLogSchema,
 );
+
+// Alias for services that import ActivityLogModel
+export { ActivityLog as ActivityLogModel };

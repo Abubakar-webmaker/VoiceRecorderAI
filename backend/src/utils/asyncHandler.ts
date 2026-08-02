@@ -1,10 +1,17 @@
 import type { Request, Response, NextFunction, RequestHandler } from 'express';
 
-type AsyncFn = (req: Request, res: Response, next: NextFunction) => Promise<void>;
+type AsyncRequestHandler = (
+  req:  Request,
+  res:  Response,
+  next: NextFunction,
+) => Promise<void | Response>;
 
-// Har controller mein try-catch likhne ki zarurat nahi
-// Error automatically next() mein chala jayega
-export const asyncHandler = (fn: AsyncFn): RequestHandler => {
+/**
+ * Wraps an async Express handler so any thrown error or rejected
+ * promise is automatically forwarded to next() — no try/catch needed
+ * in every controller.
+ */
+export const asyncHandler = (fn: AsyncRequestHandler): RequestHandler => {
   return (req: Request, res: Response, next: NextFunction): void => {
     Promise.resolve(fn(req, res, next)).catch(next);
   };

@@ -1,61 +1,63 @@
-import mongoose, { type Document, Schema } from 'mongoose';
+import mongoose, { Schema, type Document } from 'mongoose';
 
 export interface ISession extends Document {
-  _id: mongoose.Types.ObjectId;
-  userId: mongoose.Types.ObjectId;
-  sessionId: string;
-  deviceInfo: string;
-  ipAddress: string;
-  userAgent: string;
-  isActive: boolean;
-  lastActivity: Date;
-  expiresAt: Date;
-  createdAt: Date;
-  updatedAt: Date;
+  _id:        mongoose.Types.ObjectId;
+  userId:     mongoose.Types.ObjectId;
+  tokenId:    string;   // Matches JwtRefreshPayload.tokenId
+  deviceName: string | null;
+  deviceType: string | null;
+  platform:   string | null;
+  appVersion: string | null;
+  ipAddress:  string | null;
+  userAgent:  string | null;
+  isActive:   boolean;
+  lastSeenAt: Date;
+  expiresAt:  Date;
+  createdAt:  Date;
 }
 
 const sessionSchema = new Schema<ISession>(
   {
     userId: {
-      type: Schema.Types.ObjectId,
-      ref: 'User',
+      type:     Schema.Types.ObjectId,
+      ref:      'User',
       required: true,
+      index:    true,
     },
-    sessionId: {
-      type: String,
+    tokenId: {
+      type:     String,
       required: true,
-      unique: true,
+      unique:   true,
+      index:    true,
     },
-    deviceInfo: {
-      type: String,
-      default: 'Unknown Device',
-    },
-    ipAddress: {
-      type: String,
-      default: 'Unknown',
-    },
-    userAgent: {
-      type: String,
-      default: '',
-    },
+    deviceName: { type: String, default: null },
+    deviceType: { type: String, default: null },
+    platform:   { type: String, default: null },
+    appVersion: { type: String, default: null },
+    ipAddress:  { type: String, default: null },
+    userAgent:  { type: String, default: null },
     isActive: {
-      type: Boolean,
+      type:    Boolean,
       default: true,
+      index:   true,
     },
-    lastActivity: {
-      type: Date,
+    lastSeenAt: {
+      type:    Date,
       default: Date.now,
     },
     expiresAt: {
-      type: Date,
-      required: true,
-      index: { expireAfterSeconds: 0 }, // Auto-delete
+      type:  Date,
+      index: { expireAfterSeconds: 0 }, // TTL auto-delete
     },
   },
-  { timestamps: true },
+  {
+    timestamps: { createdAt: true, updatedAt: false },
+    versionKey: false,
+  },
 );
 
+// ─── Indexes ──────────────────────────────────────────────────────
 sessionSchema.index({ userId: 1, isActive: 1 });
-sessionSchema.index({ sessionId: 1 });
+sessionSchema.index({ userId: 1, lastSeenAt: -1 });
 
-export const SessionModel = mongoose.model<ISession>('Session', sessionSchema);
+export const Session = mongoose.model<ISession>('Session', sessionSchema);
