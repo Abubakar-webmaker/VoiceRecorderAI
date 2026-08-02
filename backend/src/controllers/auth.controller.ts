@@ -34,11 +34,12 @@ export const register = asyncHandler(
 
     res.status(201).json(
       ApiResponse.created(
-        'Account created successfully. Please verify your email address.',
+        res,
         {
           user:        result.user,
           accessToken: result.tokens.accessToken,
         },
+        'Account created successfully. Please verify your email address.',
       ),
     );
   },
@@ -56,10 +57,14 @@ export const login = asyncHandler(
     );
 
     res.status(200).json(
-      ApiResponse.success('Login successful.', {
-        user:        result.user,
-        accessToken: result.tokens.accessToken,
-      }),
+      ApiResponse.success(
+        res,
+        {
+          user:        result.user,
+          accessToken: result.tokens.accessToken,
+        },
+        'Login successful.',
+      ),
     );
   },
 );
@@ -86,9 +91,11 @@ export const refreshToken = asyncHandler(
     );
 
     res.status(200).json(
-      ApiResponse.success('Token refreshed successfully.', {
-        accessToken: tokens.accessToken,
-      }),
+      ApiResponse.success(
+        res,
+        { accessToken: tokens.accessToken },
+        'Token refreshed successfully.',
+      ),
     );
   },
 );
@@ -103,7 +110,7 @@ export const logout = asyncHandler(
     await AuthService.logoutUser(req.user!.userId, rawToken, req);
 
     res.clearCookie('refreshToken', { path: '/api/v1/auth/refresh' });
-    res.status(200).json(ApiResponse.success('Logged out successfully.'));
+    res.status(200).json(ApiResponse.success(res, null, 'Logged out successfully.'));
   },
 );
 
@@ -114,7 +121,7 @@ export const logoutAll = asyncHandler(
 
     res.clearCookie('refreshToken', { path: '/api/v1/auth/refresh' });
     res.status(200).json(
-      ApiResponse.success('Logged out from all devices successfully.'),
+      ApiResponse.success(res, null, 'Logged out from all devices successfully.'),
     );
   },
 );
@@ -128,7 +135,7 @@ export const verifyEmail = asyncHandler(
     await AuthService.verifyUserEmail(token);
 
     res.status(200).json(
-      ApiResponse.success('Email verified successfully. You can now log in.'),
+      ApiResponse.success(res, null, 'Email verified successfully. You can now log in.'),
     );
   },
 );
@@ -140,6 +147,8 @@ export const resendVerification = asyncHandler(
 
     res.status(200).json(
       ApiResponse.success(
+        res,
+        null,
         'A new verification email has been sent. Please check your inbox.',
       ),
     );
@@ -155,6 +164,8 @@ export const forgotPassword = asyncHandler(
     // Same response always — don't expose if email exists
     res.status(200).json(
       ApiResponse.success(
+        res,
+        null,
         'If an account with that email exists, a password reset link has been sent.',
       ),
     );
@@ -173,6 +184,8 @@ export const resetPassword = asyncHandler(
 
     res.status(200).json(
       ApiResponse.success(
+        res,
+        null,
         'Password reset successfully. Please log in with your new password.',
       ),
     );
@@ -187,6 +200,8 @@ export const changePassword = asyncHandler(
     res.clearCookie('refreshToken', { path: '/api/v1/auth/refresh' });
     res.status(200).json(
       ApiResponse.success(
+        res,
+        null,
         'Password changed successfully. Please log in again on all your devices.',
       ),
     );
@@ -199,7 +214,7 @@ export const getMe = asyncHandler(
     const user = await AuthService.getProfile(req.user!.userId);
 
     res.status(200).json(
-      ApiResponse.success('Profile fetched successfully.', user),
+      ApiResponse.success(res, user, 'Profile fetched successfully.'),
     );
   },
 );

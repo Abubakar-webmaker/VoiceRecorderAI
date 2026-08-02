@@ -8,8 +8,8 @@ import {
   generateAccessToken,
   generateRefreshToken,
   verifyRefreshToken,
-  type JwtPayload,
 } from '@config/jwt';
+import type { JwtRefreshPayload } from '@types/common.types';
 import { sendVerificationEmail, sendPasswordResetEmail } from './email.service';
 import { ApiError }  from '@utils/ApiError';
 import { logger }    from '@utils/logger';
@@ -58,14 +58,19 @@ const buildUserData = (user: Awaited<ReturnType<typeof UserModel.findById>>): Us
 };
 
 const issueTokens = async (
-  payload: Omit<JwtPayload, 'iat' | 'exp'>,
+  payload: { userId: string; email: string; role: string },
   req:     Request,
 ): Promise<AuthTokens> => {
-  const accessToken     = generateAccessToken(payload);
-  const rawRefreshToken = generateRefreshToken(payload);
+  const accessToken = generateAccessToken({
+    userId: payload.userId,
+    email:  payload.email,
+    role:   payload.role as 'user' | 'admin',
+  });
+
+  const { token: rawRefreshToken, tokenId } = generateRefreshToken(payload.userId);
 
   // Hash karke DB mein store karo
-  const hashedRefreshToken = crypto
+  const tokenHash = crypto
     .createHash('sha256')
     .update(rawRefreshToken)
     .digest('hex');
@@ -73,10 +78,11 @@ const issueTokens = async (
   const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days
 
   await RefreshTokenModel.create({
-    token:     hashedRefreshToken,
+    tokenHash,
+    tokenId,
     userId:    payload.userId,
-    ipAddress: req.ip,
-    userAgent: req.headers['user-agent'] ?? 'Unknown',
+    ipAddress: req.ip ?? null,
+    userAgent: req.headers['user-agent'] ?? null,
     expiresAt,
   });
 
@@ -215,7 +221,7 @@ export const refreshTokens = async (
   req:             Request,
 ): Promise<AuthTokens> => {
   // JWT signature verify karo
-  let payload: JwtPayload;
+  let payload: JwtRefreshPayload;
   try {
     payload = verifyRefreshToken(rawRefreshToken);
   } catch {
@@ -223,13 +229,14 @@ export const refreshTokens = async (
   }
 
   // Hashed token DB mein dhundho
-  const hashedToken = crypto
+  const tokenHash = crypto
     .createHash('sha256')
     .update(rawRefreshToken)
     .digest('hex');
 
   const stored = await RefreshTokenModel.findOne({
-    token:     hashedToken,
+    tokenHash,
+    tokenId:   payload.tokenId,
     userId:    payload.userId,
     isRevoked: false,
     expiresAt: { $gt: new Date() },
@@ -269,13 +276,13 @@ export const logoutUser = async (
   req:             Request,
 ): Promise<void> => {
   if (rawRefreshToken) {
-    const hashedToken = crypto
+    const tokenHash = crypto
       .createHash('sha256')
       .update(rawRefreshToken)
       .digest('hex');
 
     await RefreshTokenModel.findOneAndUpdate(
-      { token: hashedToken, userId },
+      { tokenHash, userId },
       { isRevoked: true },
     );
   }
