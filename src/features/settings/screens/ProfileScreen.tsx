@@ -9,7 +9,12 @@ import {
 } from 'react-native';
 import { SafeAreaView }  from 'react-native-safe-area-context';
 import { launchImageLibrary } from 'react-native-image-picker';
-import Animated, { FadeInDown } from 'react-native-reanimated';
+import Animated, {
+  FadeInDown,
+  useSharedValue,
+  useAnimatedStyle,
+  withSpring,
+} from 'react-native-reanimated';
 
 import { Avatar }        from '@components/common/Avatar';
 import { Button }        from '@components/common/Button';
@@ -17,19 +22,17 @@ import { Input }         from '@components/common/Input';
 import { Card }          from '@components/common/Card';
 import { Divider }       from '@components/common/Divider';
 import {
-  H3, H5, BodySm, Caption, Label,
+  H3, H5, BodySm, Caption,
 } from '@components/common/Typography';
 import useTheme          from '@hooks/useTheme';
 import useAuth           from '@features/auth/hooks/useAuth';
 import { selectIsDark }  from '../store/themeSlice';
 import useAppSelector    from '@hooks/useAppSelector';
 import { selectStorageInfo } from '@features/auth/store/authSelectors';
-import { formatStorageSize, getStoragePercent } from '@types/user.types';
-import { updateProfileApi, uploadAvatarToCloudApi } from '@features/auth/services/auth.api';
+import { formatStorageSize } from '@types/user.types';
+import { updateProfileApi } from '@features/auth/services/auth.api';
 import { updateUser }    from '@features/auth/store/authSlice';
 import useAppDispatch    from '@hooks/useAppDispatch';
-import Animated, { useSharedValue, useAnimatedStyle, withSpring }
-  from 'react-native-reanimated';
 import type { SettingsScreenProps } from '@navigation/types';
 
 type Props = SettingsScreenProps<'Profile'>;

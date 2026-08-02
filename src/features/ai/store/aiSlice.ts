@@ -42,6 +42,10 @@ interface AIState {
   isGeneratingTitle:  boolean;
   isUpdatingNotes:    boolean;
 
+  // Real-time socket progress
+  socketProgress:     number;   // 0-100
+  socketStep:         string | null;
+
   error: string | null;
 }
 
@@ -61,6 +65,8 @@ const initialState: AIState = {
   isProcessingAll:     false,
   isGeneratingTitle:   false,
   isUpdatingNotes:     false,
+  socketProgress:      0,
+  socketStep:          null,
   error:               null,
 };
 
@@ -221,12 +227,47 @@ const aiSlice = createSlice({
     setCurrentRecording: (state, action: PayloadAction<string | null>) => {
       state.currentRecordingId = action.payload;
       state.currentChat        = null;
+      state.socketProgress     = 0;
+      state.socketStep         = null;
     },
     clearAIError: (state) => {
       state.error = null;
     },
     clearChat: (state) => {
       state.currentChat = null;
+    },
+    // Real-time socket progress update
+    setSocketProgress: (
+      state,
+      action: PayloadAction<{ progress: number; step: string }>,
+    ) => {
+      state.socketProgress = action.payload.progress;
+      state.socketStep     = action.payload.step;
+      // Derive loading flags from step
+      state.isTranscribing  = action.payload.step === 'transcribing';
+      state.isSummarizing   = action.payload.step === 'summarizing';
+      state.isExtractingKw  = action.payload.step === 'keywords';
+      state.isProcessingAll = action.payload.step !== 'done';
+    },
+    // Called when socket reports completion — merge data into summaries
+    setSocketComplete: (
+      state,
+      action: PayloadAction<{ recordingId: string; data: Partial<AISummaryDoc> }>,
+    ) => {
+      state.isProcessingAll = false;
+      state.isTranscribing  = false;
+      state.isSummarizing   = false;
+      state.socketProgress  = 100;
+      state.socketStep      = 'done';
+      mergeSummary(state, action.payload.recordingId, action.payload.data);
+    },
+    setSocketError: (state, action: PayloadAction<string>) => {
+      state.isProcessingAll = false;
+      state.isTranscribing  = false;
+      state.isSummarizing   = false;
+      state.socketProgress  = 0;
+      state.socketStep      = null;
+      state.error           = action.payload;
     },
     // Optimistic update for action item checkbox
     toggleActionItemOptimistic: (
@@ -406,6 +447,7 @@ const aiSlice = createSlice({
 export const {
   setCurrentRecording, clearAIError,
   clearChat, toggleActionItemOptimistic,
+  setSocketProgress, setSocketComplete, setSocketError,
 } = aiSlice.actions;
 
 // ─── Selectors ────────────────────────────────────────────────────
@@ -427,6 +469,8 @@ export const selectCurrentChat      = createSelector(aiState, (s) => s.currentCh
 export const selectChatHistory      = createSelector(aiState, (s) => s.chatHistory);
 export const selectIsChatLoading    = createSelector(aiState, (s) => s.isChatLoading);
 export const selectLanguages        = createSelector(aiState, (s) => s.languages);
+export const selectSocketProgress  = createSelector(aiState, (s) => s.socketProgress);
+export const selectSocketStep      = createSelector(aiState, (s) => s.socketStep);
 export const selectIsGeneratingTitle = createSelector(aiState, (s) => s.isGeneratingTitle);
 
 export default aiSlice.reducer;

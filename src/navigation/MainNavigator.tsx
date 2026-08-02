@@ -35,6 +35,8 @@ import { SearchScreen }            from '@features/recording/screens/SearchScree
 import { SettingsScreen }          from '@features/settings/screens/SettingsScreen';
 import { ProfileScreen }           from '@features/settings/screens/ProfileScreen';
 import { SubscriptionScreen }      from '@features/settings/screens/SubscriptionScreen';
+import { PlayerScreen }            from '@features/player/screens/PlayerScreen';
+import { MiniPlayer }              from '@features/player/components/MiniPlayer';
 
 // ─── Stack Navigators ─────────────────────────────────────────────
 const HomeStack       = createNativeStackNavigator<HomeStackParamList>();
@@ -66,7 +68,7 @@ const RecordingsStackScreen = (): React.JSX.Element => (
     <RecordingsStack.Screen name="FolderView"      component={PlaceholderScreen} />
     <RecordingsStack.Screen
       name="Player"
-      component={PlaceholderScreen}
+      component={PlayerScreen}
       options={{ presentation: 'modal' }}
     />
   </RecordingsStack.Navigator>
@@ -191,17 +193,20 @@ const Tab = createBottomTabNavigator<MainTabParamList>();
 
 const MainNavigator = (): React.JSX.Element => {
   return (
-    <Tab.Navigator
-      initialRouteName="HomeTab"
-      tabBar={(props) => <CustomTabBar {...(props as unknown as CustomTabBarProps)} />}
-      screenOptions={{ headerShown: false }}
-    >
-      <Tab.Screen name="HomeTab"       component={HomeStackScreen}       />
-      <Tab.Screen name="RecordingsTab" component={RecordingsStackScreen} />
-      <Tab.Screen name="RecordTab"     component={RecordStackScreen}     />
-      <Tab.Screen name="SearchTab"     component={SearchStackScreen}     />
-      <Tab.Screen name="SettingsTab"   component={SettingsStackScreen}   />
-    </Tab.Navigator>
+    <View style={{ flex: 1 }}>
+      <Tab.Navigator
+        initialRouteName="HomeTab"
+        tabBar={(props) => <CustomTabBar {...(props as unknown as CustomTabBarProps)} />}
+        screenOptions={{ headerShown: false }}
+      >
+        <Tab.Screen name="HomeTab"       component={HomeStackScreen}       />
+        <Tab.Screen name="RecordingsTab" component={RecordingsStackScreen} />
+        <Tab.Screen name="RecordTab"     component={RecordStackScreen}     />
+        <Tab.Screen name="SearchTab"     component={SearchStackScreen}     />
+        <Tab.Screen name="SettingsTab"   component={SettingsStackScreen}   />
+      </Tab.Navigator>
+      <MiniPlayer onExpand={() => { /* navigation handled inside MiniPlayer via usePlayer */ }} />
+    </View>
   );
 };
 

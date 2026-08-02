@@ -7,6 +7,7 @@ import { LoginScreen }           from '@features/auth/screens/LoginScreen';
 import { RegisterScreen }        from '@features/auth/screens/RegisterScreen';
 import { ForgotPasswordScreen }  from '@features/auth/screens/ForgotPasswordScreen';
 import { VerifyEmailScreen }     from '@features/auth/screens/VerifyEmailScreen';
+import { ResetPasswordScreen }   from '@features/auth/screens/ResetPasswordScreen';
 
 const AuthStack = createNativeStackNavigator<AuthStackParamList>();
 
@@ -37,7 +38,7 @@ const AuthNavigator = (): React.JSX.Element => {
       />
       <AuthStack.Screen
         name="ResetPassword"
-        component={LoginScreen}
+        component={ResetPasswordScreen}
         options={{ gestureEnabled: false }}
       />
     </AuthStack.Navigator>
