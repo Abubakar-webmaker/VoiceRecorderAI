@@ -39,18 +39,20 @@ export interface AuthUser {
 }
 
 export interface LoginResponseData {
-  user:        AuthUser;
-  accessToken: string;
-  // refreshToken cookie se aata hai — body mein nahi
+  user:         AuthUser;
+  accessToken:  string;
+  refreshToken: string;
 }
 
 export interface RegisterResponseData {
-  user:        AuthUser;
-  accessToken: string;
+  user:         AuthUser;
+  accessToken:  string;
+  refreshToken: string;
 }
 
 export interface RefreshTokenResponseData {
-  accessToken: string;
+  accessToken:  string;
+  refreshToken: string;
 }
 
 export interface ProfileResponseData {

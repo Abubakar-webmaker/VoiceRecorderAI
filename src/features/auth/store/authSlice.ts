@@ -91,12 +91,7 @@ export const registerThunk = createAsyncThunk(
   async (payload: RegisterPayload, { rejectWithValue }) => {
     try {
       const data = await registerApi(payload);
-
-      // Access token Redux mein, refresh token Keychain mein
-      // Note: refresh token cookie mein aata hai backend se
-      // Keychain mein dummy store karo — real refresh cookie handle karti hai
-      await storeRefreshToken(payload.email, 'session');
-
+      await storeRefreshToken(payload.email, data.refreshToken);
       return data;
     } catch (error) {
       const msg = (error as { message?: string }).message
@@ -112,7 +107,7 @@ export const loginThunk = createAsyncThunk(
   async (payload: LoginPayload, { rejectWithValue }) => {
     try {
       const data = await loginApi(payload);
-      await storeRefreshToken(payload.email, 'session');
+      await storeRefreshToken(payload.email, data.refreshToken);
       return data;
     } catch (error) {
       const msg = (error as { message?: string }).message

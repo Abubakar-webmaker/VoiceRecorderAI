@@ -27,7 +27,7 @@ export const upload = asyncHandler(
     );
 
     res.status(201).json(
-      ApiResponse.created('Recording uploaded successfully.', recording),
+      ApiResponse.created(res, recording, 'Recording uploaded successfully.'),
     );
   },
 );
@@ -41,7 +41,7 @@ export const getAll = asyncHandler(
     );
 
     res.status(200).json(
-      ApiResponse.success('Recordings fetched successfully.', result),
+      ApiResponse.success(res, result, 'Recordings fetched successfully.'),
     );
   },
 );
@@ -59,7 +59,7 @@ export const getFavorites = asyncHandler(
     );
 
     res.status(200).json(
-      ApiResponse.success('Favorites fetched successfully.', result),
+      ApiResponse.success(res, result, 'Favorites fetched successfully.'),
     );
   },
 );
@@ -73,7 +73,7 @@ export const search = asyncHandler(
     );
 
     res.status(200).json(
-      ApiResponse.success('Search results fetched.', result),
+      ApiResponse.success(res, result, 'Search results fetched.'),
     );
   },
 );
@@ -87,7 +87,7 @@ export const getOne = asyncHandler(
     );
 
     res.status(200).json(
-      ApiResponse.success('Recording fetched successfully.', recording),
+      ApiResponse.success(res, recording, 'Recording fetched successfully.'),
     );
   },
 );
@@ -101,7 +101,7 @@ export const getWaveform = asyncHandler(
     );
 
     res.status(200).json(
-      ApiResponse.success('Waveform data fetched.', { waveform }),
+      ApiResponse.success(res, { waveform }, 'Waveform data fetched.'),
     );
   },
 );
@@ -116,7 +116,7 @@ export const update = asyncHandler(
     );
 
     res.status(200).json(
-      ApiResponse.success('Recording updated successfully.', recording),
+      ApiResponse.success(res, recording, 'Recording updated successfully.'),
     );
   },
 );
@@ -131,8 +131,9 @@ export const toggleFavorite = asyncHandler(
 
     res.status(200).json(
       ApiResponse.success(
-        result.isFavorite ? 'Added to favorites.' : 'Removed from favorites.',
+        res,
         result,
+        result.isFavorite ? 'Added to favorites.' : 'Removed from favorites.',
       ),
     );
   },
@@ -148,7 +149,7 @@ export const move = asyncHandler(
     );
 
     res.status(200).json(
-      ApiResponse.success('Recording moved successfully.', recording),
+      ApiResponse.success(res, recording, 'Recording moved successfully.'),
     );
   },
 );
@@ -161,7 +162,7 @@ export const play = asyncHandler(
       req.user!.userId,
     );
 
-    res.status(200).json(ApiResponse.success('Play count updated.'));
+    res.status(200).json(ApiResponse.success(res, null, 'Play count updated.'));
   },
 );
 
@@ -174,7 +175,7 @@ export const download = asyncHandler(
     );
 
     res.status(200).json(
-      ApiResponse.success('Download URL generated.', result),
+      ApiResponse.success(res, result, 'Download URL generated.'),
     );
   },
 );
@@ -187,7 +188,7 @@ export const remove = asyncHandler(
       req.user!.userId,
     );
 
-    res.status(200).json(ApiResponse.success('Recording deleted successfully.'));
+    res.status(200).json(ApiResponse.success(res, null, 'Recording deleted successfully.'));
   },
 );
 
@@ -201,8 +202,9 @@ export const bulkDelete = asyncHandler(
 
     res.status(200).json(
       ApiResponse.success(
-        `${result.deleted} recording(s) deleted successfully.`,
+        res,
         result,
+        `${result.deleted} recording(s) deleted successfully.`,
       ),
     );
   },
@@ -223,7 +225,7 @@ export const share = asyncHandler(
     );
 
     res.status(200).json(
-      ApiResponse.success('Share link generated successfully.', result),
+      ApiResponse.success(res, result, 'Share link generated successfully.'),
     );
   },
 );

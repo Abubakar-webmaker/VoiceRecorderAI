@@ -36,8 +36,9 @@ export const register = asyncHandler(
       ApiResponse.created(
         res,
         {
-          user:        result.user,
-          accessToken: result.tokens.accessToken,
+          user:         result.user,
+          accessToken:  result.tokens.accessToken,
+          refreshToken: result.tokens.refreshToken,
         },
         'Account created successfully. Please verify your email address.',
       ),
@@ -60,8 +61,9 @@ export const login = asyncHandler(
       ApiResponse.success(
         res,
         {
-          user:        result.user,
-          accessToken: result.tokens.accessToken,
+          user:         result.user,
+          accessToken:  result.tokens.accessToken,
+          refreshToken: result.tokens.refreshToken,
         },
         'Login successful.',
       ),
@@ -93,7 +95,7 @@ export const refreshToken = asyncHandler(
     res.status(200).json(
       ApiResponse.success(
         res,
-        { accessToken: tokens.accessToken },
+        { accessToken: tokens.accessToken, refreshToken: tokens.refreshToken },
         'Token refreshed successfully.',
       ),
     );
