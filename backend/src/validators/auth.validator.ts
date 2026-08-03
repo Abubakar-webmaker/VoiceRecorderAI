@@ -78,9 +78,18 @@ export const refreshTokenSchema = z.object({
   refreshToken: z.string({ required_error: 'Refresh token is required' }).min(1),
 });
 
+export const googleLoginSchema = z.object({
+  email:    z.string().email(),
+  name:     z.string().min(2),
+  googleId: z.string().min(1),
+  avatar:   z.string().url().optional(),
+  fcmToken: z.string().optional(),
+});
+
 // ─── Types ────────────────────────────────────────────────────────
 export type RegisterInput       = z.infer<typeof registerSchema>;
 export type LoginInput          = z.infer<typeof loginSchema>;
+export type GoogleLoginInput    = z.infer<typeof googleLoginSchema>;
 export type ForgotPasswordInput = z.infer<typeof forgotPasswordSchema>;
 export type ResetPasswordInput  = z.infer<typeof resetPasswordSchema>;
 export type ChangePasswordInput = z.infer<typeof changePasswordSchema>;

@@ -144,14 +144,14 @@ const userSchema = new Schema<IUser>(
     timestamps: true,
     versionKey: false,
     toJSON: {
-      transform: (_doc, ret) => {
-        delete ret.password;
-        delete ret.emailVerificationToken;
-        delete ret.emailVerificationExpires;
-        delete ret.passwordResetToken;
-        delete ret.passwordResetExpires;
-        delete ret.loginAttempts;
-        delete ret.lockUntil;
+      transform: (_doc, ret: Record<string, unknown>) => {
+        ret['password']                  = undefined;
+        ret['emailVerificationToken']    = undefined;
+        ret['emailVerificationExpires']  = undefined;
+        ret['passwordResetToken']        = undefined;
+        ret['passwordResetExpires']      = undefined;
+        ret['loginAttempts']             = undefined;
+        ret['lockUntil']                 = undefined;
         return ret;
       },
     },

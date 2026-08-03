@@ -71,6 +71,31 @@ export const login = asyncHandler(
   },
 );
 
+// ─── Google Login ────────────────────────────────────────────────
+export const googleLogin = asyncHandler(
+  async (req: Request, res: Response): Promise<void> => {
+    const result = await AuthService.googleLogin(req.body, req);
+
+    res.cookie(
+      'refreshToken',
+      result.tokens.refreshToken,
+      refreshCookieOptions(7 * 24 * 60 * 60 * 1000),
+    );
+
+    res.status(200).json(
+      ApiResponse.success(
+        res,
+        {
+          user:         result.user,
+          accessToken:  result.tokens.accessToken,
+          refreshToken: result.tokens.refreshToken,
+        },
+        'Google login successful.',
+      ),
+    );
+  },
+);
+
 // ─── Refresh Token ────────────────────────────────────────────────
 export const refreshToken = asyncHandler(
   async (req: Request, res: Response): Promise<void> => {

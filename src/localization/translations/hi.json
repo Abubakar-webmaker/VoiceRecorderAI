@@ -1,0 +1,34 @@
+{
+  "common": {
+    "ok": "ठीक है",
+    "cancel": "रद्द करें",
+    "save": "सहेजें",
+    "delete": "हटाएं",
+    "error": "त्रुटि",
+    "success": "सफलता",
+    "loading": "लोड हो रहा है..."
+  },
+  "auth": {
+    "login": "लॉगिन",
+    "register": "रजिस्टर",
+    "email": "ईमेल पता",
+    "password": "पासवर्ड",
+    "forgot_password": "पासवर्ड भूल गए?",
+    "google_sign_in": "गूगल के साथ साइन इन करें"
+  },
+  "recording": {
+    "title": "रिकॉर्डिंग",
+    "start_recording": "रिकॉर्डिंग शुरू करें",
+    "stop_recording": "रोकें",
+    "discard": "खारिज करें",
+    "save_recording": "रिकॉर्डिंग सहेजें",
+    "no_recordings": "अभी तक कोई रिकॉर्डिंग नहीं"
+  },
+  "ai": {
+    "transcribe": "ट्रांसक्राइब",
+    "summarize": "सारांश",
+    "generating": "AI सोच रहा है...",
+    "action_items": "कार्य आइटम",
+    "keywords": "कीवर्ड"
+  }
+}

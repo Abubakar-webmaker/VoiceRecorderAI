@@ -34,7 +34,7 @@ import { RecordScreen }            from '@features/recording/screens/RecordScree
 import { SearchScreen }            from '@features/recording/screens/SearchScreen';
 import { SettingsScreen }          from '@features/settings/screens/SettingsScreen';
 import { ProfileScreen }           from '@features/settings/screens/ProfileScreen';
-import { SubscriptionScreen }      from '@features/settings/screens/SubscriptionScreen';
+import SubscriptionScreen          from '@features/subscription/screens/SubscriptionScreen';
 import { PlayerScreen }            from '@features/player/screens/PlayerScreen';
 import { MiniPlayer }              from '@features/player/components/MiniPlayer';
 
@@ -54,6 +54,7 @@ const stackScreenOptions = {
 const HomeStackScreen = (): React.JSX.Element => (
   <HomeStack.Navigator screenOptions={stackScreenOptions}>
     <HomeStack.Screen name="Home" component={HomeScreen} />
+    <HomeStack.Screen name="Subscription" component={SubscriptionScreen} />
   </HomeStack.Navigator>
 );
 

@@ -8,6 +8,8 @@ import cookieParser  from 'cookie-parser';
 import mongoSanitize from 'express-mongo-sanitize';
 import xss           from 'xss-clean';
 import hpp           from 'hpp';
+import swaggerUi     from 'swagger-ui-express';
+import { swaggerSpec } from './config/swagger';
 
 import { env }                                 from './config/env';
 import { apiRouter }                           from './routes';
@@ -110,6 +112,7 @@ app.get('/health', (_req: Request, res: Response) => {
 });
 
 // ─── API Routes ───────────────────────────────────────────────────
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 app.use(`/api/${env.API_VERSION}`, apiRouter);
 
 // ─── 404 + Error Handlers (order matters!) ───────────────────────

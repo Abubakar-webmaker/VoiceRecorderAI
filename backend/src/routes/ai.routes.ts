@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import * as AIController from '@controllers/ai.controller';
 import { protect }       from '@middleware/auth.middleware';
+import { requireSubscriptionFeature } from '@middleware/subscription.middleware';
 import { validate }      from '@middleware/validation.middleware';
 import rateLimit         from 'express-rate-limit';
 import {
@@ -60,6 +61,7 @@ router.get('/recordings/:recordingId/chats', AIController.getChatHistory);
 router.post(
   '/transcribe',
   aiLimiter,
+  requireSubscriptionFeature('ai_processing'),
   validate(transcribeSchema),
   AIController.transcribe,
 );
@@ -108,6 +110,7 @@ router.post(
 router.post(
   '/process-all',
   aiLimiter,
+  requireSubscriptionFeature('ai_processing'),
   validate(processAllSchema),
   AIController.processAll,
 );

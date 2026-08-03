@@ -5,6 +5,7 @@ import { validate } from '@middleware/validation.middleware';
 import {
   registerSchema,
   loginSchema,
+  googleLoginSchema,
   forgotPasswordSchema,
   resetPasswordSchema,
   changePasswordSchema,
@@ -21,6 +22,9 @@ router.post('/register', validate(registerSchema), AuthController.register);
 
 // POST /api/v1/auth/login
 router.post('/login', validate(loginSchema), AuthController.login);
+
+// POST /api/v1/auth/google-login
+router.post('/google-login', validate(googleLoginSchema), AuthController.googleLogin);
 
 // POST /api/v1/auth/refresh
 router.post('/refresh', AuthController.refreshToken);

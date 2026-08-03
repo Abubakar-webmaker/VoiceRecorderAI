@@ -1,4 +1,12 @@
+import type { Request } from 'express';
+import type { IUser }   from '../models/User.model';
 import { Types } from 'mongoose';
+
+// ─── Authenticated Request ────────────────────────────────────────
+export interface AuthRequest extends Request {
+  user:   IUser;
+  userId: string;
+}
 
 // ─── Pagination ───────────────────────────────────────────────────
 export interface PaginationQuery {

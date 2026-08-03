@@ -1,12 +1,18 @@
 import mongoose, { Schema, type Document } from 'mongoose';
 
-export type ChatRole = 'user' | 'assistant' | 'system';
+// ─── ChatRole as runtime enum (used as value in ai.service.ts) ────
+export enum ChatRole {
+  USER      = 'user',
+  ASSISTANT = 'assistant',
+  SYSTEM    = 'system',
+}
 
 export interface IChatMessage {
-  role:      ChatRole;
-  content:   string;
-  timestamp: Date;
-  tokens?:   number;
+  _id:        mongoose.Types.ObjectId;
+  role:       ChatRole;
+  content:    string;
+  tokensUsed: number;
+  createdAt:  Date;
 }
 
 export interface IAIChat extends Document {
@@ -14,29 +20,33 @@ export interface IAIChat extends Document {
   recordingId: mongoose.Types.ObjectId;
   userId:      mongoose.Types.ObjectId;
   title:       string;
+  model:       string;
   messages:    IChatMessage[];
   totalTokens: number;
+  totalCost:   number;
   isActive:    boolean;
   createdAt:   Date;
   updatedAt:   Date;
 }
 
+// ─── Schemas ──────────────────────────────────────────────────────
+
 const chatMessageSchema = new Schema<IChatMessage>(
   {
     role: {
       type:     String,
-      enum:     ['user', 'assistant', 'system'],
+      enum:     Object.values(ChatRole),
       required: true,
     },
     content: {
-      type:     String,
-      required: true,
+      type:      String,
+      required:  true,
       maxlength: [10_000, 'Message too long'],
     },
-    timestamp: { type: Date, default: Date.now },
-    tokens:    { type: Number, default: 0 },
+    tokensUsed: { type: Number, default: 0 },
+    createdAt:  { type: Date, default: Date.now },
   },
-  { _id: false },
+  { _id: true },
 );
 
 const aiChatSchema = new Schema<IAIChat>(
@@ -54,16 +64,15 @@ const aiChatSchema = new Schema<IAIChat>(
       index:    true,
     },
     title: {
-      type:    String,
-      default: 'New Chat',
-      trim:    true,
+      type:      String,
+      default:   'New Chat',
+      trim:      true,
       maxlength: [200, 'Chat title too long'],
     },
-    messages: {
-      type:    [chatMessageSchema],
-      default: [],
-    },
+    model:       { type: String, default: 'gpt-4o' },
+    messages:    { type: [chatMessageSchema], default: [] },
     totalTokens: { type: Number, default: 0 },
+    totalCost:   { type: Number, default: 0 },
     isActive:    { type: Boolean, default: true, index: true },
   },
   {
@@ -77,3 +86,4 @@ aiChatSchema.index({ userId: 1, recordingId: 1 });
 aiChatSchema.index({ userId: 1, createdAt: -1 });
 
 export const AIChat = mongoose.model<IAIChat>('AIChat', aiChatSchema);
+export { AIChat as AIChatModel };

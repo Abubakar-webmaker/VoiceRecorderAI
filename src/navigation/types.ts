@@ -15,6 +15,7 @@ export type AuthStackParamList = {
 // ─── Home Stack ───────────────────────────────────────────────────
 export type HomeStackParamList = {
   Home: undefined;
+  Subscription: undefined;
 };
 
 // ─── Recordings Stack ─────────────────────────────────────────────

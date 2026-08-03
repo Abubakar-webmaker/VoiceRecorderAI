@@ -1,0 +1,34 @@
+{
+  "common": {
+    "ok": "OK",
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete": "Delete",
+    "error": "Error",
+    "success": "Success",
+    "loading": "Loading..."
+  },
+  "auth": {
+    "login": "Login",
+    "register": "Register",
+    "email": "Email Address",
+    "password": "Password",
+    "forgot_password": "Forgot Password?",
+    "google_sign_in": "Sign in with Google"
+  },
+  "recording": {
+    "title": "Recordings",
+    "start_recording": "Start Recording",
+    "stop_recording": "Stop",
+    "discard": "Discard",
+    "save_recording": "Save Recording",
+    "no_recordings": "No recordings yet"
+  },
+  "ai": {
+    "transcribe": "Transcribe",
+    "summarize": "Summarize",
+    "generating": "AI is thinking...",
+    "action_items": "Action Items",
+    "keywords": "Keywords"
+  }
+}

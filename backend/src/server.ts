@@ -3,6 +3,7 @@ import { Server }    from 'socket.io';
 import app           from './app';
 import { env }       from './config/env';
 import { connectDatabase } from './config/database';
+import { initializeFirebase } from './config/firebase';
 import { initializeSockets } from './sockets';
 import { logger }    from './utils/logger';
 
@@ -30,7 +31,10 @@ const bootstrap = async (): Promise<void> => {
   // 1. Connect to MongoDB
   await connectDatabase();
 
-  // 2. Initialize Socket.IO handlers
+  // 2. Initialize Firebase
+  initializeFirebase();
+
+  // 3. Initialize Socket.IO handlers
   initializeSockets(io);
 
   // 3. Start HTTP server

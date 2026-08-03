@@ -114,14 +114,43 @@ interface StatItemProps {
 }
 
 const StatItem = ({ label, value, icon }: StatItemProps): React.JSX.Element => {
-  const { colors, spacing } = useTheme();
+  const { colors, spacing, borderRadius } = useTheme();
   return (
-    <View style={[styles.statItem, { backgroundColor: colors.bg.elevated }]}>
-      <Caption style={{ fontSize: 20 }}>{icon}</Caption>
+    <View
+      style={[
+        styles.statItem,
+        {
+          backgroundColor: colors.bg.elevated,
+          borderRadius: 20,
+          borderWidth: 1,
+          borderColor: colors.border.default,
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: 4 },
+          shadowOpacity: 0.05,
+          shadowRadius: 10,
+          elevation: 2,
+        },
+      ]}
+    >
+      <View
+        style={{
+          width: 44,
+          height: 44,
+          borderRadius: 14,
+          backgroundColor: `${colors.primary.default}10`,
+          alignItems: 'center',
+          justifyContent: 'center',
+          marginBottom: 8,
+        }}
+      >
+        <Typography style={{ fontSize: 24 }}>{icon}</Typography>
+      </View>
       <MonoText style={{ color: colors.text.primary, fontSize: 18, fontWeight: '700' }}>
         {value}
       </MonoText>
-      <Caption color="secondary">{label}</Caption>
+      <Caption color="tertiary" style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: 0.5 }}>
+        {label}
+      </Caption>
     </View>
   );
 };
@@ -149,11 +178,14 @@ const StorageBar = (): React.JSX.Element => {
     : colors.primary.default;
 
   return (
-    <View style={{ gap: 8 }}>
+    <View style={{ gap: 10 }}>
       <View style={styles.storageRow}>
-        <Caption color="secondary">
-          {formatFileSize(storage.used)} used
-        </Caption>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+          <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: barColor }} />
+          <Caption color="secondary" style={{ fontWeight: '600' }}>
+            {formatFileSize(storage.used)} used
+          </Caption>
+        </View>
         <Caption color="tertiary">
           {formatFileSize(storage.limit)} total
         </Caption>
@@ -161,20 +193,36 @@ const StorageBar = (): React.JSX.Element => {
       <View
         style={[
           styles.storageTrack,
-          { backgroundColor: colors.border.default, borderRadius: borderRadius.full },
+          {
+            backgroundColor: colors.border.default,
+            borderRadius: borderRadius.full,
+            height: 10,
+          },
         ]}
       >
         <Animated.View
           style={[
             styles.storageFill,
-            { backgroundColor: barColor, borderRadius: borderRadius.full },
+            {
+              backgroundColor: barColor,
+              borderRadius: borderRadius.full,
+              shadowColor: barColor,
+              shadowOffset: { width: 0, height: 0 },
+              shadowOpacity: 0.5,
+              shadowRadius: 4,
+            },
             barStyle,
           ]}
         />
       </View>
-      <Caption color="tertiary">
-        {storage.percent}% of storage used
-      </Caption>
+      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+        <Caption color="tertiary" style={{ fontSize: 11 }}>
+          {storage.percent}% of storage used
+        </Caption>
+        {storage.percent > 80 && (
+          <Badge label="Running Low" variant="warning" size="sm" />
+        )}
+      </View>
     </View>
   );
 };
@@ -291,7 +339,11 @@ const HomeScreen = ({ navigation }: Props): React.JSX.Element => {
             <View style={{ gap: spacing[3] }}>
               <View style={styles.sectionHeader}>
                 <H4 color="primary">Storage</H4>
-                <Badge label="Free" variant="neutral" size="sm" />
+                <TouchableOpacity
+                  onPress={() => navigation.navigate('Subscription' as never)}
+                >
+                  <Badge label="Upgrade" variant="primary" size="sm" />
+                </TouchableOpacity>
               </View>
               <StorageBar />
             </View>

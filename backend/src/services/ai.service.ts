@@ -10,6 +10,10 @@ import { RecordingModel, AIStatus, RecordingStatus }
 import { cloudinary }      from '@config/cloudinary';
 import { ApiError }        from '@utils/ApiError';
 import { logger }          from '@utils/logger';
+import {
+  notifyTranscriptionComplete,
+  notifyAIProcessComplete,
+} from './notification.service';
 import type {
   TranscribeInput,
   SummarizeInput,
@@ -51,16 +55,14 @@ const getOrCreateAISummary = async (
   return aiSummary;
 };
 
-// ─── Download Audio Buffer from Cloudinary ────────────────────────
-const downloadAudioBuffer = async (
-  secureUrl: string,
-): Promise<Buffer> => {
+// ─── Stream Audio from Cloudinary to OpenAI ─────────────────────
+const getAudioStream = async (secureUrl: string): Promise<Readable> => {
   const response = await fetch(secureUrl);
-  if (!response.ok) {
+  if (!response.ok || !response.body) {
     throw new Error(`Failed to download audio: ${response.statusText}`);
   }
-  const arrayBuffer = await response.arrayBuffer();
-  return Buffer.from(arrayBuffer);
+  // Convert Web Stream to Node.js Readable stream
+  return Readable.fromWeb(response.body as any);
 };
 
 // ─── TRANSCRIPTION ────────────────────────────────────────────────
@@ -71,7 +73,6 @@ export const transcribeRecording = async (
 ): Promise<IAISummary> => {
   const { recordingId, language, prompt } = data;
 
-  // 1. Recording fetch karo
   const recording = await RecordingModel.findOne({ _id: recordingId, userId });
   if (!recording) throw ApiError.notFound('Recording not found.');
 
@@ -83,19 +84,15 @@ export const transcribeRecording = async (
     throw ApiError.badRequest('Recording audio file is not available.');
   }
 
-  // 2. AISummary doc get/create
   const aiSummary = await getOrCreateAISummary(recordingId, userId);
 
-  // Already completed check
   if (aiSummary.transcription.status === AIStatus.COMPLETED) {
-    throw ApiError.badRequest('Transcription already completed for this recording.');
+    throw ApiError.badRequest('Transcription already completed.');
   }
 
-  // 3. Status update karo
   aiSummary.transcription.status = AIStatus.PROCESSING;
   await aiSummary.save();
 
-  // Recording pe bhi update karo
   await RecordingModel.findByIdAndUpdate(recordingId, {
     'ai.transcriptionStatus': AIStatus.PROCESSING,
     status: RecordingStatus.PROCESSING,
@@ -104,21 +101,18 @@ export const transcribeRecording = async (
   onProgress?.('transcription:started', { recordingId });
 
   try {
-    // 4. Audio download karo
-    onProgress?.('transcription:downloading', { recordingId });
-    logger.info(`Downloading audio for transcription: ${recordingId}`);
+    onProgress?.('transcription:streaming', { recordingId });
+    logger.info(`Streaming audio for transcription: ${recordingId}`);
 
-    const audioBuffer = await downloadAudioBuffer(recording.cloud.secureUrl);
+    // Optimized: Stream directly instead of full Buffer download
+    const audioStream = await getAudioStream(recording.cloud.secureUrl);
 
-    // 5. Readable stream banao (Whisper ko stream chahiye)
-    const audioStream = Readable.from(audioBuffer);
-    const audioFile   = await toFile(
+    const audioFile = await toFile(
       audioStream,
       `recording.${recording.format}`,
       { type: `audio/${recording.format}` },
     );
 
-    // 6. Whisper API call
     onProgress?.('transcription:processing', { recordingId });
     logger.info(`Sending to Whisper API: ${recordingId}`);
 
@@ -189,6 +183,10 @@ export const transcribeRecording = async (
     });
 
     logger.info(`Transcription completed: ${recordingId} — ${wordCount} words`);
+
+    // Notify User
+    void notifyTranscriptionComplete(userId, recordingId, recording.title);
+
     return aiSummary;
 
   } catch (error) {
@@ -717,6 +715,9 @@ export const processAllAI = async (
   logger.info(
     `Full AI processing completed: ${recordingId} — ${finalSummary.totalTokensUsed} tokens used`,
   );
+
+  // Notify User
+  void notifyAIProcessComplete(userId, recordingId, finalSummary.aiTitle.text || 'Your recording');
 
   return finalSummary;
 };

@@ -162,56 +162,51 @@ export const loginUser = async (
   data: LoginInput,
   req:  Request,
 ): Promise<AuthResult> => {
-  const { email, password, fcmToken } = data;
+// ... existing code
+};
 
-  // Password bhi select karo (select: false hai schema mein)
-  const user = await UserModel.findOne({ email }).select('+password');
+export const googleLogin = async (
+  data: { email: string; name: string; googleId: string; avatar?: string; fcmToken?: string },
+  req:  Request,
+): Promise<AuthResult> => {
+  const { email, name, googleId, avatar, fcmToken } = data;
 
-  if (!user) {
-    // Timing attack se bachne ke liye same error deta hai
-    throw ApiError.unauthorized('Invalid email or password.');
+  let user = await UserModel.findOne({ email });
+
+  if (user) {
+    // If user exists but was local, link googleId (optional policy)
+    if (!user.googleId) user.googleId = googleId;
+    user.authProvider = AuthProvider.GOOGLE;
+    if (avatar && !user.avatar) user.avatar = avatar;
+  } else {
+    // New user via Google
+    user = await UserModel.create({
+      email,
+      name,
+      googleId,
+      avatar,
+      authProvider: AuthProvider.GOOGLE,
+      isEmailVerified: true, // Google emails are pre-verified
+    });
+
+    // Default settings
+    await SettingsModel.create({ userId: user._id });
   }
 
   if (!user.isActive) {
-    throw ApiError.unauthorized(
-      'Your account has been deactivated. Please contact support.',
-    );
+    throw ApiError.unauthorized('Your account has been deactivated.');
   }
 
-  if (user.isLocked()) {
-    throw ApiError.unauthorized(
-      'Account temporarily locked due to multiple failed attempts. Please try again after 30 minutes.',
-    );
-  }
-
-  const isValid = await user.comparePassword(password);
-
-  if (!isValid) {
-    await user.incrementLoginAttempts();
-
-    const remaining = 5 - user.loginAttempts;
-    throw ApiError.unauthorized(
-      remaining > 0
-        ? `Invalid email or password. ${remaining} attempt(s) remaining before account lock.`
-        : 'Account locked due to too many failed attempts.',
-    );
-  }
-
-  // Login successful — reset brute force counters
-  user.loginAttempts = 0;
-  user.lockUntil     = undefined;
-  user.lastLogin     = new Date();
+  user.lastLogin = new Date();
   if (fcmToken) user.fcmToken = fcmToken;
   await user.save();
 
   const tokens = await issueTokens(
-    { userId: user._id.toString(), email, role: user.role },
+    { userId: user._id.toString(), email: user.email, role: user.role },
     req,
   );
 
-  await logActivity(user._id.toString(), ActivityAction.LOGIN, 'User logged in', req, {
-    ip: req.ip,
-  });
+  await logActivity(user._id.toString(), ActivityAction.LOGIN, 'User logged in via Google', req);
 
   return { user: buildUserData(user), tokens };
 };

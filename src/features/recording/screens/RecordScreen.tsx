@@ -371,17 +371,31 @@ const RecordScreen = ({ navigation }: { navigation: any }): React.JSX.Element =>
             styles.waveformContainer,
             {
               backgroundColor: colors.bg.secondary,
-              borderRadius:    borderRadius['2xl'],
+              borderRadius:    32,
+              borderWidth: 1,
+              borderColor: colors.border.default,
+              shadowColor: '#000',
+              shadowOffset: { width: 0, height: 10 },
+              shadowOpacity: 0.05,
+              shadowRadius: 20,
+              elevation: 4,
             },
           ]}
         >
+          <View style={{ marginBottom: 12 }}>
+            <Badge
+              label={isRecording ? "Live Waveform" : "Ready to record"}
+              variant={isRecording ? "primary" : "neutral"}
+              size="sm"
+            />
+          </View>
           <LiveWaveform
             amplitudes={amplitudeList}
             currentAmplitude={currentAmplitude}
             isRecording={isRecording}
             isPaused={isPaused}
             width={W - spacing[5] * 2 - spacing[4] * 2}
-            height={100}
+            height={120}
           />
         </Animated.View>
 
@@ -554,9 +568,9 @@ const styles = StyleSheet.create({
     marginBottom:    20,
   } as ViewStyle,
   waveformContainer: {
-    padding:      20,
+    padding:      24,
     alignItems:   'center',
-    marginBottom: 24,
+    marginBottom: 32,
   } as ViewStyle,
   timerSection: {
     alignItems:   'center',
