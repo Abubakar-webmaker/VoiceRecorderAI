@@ -8,7 +8,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider }  from 'react-native-safe-area-context';
 import NetInfo               from '@react-native-community/netinfo';
 
-import './localization/i18n';
+import '@core/localization/i18n';
 import { store, persistor }  from '@store/index';
 import { AppNavigator }      from '@navigation/AppNavigator';
 import { Loader }            from '@components/common/Loader';

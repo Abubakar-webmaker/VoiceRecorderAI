@@ -19,19 +19,23 @@
     "allowJs": false,
     "baseUrl": ".",
     "paths": {
+      "@api/*": ["src/api/*"],
       "@assets/*": ["src/assets/*"],
-      "@components/*": ["src/components/*"],
-      "@config/*": ["src/config/*"],
-      "@constants/*": ["src/constants/*"],
+      "@core/*": ["src/core/*"],
       "@features/*": ["src/features/*"],
-      "@hooks/*": ["src/hooks/*"],
-      "@localization/*": ["src/localization/*"],
       "@navigation/*": ["src/navigation/*"],
       "@services/*": ["src/services/*"],
+      "@shared/*": ["src/shared/*"],
       "@store/*": ["src/store/*"],
-      "@theme/*": ["src/theme/*"],
-      "@types/*": ["src/types/*"],
-      "@utils/*": ["src/utils/*"]
+
+      "@components/*": ["src/shared/components/*"],
+      "@hooks/*": ["src/shared/hooks/*"],
+      "@utils/*": ["src/shared/utils/*"],
+      "@types/*": ["src/shared/types/*"],
+      "@theme/*": ["src/core/theme/*"],
+      "@config/*": ["src/core/config/*"],
+      "@constants/*": ["src/core/constants/*"],
+      "@localization/*": ["src/core/localization/*"]
     }
   },
   "include": ["src/**/*", "index.js", "src/App.tsx"],

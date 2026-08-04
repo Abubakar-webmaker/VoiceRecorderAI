@@ -5,7 +5,7 @@ import {
 } from 'redux-persist';
 import AsyncStorage              from '@react-native-async-storage/async-storage';
 import rootReducer               from './rootReducer';
-import { injectInterceptorDeps } from '@services/api/axios.instance';
+import { injectInterceptorDeps } from '@api/axios.instance';
 import { setAccessToken, forceLogout } from '@features/auth/store/authSlice';
 
 const persistConfig = {
