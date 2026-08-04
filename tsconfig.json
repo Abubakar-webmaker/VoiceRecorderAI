@@ -4,7 +4,9 @@
     "target": "ESNext",
     "module": "ESNext",
     "moduleResolution": "bundler",
-    "lib": ["ESNext"],
+    "lib": [
+      "ESNext"
+    ],
     "jsx": "react-native",
     "strict": true,
     "noImplicitAny": true,
@@ -19,25 +21,66 @@
     "allowJs": false,
     "baseUrl": ".",
     "paths": {
-      "@api/*": ["src/api/*"],
-      "@assets/*": ["src/assets/*"],
-      "@core/*": ["src/core/*"],
-      "@features/*": ["src/features/*"],
-      "@navigation/*": ["src/navigation/*"],
-      "@services/*": ["src/services/*"],
-      "@shared/*": ["src/shared/*"],
-      "@store/*": ["src/store/*"],
-
-      "@components/*": ["src/shared/components/*"],
-      "@hooks/*": ["src/shared/hooks/*"],
-      "@utils/*": ["src/shared/utils/*"],
-      "@types/*": ["src/shared/types/*"],
-      "@theme/*": ["src/core/theme/*"],
-      "@config/*": ["src/core/config/*"],
-      "@constants/*": ["src/core/constants/*"],
-      "@localization/*": ["src/core/localization/*"]
+      "@api/*": [
+        "src/api/*"
+      ],
+      "@assets/*": [
+        "src/assets/*"
+      ],
+      "@core/*": [
+        "src/core/*"
+      ],
+      "@features/*": [
+        "src/features/*"
+      ],
+      "@navigation/*": [
+        "src/navigation/*"
+      ],
+      "@services/*": [
+        "src/services/*"
+      ],
+      "@shared/*": [
+        "src/shared/*"
+      ],
+      "@store/*": [
+        "src/store/*"
+      ],
+      "@components/*": [
+        "src/shared/components/*"
+      ],
+      "@hooks/*": [
+        "src/shared/hooks/*"
+      ],
+      "@utils/*": [
+        "src/shared/utils/*"
+      ],
+      "@types/*": [
+        "src/shared/types/*"
+      ],
+      "@theme/*": [
+        "src/core/theme/*"
+      ],
+      "@config/*": [
+        "src/core/config/*"
+      ],
+      "@constants/*": [
+        "src/core/constants/*"
+      ],
+      "@localization/*": [
+        "src/core/localization/*"
+      ]
     }
   },
-  "include": ["src/**/*", "index.js", "src/App.tsx"],
-  "exclude": ["node_modules", "android", "ios", "__tests__"]
+  "include": [
+    "src/**/*",
+    "index.js",
+    "src/App.tsx",
+    "nativewind-env.d.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "android",
+    "ios",
+    "__tests__"
+  ]
 }
