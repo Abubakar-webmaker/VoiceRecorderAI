@@ -64,7 +64,7 @@ export const initializeAuth = createAsyncThunk(
       if (stored == null) return null; // Koi session nahi
 
       // Try silent refresh — agar refresh token valid hai
-      const { apiClient } = await import('@services/api/axios.instance');
+      const { apiClient } = await import('@api/axios.instance');
       const response = await apiClient.post<{
         success: boolean;
         data: { accessToken: string };

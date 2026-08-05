@@ -53,9 +53,13 @@ export const requestNotificationPermission = async (): Promise<boolean> => {
     const settings = await notifee.requestPermission();
 
     if (Platform.OS === 'android') {
-      const status = await messaging().requestPermission();
-      return status === messaging.AuthorizationStatus.AUTHORIZED ||
-             status === messaging.AuthorizationStatus.PROVISIONAL;
+      try {
+        const status = await messaging().requestPermission();
+        return status === messaging.AuthorizationStatus.AUTHORIZED ||
+               status === messaging.AuthorizationStatus.PROVISIONAL;
+      } catch (err) {
+        logger.warn('[Notification] Firebase messaging permission request skipped:', err);
+      }
     }
 
     return settings.authorizationStatus >= 1;
@@ -70,7 +74,8 @@ export const getFCMToken = async (): Promise<string | null> => {
   try {
     const token = await messaging().getToken();
     return token;
-  } catch {
+  } catch (err) {
+    logger.warn('[Notification] Could not get FCM token:', err);
     return null;
   }
 };
@@ -142,23 +147,32 @@ export const notifyOfflineUploaded = async (count: number): Promise<void> => {
 
 // ─── Handle Background Push ───────────────────────────────────────
 export const setupBackgroundMessageHandler = (): void => {
-  messaging().setBackgroundMessageHandler(async (remoteMessage) => {
-    logger.info('[Notification] Background message:', remoteMessage.data);
-  });
+  try {
+    messaging().setBackgroundMessageHandler(async (remoteMessage) => {
+      logger.info('[Notification] Background message:', remoteMessage.data);
+    });
+  } catch (err) {
+    logger.error('[Notification] Failed to set background message handler:', err);
+  }
 };
 
 // ─── Handle Foreground Push ───────────────────────────────────────
 export const setupForegroundMessageHandler = (): (() => void) => {
-  return messaging().onMessage(async (remoteMessage) => {
-    logger.info('[Notification] Foreground message:', remoteMessage.data);
-    if (remoteMessage.notification) {
-      await showLocalNotification({
-        title: remoteMessage.notification.title ?? 'Notification',
-        body:  remoteMessage.notification.body  ?? '',
-        data:  remoteMessage.data as Record<string, string>,
-      });
-    }
-  });
+  try {
+    return messaging().onMessage(async (remoteMessage) => {
+      logger.info('[Notification] Foreground message:', remoteMessage.data);
+      if (remoteMessage.notification) {
+        await showLocalNotification({
+          title: remoteMessage.notification.title ?? 'Notification',
+          body:  remoteMessage.notification.body  ?? '',
+          data:  remoteMessage.data as Record<string, string>,
+        });
+      }
+    });
+  } catch (err) {
+    logger.error('[Notification] Failed to set foreground message handler:', err);
+    return () => {};
+  }
 };
 
 // ─── Handle Notification Press ────────────────────────────────────

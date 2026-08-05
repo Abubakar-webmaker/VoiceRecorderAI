@@ -1,5 +1,5 @@
-import { apiClient } from '@services/api/axios.instance';
-import { ENDPOINTS } from '@services/api/endpoints';
+import { apiClient } from '@api/axios.instance';
+import { ENDPOINTS } from '@api/endpoints';
 import type {
   ApiResponse,
   LoginPayload,

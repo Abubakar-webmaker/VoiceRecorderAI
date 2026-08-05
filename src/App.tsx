@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import 'react-native-get-random-values';
 import {
   StatusBar, LogBox, Appearance, useColorScheme,
 } from 'react-native';
