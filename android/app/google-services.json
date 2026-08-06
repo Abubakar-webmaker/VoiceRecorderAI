@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "401143423939",
+    "project_id": "ai-voice-recorder-c0bcb",
+    "storage_bucket": "ai-voice-recorder-c0bcb.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:401143423939:android:25f5e216494c38f9999376",
+        "android_client_info": {
+          "package_name": "com.example.voicerecorder"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD97JrO5GaR_W3RhUAoP3BAl_XJ5gH_O5Y"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
