@@ -95,7 +95,7 @@ export const showLocalNotification = async (params: {
     data,
     android: {
       channelId:  channel,
-      smallIcon:  'ic_notification',
+      smallIcon:  'ic_launcher', // Changed from ic_notification to avoid build error if missing
       importance: AndroidImportance.DEFAULT,
       pressAction: { id: 'default' },
     },
