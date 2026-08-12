@@ -75,12 +75,12 @@
     "src/**/*",
     "index.js",
     "src/App.tsx",
-    "nativewind-env.d.ts"
+    "nativewind-env.d.ts",
+    "__tests__/**/*"
   ],
   "exclude": [
     "node_modules",
     "android",
-    "ios",
-    "__tests__"
+    "ios"
   ]
 }

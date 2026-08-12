@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import {
-  StatusBar, LogBox, Appearance, useColorScheme,
+  StatusBar, LogBox, Appearance, StyleSheet,
 } from 'react-native';
 import { Provider }          from 'react-redux';
 import { PersistGate }       from 'redux-persist/integration/react';
@@ -48,7 +48,7 @@ setupBackgroundMessageHandler();
 const registerFCMToken = async (): Promise<void> => {
   try {
     const token = await getFCMToken();
-    if (token != null) {
+    if (token !== null && token !== undefined) {
       await updateProfileApi({ fcmToken: token });
     }
   } catch {
@@ -76,12 +76,12 @@ const AppContent = (): React.JSX.Element => {
 
     // 6. Monitor network — process queue + connect socket when online
     const unsubNet = NetInfo.addEventListener((netState) => {
-      if (netState.isConnected && netState.isInternetReachable !== false) {
+      if (netState.isConnected === true && netState.isInternetReachable !== false) {
         void store.dispatch(processQueueThunk());
 
         // Reconnect socket if we have an access token
         const accessToken = (store.getState()).auth?.accessToken;
-        if (accessToken != null) {
+        if (accessToken !== null && accessToken !== undefined) {
           updateSocketToken(accessToken);
         }
       }
@@ -94,7 +94,7 @@ const AppContent = (): React.JSX.Element => {
 
     // 8. Connect socket if already authenticated
     const authState = (store.getState()).auth;
-    if (authState?.isAuthenticated && authState.accessToken != null) {
+    if (authState?.isAuthenticated === true && authState.accessToken !== null && authState.accessToken !== undefined) {
       connectSocket(authState.accessToken);
       void registerFCMToken();
     }
@@ -104,9 +104,9 @@ const AppContent = (): React.JSX.Element => {
       const state = store.getState();
       const { isAuthenticated, accessToken } = state.auth ?? {};
 
-      if (isAuthenticated && accessToken != null) {
+      if (isAuthenticated === true && accessToken !== null && accessToken !== undefined) {
         updateSocketToken(accessToken);
-      } else if (!isAuthenticated) {
+      } else if (isAuthenticated !== true) {
         disconnectSocket();
       }
     });
@@ -120,7 +120,7 @@ const AppContent = (): React.JSX.Element => {
     };
   }, []);
 
-  const isDark = store.getState().theme?.isDark !== false;
+  const isDark: boolean = store.getState().theme?.isDark !== false;
 
   return (
     <>
@@ -138,7 +138,7 @@ const AppContent = (): React.JSX.Element => {
 const App = (): React.JSX.Element => {
   return (
     <ErrorBoundary>
-      <GestureHandlerRootView style={{ flex: 1 }}>
+      <GestureHandlerRootView style={styles.flex1}>
         <Provider store={store}>
           <PersistGate
             loading={<Loader fullScreen variant="pulse" color={colors.primary.default} />}
@@ -155,3 +155,7 @@ const App = (): React.JSX.Element => {
 };
 
 export default App;
+
+const styles = StyleSheet.create({
+  flex1: { flex: 1 },
+});

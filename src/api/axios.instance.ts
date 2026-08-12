@@ -13,7 +13,7 @@ const createAxiosInstance = (): AxiosInstance => {
   const instance = axios.create({
     baseURL,
     timeout:         30_000,
-    withCredentials: true,   // Cookies (refreshToken) ke liye
+    withCredentials: true,
     headers: {
       'Content-Type':     'application/json',
       'Accept':           'application/json',
@@ -27,8 +27,6 @@ const createAxiosInstance = (): AxiosInstance => {
 
 export const apiClient = createAxiosInstance();
 
-// ─── Token Accessor (circular dependency avoid karne ke liye) ─────
-// Store se token access karne ke liye function inject karo
 let _getAccessToken: (() => string | null) | null = null;
 let _onTokenRefreshed: ((token: string) => void) | null = null;
 let _onAuthError: (() => void) | null = null;
@@ -47,7 +45,7 @@ export const injectInterceptorDeps = (deps: {
 apiClient.interceptors.request.use(
   (config: InternalAxiosRequestConfig): InternalAxiosRequestConfig => {
     const token = _getAccessToken?.();
-    if (token != null && config.headers != null) {
+    if (token !== null && token !== undefined && config.headers !== null && config.headers !== undefined) {
       config.headers['Authorization'] = `Bearer ${token}`;
     }
     return config;
@@ -64,8 +62,8 @@ let refreshQueue: Array<{
 
 const processQueue = (error: unknown, token: string | null): void => {
   refreshQueue.forEach(({ resolve, reject }) => {
-    if (error != null) reject(error);
-    else if (token != null) resolve(token);
+    if (error !== null && error !== undefined) reject(error);
+    else if (token !== null && token !== undefined) resolve(token);
   });
   refreshQueue = [];
 };
@@ -80,19 +78,17 @@ apiClient.interceptors.response.use(
 
     const status = error.response?.status;
 
-    // 401 — token expired, refresh karein
     if (
       status === 401 &&
       originalRequest._retry !== true &&
-      !originalRequest.url?.includes('/auth/refresh') &&
-      !originalRequest.url?.includes('/auth/login')
+      originalRequest.url?.includes('/auth/refresh') !== true &&
+      originalRequest.url?.includes('/auth/login') !== true
     ) {
-      // Already refreshing? Queue mein add karo
       if (isRefreshing) {
         return new Promise<AxiosResponse>((resolve, reject) => {
           refreshQueue.push({
             resolve: (token: string) => {
-              if (originalRequest.headers != null) {
+              if (originalRequest.headers !== null && originalRequest.headers !== undefined) {
                 originalRequest.headers['Authorization'] = `Bearer ${token}`;
               }
               resolve(apiClient(originalRequest));
@@ -106,15 +102,13 @@ apiClient.interceptors.response.use(
       isRefreshing = true;
 
       try {
-        // Keychain se refresh token lo
         const { getRefreshToken } = await import('@services/storage/keychain.service');
         const stored = await getRefreshToken();
 
-        if (stored == null) {
+        if (stored === null || stored === undefined) {
           throw new Error('No refresh token stored');
         }
 
-        // New access token lo
         const refreshResponse = await axios.post<{
           success: boolean;
           data: { accessToken: string };
@@ -124,16 +118,12 @@ apiClient.interceptors.response.use(
         );
 
         const newAccessToken = refreshResponse.data.data?.accessToken;
-        if (newAccessToken == null) throw new Error('Invalid refresh response');
+        if (newAccessToken === null || newAccessToken === undefined) throw new Error('Invalid refresh response');
 
-        // Redux mein update karo
         _onTokenRefreshed?.(newAccessToken);
-
-        // Queued requests ko process karo
         processQueue(null, newAccessToken);
 
-        // Original request retry karo
-        if (originalRequest.headers != null) {
+        if (originalRequest.headers !== null && originalRequest.headers !== undefined) {
           originalRequest.headers['Authorization'] = `Bearer ${newAccessToken}`;
         }
 
@@ -141,7 +131,7 @@ apiClient.interceptors.response.use(
 
       } catch (refreshError) {
         processQueue(refreshError, null);
-        _onAuthError?.(); // Logout karo
+        _onAuthError?.();
         return Promise.reject(refreshError);
 
       } finally {
@@ -149,14 +139,13 @@ apiClient.interceptors.response.use(
       }
     }
 
-    // ─── Error Transform ──────────────────────────────────────
     const apiError = {
       message: (error.response?.data as { message?: string })?.message
         ?? error.message
         ?? 'An unexpected error occurred',
       statusCode: status ?? 0,
       errors: (error.response?.data as { errors?: unknown[] })?.errors ?? [],
-      isNetworkError: error.code === 'ECONNABORTED' || !error.response,
+      isNetworkError: error.code === 'ECONNABORTED' || error.response === undefined || error.response === null,
     };
 
     return Promise.reject(apiError);

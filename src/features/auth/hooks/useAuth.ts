@@ -31,12 +31,42 @@ import type {
   ForgotPasswordPayload,
   ResetPasswordPayload,
   ChangePasswordPayload,
-} from '@types/api.types';
+} from '@shared/types/api.types';
+import type { AuthUser } from '@shared/types/api.types';
+import type { AppDispatch } from '@store/index';
 
-const useAuth = () => {
+interface StorageInfo {
+  used: number;
+  limit: number;
+  percent: number;
+}
+
+interface UseAuthReturn {
+  user: AuthUser | null;
+  isAuthenticated: boolean;
+  isLoading: boolean;
+  error: string | null;
+  successMessage: string | null;
+  isEmailVerified: boolean;
+  userRole: string;
+  storage: StorageInfo;
+  login: (payload: LoginPayload) => Promise<any>;
+  register: (payload: RegisterPayload) => Promise<any>;
+  logout: () => Promise<any>;
+  logoutAll: () => Promise<any>;
+  forgotPassword: (payload: ForgotPasswordPayload) => Promise<any>;
+  resetPassword: (payload: ResetPasswordPayload & { token: string }) => Promise<any>;
+  changePassword: (payload: ChangePasswordPayload) => Promise<any>;
+  verifyEmail: (token: string) => Promise<any>;
+  resendVerification: () => Promise<any>;
+  refreshProfile: () => Promise<any>;
+  dismissError: () => void;
+  dismissSuccess: () => void;
+}
+
+const useAuth = (): UseAuthReturn => {
   const dispatch = useAppDispatch();
 
-  // ─── Selectors ────────────────────────────────────────────────
   const user            = useAppSelector(selectUser);
   const isAuthenticated = useAppSelector(selectIsAuthenticated);
   const isLoading       = useAppSelector(selectIsLoading);
@@ -46,7 +76,6 @@ const useAuth = () => {
   const userRole        = useAppSelector(selectUserRole);
   const storage         = useAppSelector(selectStorageInfo);
 
-  // ─── Actions ──────────────────────────────────────────────────
   const login = useCallback(
     (payload: LoginPayload) => dispatch(loginThunk(payload)),
     [dispatch],
@@ -102,7 +131,6 @@ const useAuth = () => {
   const dismissSuccess = useCallback(() => dispatch(clearSuccess()), [dispatch]);
 
   return {
-    // State
     user,
     isAuthenticated,
     isLoading,
@@ -111,7 +139,6 @@ const useAuth = () => {
     isEmailVerified,
     userRole,
     storage,
-    // Actions
     login,
     register,
     logout,

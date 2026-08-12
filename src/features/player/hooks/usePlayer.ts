@@ -1,5 +1,6 @@
 import { useCallback, useEffect } from 'react';
-import { useProgress }            from 'react-native-track-player';
+import type { State as TrackState } from 'react-native-track-player';
+import { useProgress } from 'react-native-track-player';
 import useAppDispatch              from '@hooks/useAppDispatch';
 import useAppSelector              from '@hooks/useAppSelector';
 import {
@@ -21,11 +22,11 @@ import {
   selectProgressPercent,
   type SpeedOption,
 } from '../store/playerSlice';
-import type { Recording } from '@types/recording.types';
+import type { Recording } from '@shared/types/recording.types';
 
 const usePlayer = (): {
   currentRecording: Recording | null;
-  trackState: any;
+  trackState: TrackState;
   position: number;
   duration: number;
   speed: SpeedOption;
@@ -61,37 +62,37 @@ const usePlayer = (): {
   const progressPercent  = useAppSelector(selectProgressPercent);
 
   const play = useCallback(
-    (recording: Recording) => dispatch(loadRecordingThunk(recording)),
+    (recording: Recording) => { void dispatch(loadRecordingThunk(recording)); },
     [dispatch],
   );
 
   const togglePlay = useCallback(
-    () => dispatch(togglePlayPauseThunk()),
+    () => { void dispatch(togglePlayPauseThunk()); },
     [dispatch],
   );
 
   const seek = useCallback(
-    (seconds: number) => dispatch(seekThunk(seconds)),
+    (seconds: number) => { void dispatch(seekThunk(seconds)); },
     [dispatch],
   );
 
   const changeSpeed = useCallback(
-    (s: SpeedOption) => dispatch(setSpeedThunk(s)),
+    (s: SpeedOption) => { void dispatch(setSpeedThunk(s)); },
     [dispatch],
   );
 
   const skipFwd = useCallback(
-    () => dispatch(skipForwardThunk()),
+    () => { void dispatch(skipForwardThunk()); },
     [dispatch],
   );
 
   const skipBwd = useCallback(
-    () => dispatch(skipBackwardThunk()),
+    () => { void dispatch(skipBackwardThunk()); },
     [dispatch],
   );
 
   const stop = useCallback(
-    () => dispatch(stopPlayerThunk()),
+    () => { void dispatch(stopPlayerThunk()); },
     [dispatch],
   );
 

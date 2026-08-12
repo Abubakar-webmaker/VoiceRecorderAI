@@ -5,6 +5,7 @@ import {
   TouchableOpacity,
   Switch,
   StyleSheet,
+  Text,
   type ViewStyle,
 } from 'react-native';
 import { SafeAreaView }  from 'react-native-safe-area-context';
@@ -20,7 +21,6 @@ import {
 import useTheme          from '@hooks/useTheme';
 import useAuth           from '@features/auth/hooks/useAuth';
 import useSettings       from '../hooks/useSettings';
-import { selectIsDark }  from '../store/themeSlice';
 import useAppSelector    from '@hooks/useAppSelector';
 import { formatStorageSize } from '@types/user.types';
 import { selectStorageInfo } from '@features/auth/store/authSelectors';
@@ -145,7 +145,7 @@ const SettingsScreen = ({ navigation }: Props): React.JSX.Element => {
       >
         {/* ─── Header ──────────────────────────────────────── */}
         <View style={styles.header}>
-          <H3 color="primary"><BodySm>Settings</BodySm></H3>
+          <H3 color="primary">Settings</H3>
         </View>
 
         {/* ─── Profile Card ────────────────────────────────── */}
@@ -154,7 +154,7 @@ const SettingsScreen = ({ navigation }: Props): React.JSX.Element => {
           style={styles.marginBottom20}
         >
           <TouchableOpacity
-            onPress={() => { navigation.navigate('Profile' as any); }}
+            onPress={() => { navigation.navigate('Profile'); }}
             style={[
               styles.profileCard,
               {
@@ -191,11 +191,11 @@ const SettingsScreen = ({ navigation }: Props): React.JSX.Element => {
                   />
                 </View>
                 <Caption color="tertiary">
-                  <Caption>{formatStorageSize(storage.used)} / {formatStorageSize(storage.limit)}</Caption>
+                  {formatStorageSize(storage.used)} / {formatStorageSize(storage.limit)}
                 </Caption>
               </View>
             </View>
-            <Caption color="tertiary"><Caption>›</Caption></Caption>
+            <Caption color="tertiary">›</Caption>
           </TouchableOpacity>
         </Animated.View>
 
@@ -205,7 +205,7 @@ const SettingsScreen = ({ navigation }: Props): React.JSX.Element => {
           style={styles.marginBottom20}
         >
           <TouchableOpacity
-            onPress={() => { (navigation as any).navigate('Subscription'); }}
+            onPress={() => { navigation.navigate('Subscription'); }}
             style={[
               styles.upgradeCard,
               {
@@ -217,10 +217,10 @@ const SettingsScreen = ({ navigation }: Props): React.JSX.Element => {
             <Caption style={styles.upgradeIcon}><Text>⚡</Text></Caption>
             <View style={styles.flex1}>
               <BodySm style={[styles.upgradeTitle, { color: colors.primary.light }]}>
-                <BodySm>Upgrade to Pro</BodySm>
+                Upgrade to Pro
               </BodySm>
               <Caption style={{ color: colors.primary.default }}>
-                <Caption>Unlimited recordings · AI features · Cloud sync</Caption>
+                Unlimited recordings · AI features · Cloud sync
               </Caption>
             </View>
             <Badge label="PRO" variant="primary" size="sm" />

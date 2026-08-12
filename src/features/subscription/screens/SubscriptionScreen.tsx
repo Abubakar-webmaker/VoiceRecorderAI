@@ -19,10 +19,10 @@ import { env } from '@config/env';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '@navigation/types';
 
-type Props = NativeStackScreenProps<RootStackParamList, any>;
+type Props = NativeStackScreenProps<RootStackParamList, 'Subscription'>;
 
 const SubscriptionScreen = ({ navigation }: Props): React.JSX.Element => {
-  const { colors, spacing } = useTheme();
+  const { colors } = useTheme();
   const [loading, setLoading] = useState(false);
 
   const handleUpgrade = async (): Promise<void> => {
@@ -31,7 +31,7 @@ const SubscriptionScreen = ({ navigation }: Props): React.JSX.Element => {
       const response = await axios.post<{
         success: boolean;
         data: { url: string };
-      }>(`${(env as any).API_URL}/payments/create-session`, {
+      }>(`${(env as Record<string, any>).API_URL}/payments/create-session`, {
         plan: 'pro'
       });
 
@@ -58,31 +58,31 @@ const SubscriptionScreen = ({ navigation }: Props): React.JSX.Element => {
     <SafeAreaView style={[styles.screen, { backgroundColor: colors.bg.primary }]}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <TouchableOpacity onPress={() => { void navigation.goBack(); }} style={styles.backBtn}>
-          <Caption color="secondary"><BodySm>← Back</BodySm></Caption>
+          <Caption color="secondary">← Back</Caption>
         </TouchableOpacity>
 
         <View style={styles.header}>
-          <H2 color="primary" align="center"><BodySm>Upgrade to Pro</BodySm></H2>
+          <H2 color="primary" align="center">Upgrade to Pro</H2>
           <BodyMd color="secondary" align="center">
-            <BodySm>Unlock the full power of AI-driven voice recording.</BodySm>
+            Unlock the full power of AI-driven voice recording.
           </BodyMd>
         </View>
 
         <Card variant="filled" style={styles.pricingCard}>
           <Badge label="MOST POPULAR" variant="primary" size="sm" style={styles.pricingBadge} />
-          <H3 color="primary" align="center"><BodySm>Pro Plan</BodySm></H3>
+          <H3 color="primary" align="center">Pro Plan</H3>
           <View style={styles.priceRow}>
-            <H2 color="primary"><BodySm>$9.99</BodySm></H2>
-            <Caption color="secondary" style={styles.pricePeriod}><BodySm>/month</BodySm></Caption>
+            <H2 color="primary">$9.99</H2>
+            <Caption color="secondary" style={styles.pricePeriod}>/month</Caption>
           </View>
 
           <View style={styles.featureList}>
             {FEATURES.map((f, i) => (
               <View key={i} style={styles.featureItem}>
-                <Caption style={styles.featureIcon}><BodySm>{f.icon}</BodySm></Caption>
+                <Caption style={styles.featureIcon}>{f.icon}</Caption>
                 <View style={styles.flex1}>
-                  <H4 color="primary" style={styles.featureTitle}><BodySm>{f.title}</BodySm></H4>
-                  <BodySm color="tertiary"><BodySm>{f.desc}</BodySm></BodySm>
+                  <H4 color="primary" style={styles.featureTitle}>{f.title}</H4>
+                  <BodySm color="tertiary">{f.desc}</BodySm>
                 </View>
               </View>
             ))}
@@ -93,10 +93,10 @@ const SubscriptionScreen = ({ navigation }: Props): React.JSX.Element => {
             disabled={loading}
             style={[styles.upgradeBtn, { backgroundColor: colors.primary.default }]}
           >
-            {loading ? <Loader color={colors.text.inverse} /> : <H4 style={styles.upgradeBtnText}><BodySm>Upgrade Now</BodySm></H4>}
+            {loading ? <Loader color={colors.text.inverse} /> : <H4 style={styles.upgradeBtnText}>Upgrade Now</H4>}
           </TouchableOpacity>
           <Caption color="tertiary" align="center" style={styles.secureNote}>
-            <BodySm>Secure payment via Stripe. Cancel anytime.</BodySm>
+            Secure payment via Stripe. Cancel anytime.
           </Caption>
         </Card>
 

@@ -5,6 +5,7 @@ import {
   Platform,
   ScrollView,
   StyleSheet,
+  Text,
   type ViewStyle,
 } from 'react-native';
 import { SafeAreaView }        from 'react-native-safe-area-context';
@@ -62,7 +63,6 @@ const ForgotPasswordScreen = ({ navigation }: Props): React.JSX.Element => {
     control,
     handleSubmit,
     setError,
-    getValues,
     formState: { errors },
   } = useForm<ForgotForm>({
     resolver:      zodResolver(forgotSchema),
@@ -71,14 +71,14 @@ const ForgotPasswordScreen = ({ navigation }: Props): React.JSX.Element => {
   });
 
   useEffect(() => {
-    if (error != null) {
+    if (error !== undefined && error !== null) {
       setError('email', { message: error });
       dismissError();
     }
   }, [error, setError, dismissError]);
 
   useEffect(() => {
-    if (successMessage != null) {
+    if (successMessage !== undefined && successMessage !== null) {
       setSubmitted(true);
       successScale.value = withSpring(1, { damping: 12, stiffness: 200 });
       dismissSuccess();
@@ -111,30 +111,33 @@ const ForgotPasswordScreen = ({ navigation }: Props): React.JSX.Element => {
               { backgroundColor: colors.ai.surface },
             ]}
           >
-            <Typography variant="displaySm" align="center">📧</Typography>
+            <Typography variant="displaySm" align="center">
+              <Text>📧</Text>
+            </Typography>
           </View>
 
           <H3 align="center" color="primary">Check your inbox</H3>
 
           <BodyMd color="secondary" align="center">
-            We sent a password reset link to{'\n'}
-            <BodyMd color="primary" style={{ fontWeight: '600' }}>
+            <Text>We sent a password reset link to</Text>
+            {'\n'}
+            <BodyMd color="primary" style={styles.sentEmailText}>
               {sentEmail}
             </BodyMd>
           </BodyMd>
 
           <Card
             variant="outlined"
-            style={{ width: '100%' }}
+            style={styles.infoCard}
           >
             <BodySm color="secondary">
-              ⏰ The link expires in 1 hour. Check your spam folder if you don't see it.
+              <Text>⏰ The link expires in 1 hour. Check your spam folder if you don&apos;t see it.</Text>
             </BodySm>
           </Card>
 
           <Button
             label="Resend Email"
-            onPress={handleSubmit(onSubmit)}
+            onPress={() => { void handleSubmit(onSubmit)(); }}
             variant="ghost"
             size="md"
             isLoading={isLoading}
@@ -157,7 +160,7 @@ const ForgotPasswordScreen = ({ navigation }: Props): React.JSX.Element => {
       edges={['top', 'bottom']}
     >
       <KeyboardAvoidingView
-        style={{ flex: 1 }}
+        style={styles.keyboardView}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
         <ScrollView
@@ -189,14 +192,14 @@ const ForgotPasswordScreen = ({ navigation }: Props): React.JSX.Element => {
                   keyboardType="email-address"
                   autoCapitalize="none"
                   returnKeyType="send"
-                  onSubmitEditing={handleSubmit(onSubmit)}
+                  onSubmitEditing={() => { void handleSubmit(onSubmit)(); }}
                 />
               )}
             />
 
             <Button
               label="Send Reset Link"
-              onPress={handleSubmit(onSubmit)}
+              onPress={() => { void handleSubmit(onSubmit)(); }}
               variant="primary"
               size="lg"
               fullWidth
@@ -219,8 +222,11 @@ const ForgotPasswordScreen = ({ navigation }: Props): React.JSX.Element => {
 
 const styles = StyleSheet.create({
   form:             { paddingHorizontal: 20, marginTop: 24 } as ViewStyle,
+  infoCard:         { width: '100%' } as ViewStyle,
+  keyboardView:     { flex: 1 } as ViewStyle,
   screen:           { flex: 1 } as ViewStyle,
   scroll:           { flexGrow: 1, paddingBottom: 40 } as ViewStyle,
+  sentEmailText:    { fontWeight: '600' } as ViewStyle,
   successContainer: {
     flex:              1,
     paddingHorizontal: 24,

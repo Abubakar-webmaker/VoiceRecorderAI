@@ -26,6 +26,7 @@ import useRecordings       from '../hooks/useRecordings';
 import usePlayer           from '@features/player/hooks/usePlayer';
 import type { SearchStackParamList } from '@navigation/types';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import type { Recording } from '@shared/types/recording.types';
 
 const RECENT_SEARCHES_KEY = '@AIVoiceRecorder:recentSearches';
 const MAX_RECENT          = 8;
@@ -98,15 +99,15 @@ const SearchScreen = ({ navigation }: Props): React.JSX.Element => {
     inputRef.current?.clear();
   }, [setQuery]);
 
-  const renderItem = useCallback(({ item }: { item: typeof searchResults[0] }) => (
+  const renderItem = useCallback(({ item }: { item: Recording }): React.JSX.Element => (
     <RecordingCard
       recording={item}
-      onPress={() =>
-        (navigation as any).navigate('RecordingsTab', {
+      onPress={() => {
+        navigation.navigate('RecordingsTab' as never, {
           screen: 'RecordingDetail',
           params: { recordingId: item._id }
-        })
-      }
+        } as never);
+      }}
       onPlay={() => { void play(item); }}
       onFavorite={() => { void toggleFavorite(item._id); }}
       onDelete={() => { void deleteRecording(item._id); }}

@@ -34,7 +34,7 @@ import {
   selectTotalRecordings,
 } from '../store/recordingSlice';
 import { selectFolders } from '@features/folder/store/folderSlice';
-import type { FilterTab, RecordingQueryParams, Recording, PaginationInfo, Folder } from '@types/recording.types';
+import type { FilterTab, RecordingQueryParams, Recording, PaginationInfo, Folder } from '@shared/types/recording.types';
 
 const useRecordings = (): {
   recordings: Recording[];
@@ -54,17 +54,17 @@ const useRecordings = (): {
   error: string | null;
   totalRecordings: number;
   folders: Folder[];
-  fetchRecordings: (params?: RecordingQueryParams) => void;
-  fetchMore: (params: RecordingQueryParams) => void;
-  fetchFavorites: () => void;
-  search: (q: string) => void;
+  fetchRecordings: (params?: RecordingQueryParams) => Promise<unknown>;
+  fetchMore: (params: RecordingQueryParams) => Promise<unknown>;
+  fetchFavorites: () => Promise<unknown>;
+  search: (q: string) => Promise<unknown>;
   setQuery: (q: string) => void;
-  toggleFavorite: (id: string) => void;
-  deleteRecording: (id: string) => void;
-  updateRecording: (id: string, updates: any) => void;
-  bulkDelete: (ids: string[]) => void;
+  toggleFavorite: (id: string) => Promise<unknown>;
+  deleteRecording: (id: string) => Promise<unknown>;
+  updateRecording: (id: string, updates: Partial<Recording>) => Promise<unknown>;
+  bulkDelete: (ids: string[]) => Promise<unknown>;
   changeFilter: (filter: FilterTab) => void;
-  changeSort: (params: any) => void;
+  changeSort: (params: { sortBy: string; sortOrder: string }) => void;
   startSelecting: () => void;
   toggleSelect: (id: string) => void;
   clearSelections: () => void;
@@ -125,7 +125,7 @@ const useRecordings = (): {
   );
 
   const updateRecording = useCallback(
-    (id: string, updates: Parameters<typeof updateRecordingThunk>[0]['updates']) =>
+    (id: string, updates: Partial<Recording>) =>
       dispatch(updateRecordingThunk({ id, updates })),
     [dispatch],
   );

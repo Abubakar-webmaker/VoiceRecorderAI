@@ -27,7 +27,6 @@ import {
 } from '@components/common/Typography';
 import useTheme          from '@hooks/useTheme';
 import useAuth           from '@features/auth/hooks/useAuth';
-import { selectIsDark }  from '../store/themeSlice';
 import useAppSelector    from '@hooks/useAppSelector';
 import { selectStorageInfo } from '@features/auth/store/authSelectors';
 import { formatStorageSize } from '@types/user.types';
@@ -95,7 +94,7 @@ const ProfileScreen = ({ navigation }: Props): React.JSX.Element => {
         maxHeight:   800,
         selectionLimit: 1,
       },
-      async (response) => {
+      (response) => {
         if (response.didCancel || !response.assets?.[0]) return;
         const asset = response.assets[0];
         if (!asset.uri) return;
@@ -123,7 +122,7 @@ const ProfileScreen = ({ navigation }: Props): React.JSX.Element => {
         {
           text:    'Sign Out',
           style:   'destructive',
-          onPress: () => void logout(),
+          onPress: () => { void logout(); },
         },
       ],
     );
@@ -181,9 +180,9 @@ const ProfileScreen = ({ navigation }: Props): React.JSX.Element => {
             onPress={() => navigation.goBack()}
             style={[styles.backBtn, { backgroundColor: colors.bg.elevated }]}
           >
-            <Caption color="secondary"><Text>←</Text></Caption>
+            <Caption color="secondary">←</Caption>
           </TouchableOpacity>
-          <H3 color="primary"><BodySm>Profile</BodySm></H3>
+          <H3 color="primary">Profile</H3>
           <View style={styles.headerRightPlaceholder} />
         </View>
 
@@ -211,11 +210,11 @@ const ProfileScreen = ({ navigation }: Props): React.JSX.Element => {
                   { backgroundColor: colors.primary.default },
                 ]}
               >
-                <Caption style={styles.editBadgeIcon}><Text>✏</Text></Caption>
+                <Caption style={styles.editBadgeIcon}>✏</Caption>
               </View>
             </View>
             <BodySm style={{ color: colors.primary.light }}>
-              <BodySm>{isUploadingAvatar ? 'Uploading...' : 'Change Photo'}</BodySm>
+              {isUploadingAvatar ? 'Uploading...' : 'Change Photo'}
             </BodySm>
           </TouchableOpacity>
 
@@ -256,7 +255,7 @@ const ProfileScreen = ({ navigation }: Props): React.JSX.Element => {
         >
           <Card variant="filled">
             <View style={styles.cardContent}>
-              <H5 color="primary"><BodySm>Account</BodySm></H5>
+              <H5 color="primary">Account</H5>
               {[
                 { label: 'Email',        value: user?.email ?? '' },
                 { label: 'Account Type', value: (user?.role ?? 'free').charAt(0).toUpperCase() + (user?.role ?? 'free').slice(1) },
@@ -281,9 +280,9 @@ const ProfileScreen = ({ navigation }: Props): React.JSX.Element => {
               <View style={styles.cardHeader}>
                 <H5 color="primary"><BodySm>Storage</BodySm></H5>
                 <TouchableOpacity
-                  onPress={() => navigation.navigate('StorageManager' as any)}
+                  onPress={() => navigation.navigate('StorageManager')}
                 >
-                  <Caption color="link"><BodySm>Manage →</BodySm></Caption>
+                  <Caption color="link">Manage →</Caption>
                 </TouchableOpacity>
               </View>
 
@@ -308,10 +307,10 @@ const ProfileScreen = ({ navigation }: Props): React.JSX.Element => {
 
               <View style={styles.storageInfo}>
                 <Caption color="secondary">
-                  <BodySm>{formatStorageSize(storage.used)} used</BodySm>
+                  {formatStorageSize(storage.used)} used
                 </Caption>
                 <Caption color="tertiary">
-                  <BodySm>{formatStorageSize(storage.limit)} total</BodySm>
+                  {formatStorageSize(storage.limit)} total
                 </Caption>
               </View>
 
@@ -321,16 +320,16 @@ const ProfileScreen = ({ navigation }: Props): React.JSX.Element => {
                   { color: storageColor }
                 ]}
               >
-                <BodySm>{storage.percent}% used</BodySm>
+                {storage.percent}% used
                 {storage.percent > 80 && (
-                  <BodySm> — Consider upgrading to Pro</BodySm>
+                  ' — Consider upgrading to Pro'
                 )}
               </BodySm>
 
               {storage.percent > 70 && (
                 <Button
                   label="Upgrade Storage"
-                  onPress={() => { (navigation as any).navigate('Subscription'); }}
+                  onPress={() => { navigation.navigate('Subscription'); }}
                   variant="primary"
                   size="sm"
                 />

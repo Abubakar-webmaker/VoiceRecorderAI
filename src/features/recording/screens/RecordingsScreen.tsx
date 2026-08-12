@@ -4,8 +4,6 @@ import React, {
 import {
   View, ScrollView, TouchableOpacity,
   TextInput, FlatList, StyleSheet,
-  Text,
-  type ViewStyle,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -20,7 +18,7 @@ import useTheme           from '@hooks/useTheme';
 import useRecordings      from '../hooks/useRecordings';
 import usePlayer          from '@features/player/hooks/usePlayer';
 import type { RecordingsScreenProps } from '@navigation/types';
-import type { FilterTab }             from '@types/recording.types';
+import type { FilterTab, Recording }             from '@shared/types/recording.types';
 
 type Props = RecordingsScreenProps<'Recordings'>;
 
@@ -95,15 +93,15 @@ const RecordingsScreen = ({ navigation }: Props): React.JSX.Element => {
   }, [fetchMore, isLoadingMore, pagination, sortConfig]);
 
   // ─── Render Item ────────────────────────────────────────────
-  const renderItem = useCallback(({ item }: { item: typeof recordings[0] }) => (
+  const renderItem = useCallback(({ item }: { item: Recording }): React.JSX.Element => (
     <RecordingCard
       recording={item}
       onPress={() =>
         navigation.navigate('RecordingDetail', { recordingId: item._id })
       }
-      onPlay={() => play(item)}
-      onFavorite={() => toggleFavorite(item._id)}
-      onDelete={() => deleteRecording(item._id)}
+      onPlay={() => { void play(item); }}
+      onFavorite={() => { void toggleFavorite(item._id); }}
+      onDelete={() => { void deleteRecording(item._id); }}
       isSelected={selectedIds.includes(item._id)}
       onSelect={() => toggleSelect(item._id)}
       isSelecting={isSelecting}
@@ -114,7 +112,7 @@ const RecordingsScreen = ({ navigation }: Props): React.JSX.Element => {
   ]);
 
   const keyExtractor = useCallback(
-    (item: typeof recordings[0]) => item._id,
+    (item: Recording): string => item._id,
     [],
   );
 
@@ -125,7 +123,9 @@ const RecordingsScreen = ({ navigation }: Props): React.JSX.Element => {
     >
       {/* ─── Header ──────────────────────────────────────────── */}
       <View style={[styles.header, { paddingHorizontal: spacing[5] }]}>
-        <H3 color="primary">Recordings</H3>
+        <H3 color="primary">
+          Recordings
+        </H3>
 
         <View style={styles.headerActions}>
           {isSelecting ? (
@@ -140,7 +140,7 @@ const RecordingsScreen = ({ navigation }: Props): React.JSX.Element => {
                 ]}
               >
                 <Caption style={{ color: colors.error.text }}>
-                  <Text>Delete ({selectedIds.length})</Text>
+                  Delete ({selectedIds.length})
                 </Caption>
               </TouchableOpacity>
               <TouchableOpacity
@@ -150,7 +150,7 @@ const RecordingsScreen = ({ navigation }: Props): React.JSX.Element => {
                   { backgroundColor: colors.bg.elevated },
                 ]}
               >
-                <Caption color="secondary"><Text>Cancel</Text></Caption>
+                <Caption color="secondary">Cancel</Caption>
               </TouchableOpacity>
             </>
           ) : (
@@ -159,13 +159,13 @@ const RecordingsScreen = ({ navigation }: Props): React.JSX.Element => {
                 onPress={() => setShowSort(true)}
                 style={[styles.headerBtn, { backgroundColor: colors.bg.elevated }]}
               >
-                <Caption color="secondary"><Text>⇅ Sort</Text></Caption>
+                <Caption color="secondary">⇅ Sort</Caption>
               </TouchableOpacity>
               <TouchableOpacity
                 onPress={startSelecting}
                 style={[styles.headerBtn, { backgroundColor: colors.bg.elevated }]}
               >
-                <Caption color="secondary"><Text>Select</Text></Caption>
+                <Caption color="secondary">Select</Caption>
               </TouchableOpacity>
             </>
           )}
@@ -183,7 +183,7 @@ const RecordingsScreen = ({ navigation }: Props): React.JSX.Element => {
           },
         ]}
       >
-        <Caption color="tertiary" style={styles.searchIcon}><Text>🔍</Text></Caption>
+        <Caption color="tertiary" style={styles.searchIcon}>🔍</Caption>
         <TextInput
           ref={searchRef}
           value={searchQuery}
@@ -196,7 +196,7 @@ const RecordingsScreen = ({ navigation }: Props): React.JSX.Element => {
         />
         {searchQuery.length > 0 && (
           <TouchableOpacity onPress={() => setQuery('')}>
-            <Caption color="secondary"><Text>✕</Text></Caption>
+            <Caption color="secondary">✕</Caption>
           </TouchableOpacity>
         )}
       </View>
@@ -235,7 +235,7 @@ const RecordingsScreen = ({ navigation }: Props): React.JSX.Element => {
                     : colors.text.secondary,
                 }}
               >
-                <Text>{tab.icon} {tab.label}</Text>
+                {tab.icon} {tab.label}
               </Caption>
             </TouchableOpacity>
           ))}
@@ -268,7 +268,10 @@ const RecordingsScreen = ({ navigation }: Props): React.JSX.Element => {
           onAction={
             isShowingSearch
               ? undefined
-              : () => navigation.getParent()?.navigate('RecordTab' as never)
+              : () => {
+                const parent = navigation.getParent();
+                if (parent) (parent as any).navigate('RecordTab');
+              }
           }
         />
       ) : (
@@ -335,7 +338,7 @@ const RecordingsScreen = ({ navigation }: Props): React.JSX.Element => {
                 </BodySm>
                 {isActive && (
                   <Caption style={{ color: colors.primary.default }}>
-                    <Text>✓</Text>
+                    ✓
                   </Caption>
                 )}
               </TouchableOpacity>

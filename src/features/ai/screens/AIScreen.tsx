@@ -5,10 +5,11 @@ import {
   TouchableOpacity,
   Alert,
   StyleSheet,
+  Text,
   type ViewStyle,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import Animated, { FadeInDown, FadeIn } from 'react-native-reanimated';
+import Animated, { FadeInDown } from 'react-native-reanimated';
 
 import { TranscriptionView } from '../components/TranscriptionView';
 import { AIChatView }        from '../components/AIChatView';
@@ -45,7 +46,8 @@ import {
   selectIsChatLoading,
   clearAIError,
 } from '../store/aiSlice';
-import { AIStatus }     from '@types/recording.types';
+import { AIStatus }     from '@shared/types/recording.types';
+import type { AISummaryDoc, AIActionItem, AIKeyword } from '@shared/types/ai.types';
 import type { RootScreenProps } from '@navigation/types';
 
 // ─── AI Tab types ─────────────────────────────────────────────────
@@ -73,7 +75,7 @@ const AIStatusBadge = ({ status }: { status: AIStatus }): React.JSX.Element => {
 // ─── Overview Tab ─────────────────────────────────────────────────
 interface OverviewProps {
   recordingId:     string;
-  summary:         NonNullable<ReturnType<typeof useAppSelector<any>>>;
+  summary:         AISummaryDoc;
   isTranscribing:  boolean;
   isSummarizing:   boolean;
   isProcessingAll: boolean;
@@ -94,16 +96,16 @@ const OverviewTab = ({
 }: OverviewProps): React.JSX.Element => {
   const { colors, spacing } = useTheme();
 
-  const hasTranscription = summary?.transcription?.status === AIStatus.COMPLETED;
-  const hasSummary       = summary?.summary?.status       === AIStatus.COMPLETED;
-  const hasKeywords      = summary?.keywords?.status      === AIStatus.COMPLETED;
-  const hasActions       = summary?.actionItems?.status   === AIStatus.COMPLETED;
+  const hasTranscription = summary.transcription.status === AIStatus.COMPLETED;
+  const hasSummary       = summary.summary.status       === AIStatus.COMPLETED;
+  const hasKeywords      = summary.keywords.status      === AIStatus.COMPLETED;
+  const hasActions       = summary.actionItems.status   === AIStatus.COMPLETED;
 
   const rows = [
     {
       label:   'Transcription',
       icon:    '🎙',
-      status:  summary?.transcription?.status ?? AIStatus.NONE,
+      status:  summary.transcription.status,
       onPress: onTranscribe,
       loading: isTranscribing,
       info:    hasTranscription
@@ -113,17 +115,17 @@ const OverviewTab = ({
     {
       label:   'Summary',
       icon:    '📋',
-      status:  summary?.summary?.status ?? AIStatus.NONE,
+      status:  summary.summary.status,
       onPress: onSummarize,
       loading: isSummarizing,
       info:    hasSummary
-        ? `${summary.summary.length} summary`
+        ? `${summary.summary.text.length} characters`
         : 'Requires transcription',
     },
     {
       label:   'Keywords',
       icon:    '🏷',
-      status:  summary?.keywords?.status ?? AIStatus.NONE,
+      status:  summary.keywords.status,
       onPress: onKeywords,
       loading: isExtractingKw,
       info:    hasKeywords
@@ -133,7 +135,7 @@ const OverviewTab = ({
     {
       label:   'Action Items',
       icon:    '✅',
-      status:  summary?.actionItems?.status ?? AIStatus.NONE,
+      status:  summary.actionItems.status,
       onPress: onActions,
       loading: isExtractingAct,
       info:    hasActions
@@ -147,8 +149,8 @@ const OverviewTab = ({
       {/* Process All CTA */}
       {!hasTranscription && (
         <Card variant="filled">
-          <View style={{ gap: spacing[3], alignItems: 'center' }}>
-            <Caption style={{ fontSize: 40 }}>🤖</Caption>
+          <View style={[styles.ctaContent, { gap: spacing[3] }]}>
+            <Caption style={styles.ctaIcon}>🤖</Caption>
             <H5 align="center" color="primary">
               AI Full Analysis
             </H5>
@@ -182,9 +184,9 @@ const OverviewTab = ({
               },
             ]}
           >
-            <Caption style={{ fontSize: 20 }}>{icon}</Caption>
-            <View style={{ flex: 1 }}>
-              <BodySm color="primary" style={{ fontWeight: '600' }}>{label}</BodySm>
+            <Caption style={styles.rowIcon}>{icon}</Caption>
+            <View style={styles.flex1}>
+              <BodySm color="primary" style={styles.rowLabel}>{label}</BodySm>
               <Caption color="secondary">{info}</Caption>
             </View>
             {loading ? (
@@ -197,10 +199,12 @@ const OverviewTab = ({
       </View>
 
       {/* Cost info */}
-      {summary?.totalTokensUsed > 0 && (
+      {summary.totalTokensUsed > 0 && (
         <Caption color="tertiary" align="center">
-          {summary.totalTokensUsed.toLocaleString()} tokens used
-          · ~${(summary.totalCost as number).toFixed(4)} estimated cost
+          {summary.totalTokensUsed.toLocaleString()}
+          <Text>{' tokens used · ~$'}</Text>
+          {summary.totalCost.toFixed(4)}
+          <Text>{' estimated cost'}</Text>
         </Caption>
       )}
     </View>
@@ -209,7 +213,7 @@ const OverviewTab = ({
 
 // ─── Actions Tab ──────────────────────────────────────────────────
 interface ActionsTabProps {
-  items:      NonNullable<ReturnType<typeof useAppSelector<any>>>[];
+  items:      AIActionItem[];
   onToggle:   (id: string, completed: boolean) => void;
   onExtract:  () => void;
   isLoading:  boolean;
@@ -227,8 +231,8 @@ const ActionsTab = ({
     return (
       <View style={{ gap: spacing[4] }}>
         <Card variant="outlined">
-          <View style={{ alignItems: 'center', gap: spacing[3], padding: spacing[4] }}>
-            <Caption style={{ fontSize: 36 }}>✅</Caption>
+          <View style={[styles.emptyActions, { gap: spacing[3], padding: spacing[4] }]}>
+            <Caption style={styles.emptyActionsIcon}>✅</Caption>
             <H5 align="center" color="primary">No action items yet</H5>
             <BodySm color="secondary" align="center">
               Extract action items from this recording transcript
@@ -247,14 +251,16 @@ const ActionsTab = ({
   }
 
   const done    = items.filter((i) => i.completed).length;
-  const pending = items.filter((i) => !i.completed).length;
 
   return (
     <View style={{ gap: spacing[3] }}>
       {/* Progress */}
       <View style={[styles.actionProgress, { gap: spacing[2] }]}>
         <Caption color="secondary">
-          {done}/{items.length} completed
+          {done}
+          <Text>/</Text>
+          {items.length}
+          <Text> completed</Text>
         </Caption>
         <View
           style={[
@@ -263,12 +269,14 @@ const ActionsTab = ({
           ]}
         >
           <View
-            style={{
-              width:           `${items.length > 0 ? (done / items.length) * 100 : 0}%`,
-              height:          '100%',
-              backgroundColor: colors.ai.default,
-              borderRadius:    borderRadius.full,
-            }}
+            style={[
+              styles.progressBar,
+              {
+                width:           `${items.length > 0 ? (done / items.length) * 100 : 0}%`,
+                backgroundColor: colors.ai.default,
+                borderRadius:    borderRadius.full,
+              },
+            ]}
           />
         </View>
       </View>
@@ -301,27 +309,35 @@ const ActionsTab = ({
             ]}
           >
             {item.completed && (
-              <Caption style={{ color: '#fff', fontSize: 10 }}>✓</Caption>
+              <Caption style={styles.checkIcon}>✓</Caption>
             )}
           </View>
 
-          <View style={{ flex: 1, gap: 4 }}>
+          <View style={styles.actionItemContent}>
             <BodySm
-              style={{
-                color:          item.completed ? colors.text.secondary : colors.text.primary,
-                textDecorationLine: item.completed ? 'line-through' : 'none',
-                fontWeight:     '500',
-              }}
+              style={[
+                styles.taskText,
+                {
+                  color:          item.completed ? colors.text.secondary : colors.text.primary,
+                  textDecorationLine: item.completed ? 'line-through' : 'none',
+                },
+              ]}
             >
               {item.task}
             </BodySm>
 
             <View style={styles.actionMeta}>
               {item.assignee && (
-                <Caption color="tertiary">👤 {item.assignee}</Caption>
+                <Caption color="tertiary">
+                  <Text>👤 </Text>
+                  {item.assignee}
+                </Caption>
               )}
               {item.deadline && (
-                <Caption color="tertiary">📅 {item.deadline}</Caption>
+                <Caption color="tertiary">
+                  <Text>📅 </Text>
+                  {item.deadline}
+                </Caption>
               )}
               <Badge
                 label={item.priority}
@@ -438,7 +454,7 @@ const AIScreen = ({ navigation, route }: Props): React.JSX.Element => {
 
         <H4 color="primary">AI Analysis</H4>
 
-        <View style={[styles.closeBtn, { opacity: 0 }]} />
+        <View style={[styles.closeBtn, styles.invisible]} />
       </View>
 
       {/* ─── Tab Bar ──────────────────────────────────────────── */}
@@ -467,14 +483,19 @@ const AIScreen = ({ navigation, route }: Props): React.JSX.Element => {
             ]}
           >
             <Caption
-              style={{
-                color: activeTab === tab.id
-                  ? colors.primary.light
-                  : colors.text.secondary,
-                fontWeight: activeTab === tab.id ? '600' : '400',
-              }}
+              style={[
+                styles.tabLabel,
+                {
+                  color: activeTab === tab.id
+                    ? colors.primary.light
+                    : colors.text.secondary,
+                  fontWeight: (activeTab === tab.id ? '600' : '400'),
+                },
+              ]}
             >
-              {tab.icon} {tab.label}
+              <Text>{tab.icon}</Text>
+              <Text>{' '}</Text>
+              <Text>{tab.label}</Text>
             </Caption>
           </TouchableOpacity>
         ))}
@@ -523,19 +544,19 @@ const AIScreen = ({ navigation, route }: Props): React.JSX.Element => {
           {/* Transcript */}
           {activeTab === 'transcript' && (
             <Animated.View entering={FadeInDown.duration(300)}>
-              {summary?.transcription?.status === AIStatus.COMPLETED ? (
-                <TranscriptionView
+              {summary.transcription.status === AIStatus.COMPLETED ? (
+                  <TranscriptionView
                   fullText={summary.transcription.fullText}
                   segments={summary.transcription.segments}
-                  language={summary.transcription.language}
+                  _language={summary.transcription.language}
                   languageName={summary.transcription.languageName}
                   confidence={summary.transcription.confidence}
                   wordCount={summary.transcription.wordCount}
                 />
               ) : (
                 <Card variant="outlined">
-                  <View style={{ alignItems: 'center', gap: spacing[3], padding: spacing[4] }}>
-                    <Caption style={{ fontSize: 36 }}>🎙</Caption>
+                  <View style={[styles.emptyTranscript, { gap: spacing[3], padding: spacing[4] }]}>
+                    <Caption style={styles.emptyTranscriptIcon}>🎙</Caption>
                     <H5 align="center" color="primary">No transcription yet</H5>
                     <BodySm color="secondary" align="center">
                       Transcribe this recording to see the full text with timestamps
@@ -556,7 +577,7 @@ const AIScreen = ({ navigation, route }: Props): React.JSX.Element => {
           {/* Summary */}
           {activeTab === 'summary' && (
             <Animated.View entering={FadeInDown.duration(300)} style={{ gap: spacing[4] }}>
-              {summary?.summary?.status === AIStatus.COMPLETED ? (
+              {summary.summary.status === AIStatus.COMPLETED ? (
                 <>
                   <Card variant="filled">
                     <View style={{ gap: spacing[2] }}>
@@ -568,18 +589,18 @@ const AIScreen = ({ navigation, route }: Props): React.JSX.Element => {
                           size="sm"
                         />
                       </View>
-                      <BodySm color="primary" style={{ lineHeight: 24 }}>
+                      <BodySm color="primary" style={styles.summaryText}>
                         {summary.summary.text}
                       </BodySm>
                     </View>
                   </Card>
 
                   {/* AI Title */}
-                  {summary.aiTitle?.status === AIStatus.COMPLETED && (
+                  {summary.aiTitle.status === AIStatus.COMPLETED && (
                     <Card variant="outlined">
                       <View style={{ gap: spacing[1] }}>
                         <Label color="secondary">Suggested Title</Label>
-                        <BodySm color="primary" style={{ fontWeight: '600' }}>
+                        <BodySm color="primary" style={styles.suggestedTitle}>
                           {summary.aiTitle.text}
                         </BodySm>
                       </View>
@@ -587,14 +608,15 @@ const AIScreen = ({ navigation, route }: Props): React.JSX.Element => {
                   )}
 
                   {/* Keywords */}
-                  {summary.keywords?.status === AIStatus.COMPLETED &&
+                  {summary.keywords.status === AIStatus.COMPLETED &&
                     summary.keywords.items.length > 0 && (
                     <View style={{ gap: spacing[2] }}>
                       <Label color="secondary">Keywords</Label>
                       <View style={styles.keywordGrid}>
                         {summary.keywords.items
-                          .sort((a: any, b: any) => b.relevance - a.relevance)
-                          .map((kw: any) => (
+                          .slice()
+                          .sort((a: AIKeyword, b: AIKeyword) => b.relevance - a.relevance)
+                          .map((kw: AIKeyword) => (
                           <View
                             key={kw.word}
                             style={[
@@ -608,8 +630,14 @@ const AIScreen = ({ navigation, route }: Props): React.JSX.Element => {
                             <Caption style={{ color: colors.primary.light }}>
                               {kw.word}
                             </Caption>
-                            <Caption style={{ color: colors.text.tertiary, fontSize: 9 }}>
-                              {Math.round(kw.relevance * 100)}%
+                            <Caption
+                              style={[
+                                styles.relevanceText,
+                                { color: colors.text.tertiary },
+                              ]}
+                            >
+                              {Math.round(kw.relevance * 100)}
+                              <Text>%</Text>
                             </Caption>
                           </View>
                         ))}
@@ -619,11 +647,11 @@ const AIScreen = ({ navigation, route }: Props): React.JSX.Element => {
                 </>
               ) : (
                 <Card variant="outlined">
-                  <View style={{ alignItems: 'center', gap: spacing[3], padding: spacing[4] }}>
-                    <Caption style={{ fontSize: 36 }}>📋</Caption>
+                  <View style={[styles.emptySummary, { gap: spacing[3], padding: spacing[4] }]}>
+                    <Caption style={styles.emptySummaryIcon}>📋</Caption>
                     <H5 align="center" color="primary">No summary yet</H5>
                     <BodySm color="secondary" align="center">
-                      {summary?.transcription?.status === AIStatus.COMPLETED
+                      {summary.transcription.status === AIStatus.COMPLETED
                         ? 'Generate a summary of the transcript'
                         : 'Transcription required first'}
                     </BodySm>
@@ -633,7 +661,7 @@ const AIScreen = ({ navigation, route }: Props): React.JSX.Element => {
                       variant="ai"
                       size="md"
                       isLoading={isSummarizing}
-                      isDisabled={summary?.transcription?.status !== AIStatus.COMPLETED}
+                      isDisabled={summary.transcription.status !== AIStatus.COMPLETED}
                     />
                   </View>
                 </Card>
@@ -669,6 +697,10 @@ const styles = StyleSheet.create({
     borderWidth:     1,
     gap:             12,
   } as ViewStyle,
+  actionItemContent: {
+    flex: 1,
+    gap:  4,
+  } as ViewStyle,
   actionMeta: {
     flexDirection: 'row',
     flexWrap:      'wrap',
@@ -683,6 +715,10 @@ const styles = StyleSheet.create({
     alignItems:     'center',
     justifyContent: 'center',
   } as ViewStyle,
+  checkIcon: {
+    color:    '#FFFFFF',
+    fontSize: 10,
+  },
   checkbox: {
     width:          22,
     height:         22,
@@ -704,11 +740,41 @@ const styles = StyleSheet.create({
     paddingBottom: 40,
     gap:           16,
   } as ViewStyle,
+  ctaContent: {
+    alignItems: 'center',
+  } as ViewStyle,
+  ctaIcon: {
+    fontSize: 40,
+  } as ViewStyle,
+  emptyActions: {
+    alignItems: 'center',
+  } as ViewStyle,
+  emptyActionsIcon: {
+    fontSize: 36,
+  } as ViewStyle,
+  emptySummary: {
+    alignItems: 'center',
+  } as ViewStyle,
+  emptySummaryIcon: {
+    fontSize: 36,
+  } as ViewStyle,
+  emptyTranscript: {
+    alignItems: 'center',
+  } as ViewStyle,
+  emptyTranscriptIcon: {
+    fontSize: 36,
+  } as ViewStyle,
+  flex1: {
+    flex: 1,
+  } as ViewStyle,
   header: {
     flexDirection:  'row',
     alignItems:     'center',
     justifyContent: 'space-between',
     paddingVertical: 12,
+  } as ViewStyle,
+  invisible: {
+    opacity: 0,
   } as ViewStyle,
   keyword: {
     flexDirection:   'row',
@@ -724,10 +790,22 @@ const styles = StyleSheet.create({
     flexWrap:      'wrap',
     gap:           8,
   } as ViewStyle,
+  progressBar: {
+    height: '100%',
+  } as ViewStyle,
   progressTrack: {
     height:   4,
     width:    '100%',
     overflow: 'hidden',
+  } as ViewStyle,
+  relevanceText: {
+    fontSize: 9,
+  } as ViewStyle,
+  rowIcon: {
+    fontSize: 20,
+  } as ViewStyle,
+  rowLabel: {
+    fontWeight: '600',
   } as ViewStyle,
   screen:  { flex: 1 } as ViewStyle,
   statusRow: {
@@ -738,10 +816,16 @@ const styles = StyleSheet.create({
     borderWidth:     1,
     gap:             12,
   } as ViewStyle,
+  suggestedTitle: {
+    fontWeight: '600',
+  } as ViewStyle,
   summaryHeader: {
     flexDirection:  'row',
     alignItems:     'center',
     justifyContent: 'space-between',
+  } as ViewStyle,
+  summaryText: {
+    lineHeight: 24,
   } as ViewStyle,
   tab: {
     paddingHorizontal: 14,
@@ -753,6 +837,13 @@ const styles = StyleSheet.create({
     flexDirection:  'row',
     gap:            8,
     paddingBottom:  12,
+  } as ViewStyle,
+  tabLabel: {
+    flexDirection: 'row',
+    alignItems:    'center',
+  } as ViewStyle,
+  taskText: {
+    fontWeight: '500',
   } as ViewStyle,
 });
 

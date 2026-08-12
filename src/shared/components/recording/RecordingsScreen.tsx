@@ -3,7 +3,6 @@ import {
   View,
   TouchableOpacity,
   StyleSheet,
-  Dimensions,
   type ViewStyle,
 } from 'react-native';
 import Animated, {
@@ -27,7 +26,6 @@ import {
   formatDuration,
 } from '@types/recording.types';
 
-const { width: W } = Dimensions.get('window');
 const SWIPE_THRESHOLD = -80;
 const ACTION_WIDTH    = 160; // Total swipe action area
 
@@ -153,11 +151,9 @@ const RecordingCard = ({
           style={[styles.actionBtn, { backgroundColor: colors.ai.surface }]}
           onPress={() => { handleClose(); onFavorite(); }}
         >
-          <Typography variant="bodyLg">
-            <Typography variant="bodyLg">{recording.isFavorite ? '💛' : '🤍'}</Typography>
-          </Typography>
+          <Typography variant="bodyLg">{recording.isFavorite ? '💛' : '🤍'}</Typography>
           <Caption style={[styles.actionBtnLabel, { color: colors.ai.default }]}>
-            <Caption>{recording.isFavorite ? 'Unfav' : 'Fav'}</Caption>
+            {recording.isFavorite ? 'Unfav' : 'Fav'}
           </Caption>
         </TouchableOpacity>
 
@@ -165,9 +161,9 @@ const RecordingCard = ({
           style={[styles.actionBtn, { backgroundColor: colors.error.surface }]}
           onPress={() => { handleClose(); onDelete(); }}
         >
-          <Typography variant="bodyLg"><Typography variant="bodyLg">🗑</Typography></Typography>
+          <Typography variant="bodyLg">🗑</Typography>
           <Caption style={[styles.actionBtnLabel, { color: colors.error.text }]}>
-            <Caption>Delete</Caption>
+            Delete
           </Caption>
         </TouchableOpacity>
       </Animated.View>
@@ -199,7 +195,7 @@ const RecordingCard = ({
               hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
             >
               <Caption style={[styles.playBtnIcon, { color: colors.primary.default }]}>
-                <Caption>▶</Caption>
+                ▶
               </Caption>
             </TouchableOpacity>
           </TouchableOpacity>
@@ -236,7 +232,7 @@ const CardContent = ({
           {recording.title}
         </Typography>
         {recording.isFavorite && (
-          <Caption style={styles.favIconSmall}><Caption>💛</Caption></Caption>
+          <Caption style={styles.favIconSmall}>💛</Caption>
         )}
       </View>
 
@@ -245,15 +241,15 @@ const CardContent = ({
         <Caption
           style={{ color: colors.text.secondary }}
         >
-          <Caption>{formatDuration(recording.duration)}</Caption>
+          {formatDuration(recording.duration)}
         </Caption>
         <View style={[styles.dot, { backgroundColor: colors.text.tertiary }]} />
         <Caption style={{ color: colors.text.tertiary }}>
-          <Caption>{recording.format.toUpperCase()}</Caption>
+          {recording.format.toUpperCase()}
         </Caption>
         <View style={[styles.dot, { backgroundColor: colors.text.tertiary }]} />
         <Caption style={{ color: colors.text.tertiary }}>
-          <Caption>{date}</Caption>
+          {date}
         </Caption>
       </View>
 

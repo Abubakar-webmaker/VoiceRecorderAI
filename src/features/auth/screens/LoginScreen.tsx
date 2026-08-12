@@ -1,10 +1,10 @@
 import React, { useCallback, useEffect } from 'react';
 import {
-  View,
   ScrollView,
   KeyboardAvoidingView,
   Platform,
   StyleSheet,
+  Text,
   type ViewStyle,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -18,7 +18,7 @@ import { Button }       from '@components/common/Button';
 import { Input }        from '@components/common/Input';
 import { Divider }      from '@components/common/Divider';
 import {
-  BodyMd, BodySm, Typography,
+  BodyMd, BodySm,
 } from '@components/common/Typography';
 import useAuth          from '../hooks/useAuth';
 import useTheme         from '@hooks/useTheme';
@@ -46,7 +46,6 @@ const LoginScreen = ({ navigation }: Props): React.JSX.Element => {
     login,
     isLoading,
     error,
-    isAuthenticated,
     dismissError,
   } = useAuth();
 
@@ -63,7 +62,7 @@ const LoginScreen = ({ navigation }: Props): React.JSX.Element => {
 
   // Error from Redux → form error dikhao
   useEffect(() => {
-    if (error != null) {
+    if (error !== undefined && error !== null) {
       setError('password', { message: error });
       dismissError();
     }
@@ -82,7 +81,7 @@ const LoginScreen = ({ navigation }: Props): React.JSX.Element => {
       edges={['top', 'bottom']}
     >
       <KeyboardAvoidingView
-        style={{ flex: 1 }}
+        style={styles.keyboardView}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 24}
       >
@@ -141,7 +140,7 @@ const LoginScreen = ({ navigation }: Props): React.JSX.Element => {
                   autoComplete="current-password"
                   textContentType="password"
                   returnKeyType="done"
-                  onSubmitEditing={handleSubmit(onSubmit)}
+                  onSubmitEditing={() => { void handleSubmit(onSubmit)(); }}
                 />
               )}
             />
@@ -150,15 +149,15 @@ const LoginScreen = ({ navigation }: Props): React.JSX.Element => {
             <BodySm
               color="link"
               onPress={() => navigation.navigate('ForgotPassword')}
-              style={{ alignSelf: 'flex-end', marginTop: -spacing[2] }}
+              style={styles.forgotPassword}
             >
-              Forgot password?
+              <Text>Forgot password?</Text>
             </BodySm>
 
             {/* Sign In Button */}
             <Button
               label="Sign In"
-              onPress={handleSubmit(onSubmit)}
+              onPress={() => { void handleSubmit(onSubmit)(); }}
               variant="primary"
               size="lg"
               fullWidth
@@ -183,13 +182,14 @@ const LoginScreen = ({ navigation }: Props): React.JSX.Element => {
             style={[styles.footer, { gap: spacing[1] }]}
           >
             <BodyMd color="secondary" align="center">
-              Don't have an account?{' '}
+              <Text>Don&apos;t have an account?</Text>
+              <Text>{' '}</Text>
               <BodyMd
                 color="link"
                 onPress={() => navigation.navigate('Register')}
-                style={{ fontWeight: '600' }}
+                style={styles.signUpText}
               >
-                Sign up free
+                <Text>Sign up free</Text>
               </BodyMd>
             </BodyMd>
           </Animated.View>
@@ -205,9 +205,15 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     alignItems:        'center',
   } as ViewStyle,
+  forgotPassword: {
+    alignSelf: 'flex-end',
+  } as ViewStyle,
   form: {
     paddingHorizontal: 20,
     marginTop:         24,
+  } as ViewStyle,
+  keyboardView: {
+    flex: 1,
   } as ViewStyle,
   screen: {
     flex: 1,
@@ -215,6 +221,9 @@ const styles = StyleSheet.create({
   scroll: {
     flexGrow:          1,
     paddingBottom:     40,
+  } as ViewStyle,
+  signUpText: {
+    fontWeight: '600',
   } as ViewStyle,
 });
 

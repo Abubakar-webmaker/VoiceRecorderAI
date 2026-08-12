@@ -94,9 +94,9 @@ const folderSlice = createSlice({
 export const { clearFolderError } = folderSlice.actions;
 
 const folState = (s: RootState): FolderState => s.folder;
-export const selectFolders     = createSelector(folState, (s) => s.items);
+export const selectFolders     = createSelector(folState, (s): Folder[] => s.items);
 export const selectFolderById  = (id: string) =>
-  createSelector(folState, (s) => s.items.find((f) => f._id === id));
-export const selectFolderLoading = createSelector(folState, (s) => s.isLoading);
+  createSelector(folState, (s): Folder | undefined => s.items.find((f) => f._id === id));
+export const selectFolderLoading = createSelector(folState, (s): boolean => s.isLoading);
 
 export default folderSlice.reducer;

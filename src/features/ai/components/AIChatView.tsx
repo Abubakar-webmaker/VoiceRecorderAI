@@ -31,7 +31,7 @@ interface BubbleProps {
 }
 
 const MessageBubble = ({ message }: BubbleProps): React.JSX.Element => {
-  const { colors, spacing, borderRadius } = useTheme();
+  const { colors, borderRadius } = useTheme();
   const isUser = message.role === 'user';
 
   const time = new Date(message.createdAt).toLocaleTimeString('en-US', {
@@ -45,7 +45,7 @@ const MessageBubble = ({ message }: BubbleProps): React.JSX.Element => {
       entering={FadeInDown.duration(250)}
       style={[
         styles.bubbleWrapper,
-        { justifyContent: isUser ? 'flex-end' : 'flex-start' },
+        isUser ? styles.bubbleWrapperUser : styles.bubbleWrapperAI,
       ]}
     >
       {!isUser && (
@@ -55,11 +55,11 @@ const MessageBubble = ({ message }: BubbleProps): React.JSX.Element => {
             { backgroundColor: colors.ai.surface },
           ]}
         >
-          <Caption style={{ fontSize: 14 }}>🤖</Caption>
+          <Caption style={styles.avatarEmoji}>🤖</Caption>
         </View>
       )}
 
-      <View style={{ maxWidth: '78%' }}>
+      <View style={styles.bubbleMaxWidth}>
         <View
           style={[
             styles.bubble,
@@ -69,26 +69,25 @@ const MessageBubble = ({ message }: BubbleProps): React.JSX.Element => {
                 : colors.bg.elevated,
               borderRadius: borderRadius.xl,
               borderBottomRightRadius: isUser ? 4 : borderRadius.xl,
-              borderBottomLeftRadius:  isUser ? borderRadius.xl : 4,
+              borderBottomLeftRadius: isUser ? borderRadius.xl : 4,
             },
           ]}
         >
           <BodySm
-            style={{
-              color:      isUser ? '#FFFFFF' : colors.text.primary,
-              lineHeight: 20,
-            }}
+            style={[
+              styles.bubbleText,
+              { color: isUser ? colors.text.inverse : colors.text.primary },
+            ]}
           >
             {message.content}
           </BodySm>
         </View>
 
         <Caption
-          style={{
-            color:     colors.text.tertiary,
-            marginTop: 4,
-            textAlign: isUser ? 'right' : 'left',
-          }}
+          style={[
+            styles.bubbleTime,
+            { color: colors.text.tertiary, textAlign: isUser ? 'right' : 'left' },
+          ]}
         >
           {time}
         </Caption>
@@ -101,19 +100,20 @@ const MessageBubble = ({ message }: BubbleProps): React.JSX.Element => {
 const TypingIndicator = (): React.JSX.Element => {
   const { colors } = useTheme();
   return (
-    <View style={[styles.bubbleWrapper, { justifyContent: 'flex-start' }]}>
+    <View style={[styles.bubbleWrapper, styles.bubbleWrapperAI]}>
       <View
         style={[
           styles.avatar,
           { backgroundColor: colors.ai.surface },
         ]}
       >
-        <Caption style={{ fontSize: 14 }}>🤖</Caption>
+        <Caption style={styles.avatarEmoji}>🤖</Caption>
       </View>
       <View
         style={[
           styles.bubble,
-          { backgroundColor: colors.bg.elevated, minWidth: 60 },
+          styles.typingBubble,
+          { backgroundColor: colors.bg.elevated },
         ]}
       >
         <Loader size="sm" variant="ai" color={colors.ai.default} />
@@ -184,7 +184,7 @@ const AIChatView = ({
         showsVerticalScrollIndicator={false}
         ListEmptyComponent={
           <View style={[styles.emptyChat, { paddingHorizontal: spacing[4] }]}>
-            <Caption style={{ fontSize: 32, marginBottom: spacing[3] }}>🤖</Caption>
+            <Caption style={styles.emptyEmoji}>🤖</Caption>
             <BodySm color="secondary" align="center">
               Ask me anything about this recording — I know the full transcript!
             </BodySm>
@@ -238,13 +238,7 @@ const AIChatView = ({
             onChangeText={setInputText}
             placeholder={placeholder}
             placeholderTextColor={colors.text.tertiary}
-            style={{
-              flex:     1,
-              color:    colors.text.primary,
-              fontSize: 15,
-              maxHeight: 100,
-              padding:  0,
-            }}
+            style={[styles.textInput, { color: colors.text.primary }]}
             multiline
             returnKeyType="send"
             onSubmitEditing={handleSend}
@@ -266,7 +260,7 @@ const AIChatView = ({
             },
           ]}
         >
-          <Caption style={{ color: '#FFFFFF', fontSize: 16 }}>↑</Caption>
+          <Caption style={[styles.sendIcon, { color: colors.text.inverse }]}>↑</Caption>
         </TouchableOpacity>
       </View>
     </KeyboardAvoidingView>
@@ -281,19 +275,41 @@ const styles = StyleSheet.create({
     alignItems:     'center',
     justifyContent: 'center',
   } as ViewStyle,
+  avatarEmoji: {
+    fontSize: 14,
+  },
   bubble: {
     padding: 12,
   } as ViewStyle,
+  bubbleMaxWidth: {
+    maxWidth: '78%',
+  } as ViewStyle,
+  bubbleText: {
+    lineHeight: 20,
+  },
+  bubbleTime: {
+    marginTop: 4,
+  },
   bubbleWrapper: {
     flexDirection: 'row',
     alignItems:    'flex-end',
     gap:           8,
+  } as ViewStyle,
+  bubbleWrapperAI: {
+    justifyContent: 'flex-start',
+  } as ViewStyle,
+  bubbleWrapperUser: {
+    justifyContent: 'flex-end',
   } as ViewStyle,
   emptyChat: {
     flex:           1,
     alignItems:     'center',
     paddingTop:     32,
   } as ViewStyle,
+  emptyEmoji: {
+    fontSize:     32,
+    marginBottom: 12,
+  },
   inputBar: {
     flexDirection:   'row',
     alignItems:      'flex-end',
@@ -321,6 +337,9 @@ const styles = StyleSheet.create({
     alignItems:     'center',
     justifyContent: 'center',
   } as ViewStyle,
+  sendIcon: {
+    fontSize: 16,
+  },
   suggestionChip: {
     paddingHorizontal: 12,
     paddingVertical:   6,
@@ -332,6 +351,15 @@ const styles = StyleSheet.create({
     flexDirection:  'row',
     gap:            8,
     justifyContent: 'center',
+  } as ViewStyle,
+  textInput: {
+    flex:      1,
+    fontSize:  15,
+    maxHeight: 100,
+    padding:   0,
+  },
+  typingBubble: {
+    minWidth: 60,
   } as ViewStyle,
 });
 

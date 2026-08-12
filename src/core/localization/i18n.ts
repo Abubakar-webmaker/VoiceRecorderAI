@@ -8,7 +8,7 @@ const resources = {
   hi: { translation: hi },
 };
 
-i18n
+void i18n
   .use(initReactI18next)
   .init({
     resources,

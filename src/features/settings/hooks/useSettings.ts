@@ -17,9 +17,34 @@ import {
 } from '../store/settingsSlice';
 import { setThemeMode } from '../store/themeSlice';
 import type { UserSettings, ThemeMode, AudioQuality, AudioFormat, SummaryLength }
-  from '@types/settings.types';
+  from '@shared/types/settings.types';
 
-const useSettings = () => {
+interface UseSettingsReturn {
+  settings: UserSettings;
+  themeMode: ThemeMode;
+  recordingSettings: UserSettings['recording'];
+  aiSettings: UserSettings['ai'];
+  notifSettings: UserSettings['notifications'];
+  storageSettings: UserSettings['storage'];
+  isLoading: boolean;
+  isSaving: boolean;
+  changeTheme: (mode: ThemeMode) => void;
+  setAudioQuality: (q: AudioQuality) => void;
+  setAudioFormat: (f: AudioFormat) => void;
+  setAutoTranscribe: (v: boolean) => void;
+  setAutoSummarize: (v: boolean) => void;
+  setAISummaryLength: (l: SummaryLength) => void;
+  setAILanguage: (lang: string) => void;
+  setAutoKeywords: (v: boolean) => void;
+  setPushNotif: (v: boolean) => void;
+  setEmailNotif: (v: boolean) => void;
+  setTranscriptionNotif: (v: boolean) => void;
+  setAutoSync: (v: boolean) => void;
+  setSyncOnWifi: (v: boolean) => void;
+  fetchSettings: () => Promise<unknown>;
+}
+
+const useSettings = (): UseSettingsReturn => {
   const dispatch = useAppDispatch();
 
   const settings          = useAppSelector(selectSettings);

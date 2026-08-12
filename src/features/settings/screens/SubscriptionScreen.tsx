@@ -4,7 +4,7 @@ import {
   ScrollView,
   TouchableOpacity,
   StyleSheet,
-  Dimensions,
+  Text,
   type ViewStyle,
 } from 'react-native';
 import { SafeAreaView }    from 'react-native-safe-area-context';
@@ -16,7 +16,6 @@ import Animated, {
 import { Card }            from '@components/common/Card';
 import { Button }          from '@components/common/Button';
 import { Badge }           from '@components/common/Badge';
-import { Divider }         from '@components/common/Divider';
 import {
   H2, H3, H5, BodySm, BodyMd, Caption,
 } from '@components/common/Typography';
@@ -82,7 +81,7 @@ const BillingToggle = ({
               { color: billing === cycle ? '#fff' : colors.text.secondary }
             ]}
           >
-            <BodySm>{cycle === 'monthly' ? 'Monthly' : 'Yearly'}</BodySm>
+            {cycle === 'monthly' ? 'Monthly' : 'Yearly'}
             {cycle === 'yearly' && (
               <BodySm
                 style={[
@@ -90,7 +89,7 @@ const BillingToggle = ({
                   { color: billing === 'yearly' ? '#FFFFFF80' : colors.ai.default }
                 ]}
               >
-                <BodySm> Save 33%</BodySm>
+                {' '}Save 33%
               </BodySm>
             )}
           </BodySm>
@@ -179,17 +178,17 @@ const PlanCard = ({
             ]}
           >
             <Caption style={styles.popularText}>
-              <Caption>MOST POPULAR</Caption>
+              MOST POPULAR
             </Caption>
           </View>
         )}
 
         {/* Icon + Name */}
         <View style={styles.planHeader}>
-          <Caption style={styles.planIcon}><Caption>{config.icon}</Caption></Caption>
+          <Caption style={styles.planIcon}>{config.icon}</Caption>
           <View>
-            <H5 style={{ color: config.color }}><BodySm>{config.name}</BodySm></H5>
-            <Caption color="tertiary"><Caption>{config.tagline}</Caption></Caption>
+            <H5 style={{ color: config.color }}>{config.name}</H5>
+            <Caption color="tertiary">{config.tagline}</Caption>
           </View>
           {isCurrent && (
             <Badge label="Current" variant="neutral" size="sm" />
@@ -199,20 +198,20 @@ const PlanCard = ({
         {/* Price */}
         <View style={styles.priceRow}>
           {amount === 0 ? (
-            <H2 color="primary"><BodySm>Free</BodySm></H2>
+            <H2 color="primary">Free</H2>
           ) : (
             <>
               <Caption
                 color="secondary"
                 style={styles.currencySymbol}
               >
-                <Caption>$</Caption>
+                $
               </Caption>
               <H2 style={{ color: config.color }}>
-                <BodySm>{amount.toFixed(2)}</BodySm>
+                {amount.toFixed(2)}
               </H2>
               <Caption color="secondary" style={styles.pricePeriod}>
-                <Caption>/mo</Caption>
+                /mo
               </Caption>
             </>
           )}
@@ -220,7 +219,7 @@ const PlanCard = ({
 
         {billing === 'yearly' && amount > 0 && (
           <Caption color="tertiary">
-            <Caption>Billed ${price.yearly} annually</Caption>
+            Billed ${price.yearly} annually
           </Caption>
         )}
 
@@ -256,9 +255,9 @@ const FeatureRow = ({
   const { colors } = useTheme();
 
   const renderValue = (v: boolean | string): React.JSX.Element => {
-    if (v === false) return <Caption style={styles.featureFalse}><Caption>—</Caption></Caption>;
-    if (v === true)  return <Caption style={styles.featureTrue}><Caption>✓</Caption></Caption>;
-    return <Caption color="secondary" style={styles.featureValue}><Caption>{v}</Caption></Caption>;
+    if (v === false) return <Caption style={styles.featureFalse}>—</Caption>;
+    if (v === true)  return <Caption style={styles.featureTrue}>✓</Caption>;
+    return <Caption color="secondary" style={styles.featureValue}>{v}</Caption>;
   };
 
   return (
@@ -268,7 +267,7 @@ const FeatureRow = ({
         !isLast && { borderBottomWidth: 1, borderBottomColor: colors.border.default },
       ]}
     >
-      <Caption color="secondary" style={styles.featureLabel}><Caption>{label}</Caption></Caption>
+      <Caption color="secondary" style={styles.featureLabel}>{label}</Caption>
       <View style={styles.featureCell}>{renderValue(free)}</View>
       <View style={styles.featureCell}>{renderValue(pro)}</View>
       <View style={styles.featureCell}>{renderValue(enterprise)}</View>
@@ -315,9 +314,9 @@ const SubscriptionScreen = ({ navigation }: Props): React.JSX.Element => {
             onPress={() => navigation.goBack()}
             style={[styles.backBtn, { backgroundColor: colors.bg.elevated }]}
           >
-            <Caption color="secondary"><Text>←</Text></Caption>
+            <Caption color="secondary">←</Caption>
           </TouchableOpacity>
-          <H3 color="primary"><BodySm>Plans</BodySm></H3>
+          <H3 color="primary">Plans</H3>
           <View style={styles.navRightPlaceholder} />
         </View>
 
@@ -326,12 +325,12 @@ const SubscriptionScreen = ({ navigation }: Props): React.JSX.Element => {
           entering={FadeInDown.delay(50).duration(400)}
           style={styles.hero}
         >
-          <Caption style={styles.heroIcon}><Text>⚡</Text></Caption>
+          <Caption style={styles.heroIcon}>⚡</Caption>
           <H2 color="primary" align="center">
-            <BodySm>Unlock your{"\n"}full potential</BodySm>
+            Unlock your{"\n"}full potential
           </H2>
           <BodyMd color="secondary" align="center">
-            <BodySm>AI-powered voice recording for creators, students, and professionals</BodySm>
+            AI-powered voice recording for creators, students, and professionals
           </BodyMd>
         </Animated.View>
 
@@ -380,7 +379,7 @@ const SubscriptionScreen = ({ navigation }: Props): React.JSX.Element => {
               fullWidth
             />
             <Caption color="tertiary" align="center" style={styles.subscribeNote}>
-              <Caption>Cancel anytime · Secure payment via Stripe</Caption>
+              Cancel anytime · Secure payment via Stripe
             </Caption>
           </Animated.View>
 
@@ -389,7 +388,7 @@ const SubscriptionScreen = ({ navigation }: Props): React.JSX.Element => {
           style={styles.comparisonSection}
         >
           <H5 color="primary" style={styles.marginBottom12}>
-            <BodySm>Compare Plans</BodySm>
+            Compare Plans
           </H5>
 
           <Card variant="filled" padding={0}>
@@ -400,7 +399,7 @@ const SubscriptionScreen = ({ navigation }: Props): React.JSX.Element => {
                 { borderBottomColor: colors.border.default },
               ]}
             >
-              <Caption color="tertiary" style={styles.featureLabel}><Caption>Feature</Caption></Caption>
+              <Caption color="tertiary" style={styles.featureLabel}>Feature</Caption>
               {(['free', 'pro', 'enterprise'] as SubscriptionTier[]).map((t) => (
                 <View key={t} style={styles.featureCell}>
                   <Caption
@@ -409,7 +408,7 @@ const SubscriptionScreen = ({ navigation }: Props): React.JSX.Element => {
                       { color: TIER_CONFIG[t].color }
                     ]}
                   >
-                    <Caption>{TIER_CONFIG[t].icon} {TIER_CONFIG[t].name}</Caption>
+                    {TIER_CONFIG[t].icon} {TIER_CONFIG[t].name}
                   </Caption>
                 </View>
               ))}
@@ -434,7 +433,7 @@ const SubscriptionScreen = ({ navigation }: Props): React.JSX.Element => {
           style={styles.faqSection}
         >
           <H5 color="primary" style={styles.marginBottom12}>
-            <BodySm>Frequently Asked Questions</BodySm>
+            Frequently Asked Questions
           </H5>
 
           {[
@@ -457,8 +456,8 @@ const SubscriptionScreen = ({ navigation }: Props): React.JSX.Element => {
               style={styles.faqCard}
             >
               <View style={styles.faqContent}>
-                <BodySm color="primary" style={styles.fontWeight600}><BodySm>{q}</BodySm></BodySm>
-                <Caption color="secondary"><Caption>{a}</Caption></Caption>
+                <BodySm color="primary" style={styles.fontWeight600}>{q}</BodySm>
+                <Caption color="secondary">{a}</Caption>
               </View>
             </Card>
           ))}

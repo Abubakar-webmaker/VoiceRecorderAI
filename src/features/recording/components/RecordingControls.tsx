@@ -120,6 +120,7 @@ const RecordButton = ({
                 width:           isRecording ? 28 : 36,
                 height:          isRecording ? 28 : 36,
                 borderRadius:    isRecording ? 6 : 36,
+                backgroundColor: colors.text.inverse,
               }
             ]}
           />
@@ -282,7 +283,6 @@ const styles = StyleSheet.create({
     position:        'absolute',
   },
   recordBtnIcon: {
-    backgroundColor: '#FFFFFF',
   },
   recordBtnMain: {
     alignItems:     'center',

@@ -7,6 +7,7 @@ import {
   Alert,
   StyleSheet,
   Dimensions,
+  Text,
   type ViewStyle,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -30,12 +31,10 @@ import useRecorder from '../hooks/useRecorder';
 import { RecorderState } from '../store/recorderSlice';
 import { selectFolders }  from '@features/folder/store/folderSlice';
 import useAppSelector     from '@hooks/useAppSelector';
-import {
-  formatDuration,
-  formatFileSize,
-} from '@types/recording.types';
+import { formatDuration, formatFileSize } from '@shared/types/recording.types';
 import type { MainTabParamList } from '@navigation/types';
 import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
+import type { Recording } from '@shared/types/recording.types';
 
 const { width: W } = Dimensions.get('window');
 
@@ -50,7 +49,7 @@ const UploadingView = ({
   progress,
   title,
 }: UploadingViewProps): React.JSX.Element => {
-  const { colors, spacing } = useTheme();
+  const { colors, spacing, borderRadius } = useTheme();
   const fillWidth = useSharedValue(0);
 
   useEffect(() => {
@@ -65,8 +64,8 @@ const UploadingView = ({
     <View style={styles.uploadingContainer}>
       <Loader variant="ai" color={colors.primary.default} size="lg" />
 
-      <H4 color="primary" align="center" style={{ marginTop: spacing[4] }}>
-        <Caption>Uploading to Cloud</Caption>
+      <H4 color="primary" align="center" style={[styles.uploadTitle, { marginTop: spacing[4] }]}>
+        <Text>Uploading to Cloud</Text>
       </H4>
       <BodySm color="secondary" align="center" numberOfLines={2}>
         {title}
@@ -95,8 +94,9 @@ const UploadingView = ({
         />
       </View>
 
-      <Caption color="secondary" style={{ marginTop: spacing[2] }}>
-        <Caption>{progress}% uploaded</Caption>
+      <Caption color="secondary" style={[styles.progressText, { marginTop: spacing[2] }]}>
+        {progress}
+        <Text>% uploaded</Text>
       </Caption>
     </View>
   );
@@ -108,7 +108,7 @@ const DoneView = ({
   onViewRecording,
   onRecordAnother,
 }: {
-  recording:       NonNullable<ReturnType<typeof useRecorder>['uploadedRecording']>;
+  recording:       Recording;
   onViewRecording: () => void;
   onRecordAnother: () => void;
 }): React.JSX.Element => {
@@ -125,10 +125,12 @@ const DoneView = ({
           { backgroundColor: colors.ai.surface },
         ]}
       >
-        <Caption style={styles.doneIconText}>✅</Caption>
+        <Text style={styles.doneIconText}>✅</Text>
       </View>
 
-      <H4 color="primary" align="center"><BodySm>Recording Saved!</BodySm></H4>
+      <H4 color="primary" align="center">
+        <Text>Recording Saved!</Text>
+      </H4>
       <BodySm color="secondary" align="center">
         {recording.title}
       </BodySm>
@@ -158,17 +160,17 @@ const DoneView = ({
             { backgroundColor: colors.primary.default },
           ]}
         >
-          <BodySm style={styles.doneBtnText}>
-            <BodySm>View Recording</BodySm>
+          <BodySm style={[styles.doneBtnText, { color: colors.text.inverse }]}>
+            <Text>View Recording</Text>
           </BodySm>
         </TouchableOpacity>
 
         <TouchableOpacity
           onPress={onRecordAnother}
-          style={styles.recordAnotherBtn}
+          style={[styles.recordAnotherBtn, { borderColor: colors.border.default }]}
         >
           <BodySm color="secondary" style={styles.recordAnotherText}>
-            <BodySm>Record Another</BodySm>
+            <Text>Record Another</Text>
           </BodySm>
         </TouchableOpacity>
       </View>
@@ -183,7 +185,7 @@ const RecordScreen = ({ navigation }: { navigation: BottomTabNavigationProp<Main
   const titleRef = useRef<TextInput>(null);
 
   const {
-    recorderState, duration, amplitudeList, currentAmplitude,
+    recorderState, duration, amplitudeList,
     title, folderId, uploadProgress, uploadedRecording, error,
     isRecording, isPaused, isUploading, isDone, isIdle,
     start, pause, resume, stop, discard, reset, setFolder,
@@ -244,10 +246,10 @@ const RecordScreen = ({ navigation }: { navigation: BottomTabNavigationProp<Main
   const handleViewRecording = useCallback((): void => {
     if (!uploadedRecording) return;
     reset();
-    (navigation as any).navigate('RecordingsTab', {
+    navigation.navigate('RecordingsTab' as never, {
       screen: 'RecordingDetail',
       params: { recordingId: uploadedRecording._id },
-    });
+    } as never);
   }, [uploadedRecording, reset, navigation]);
 
   const selectedFolder = folders.find((f) => f._id === folderId);
@@ -295,7 +297,9 @@ const RecordScreen = ({ navigation }: { navigation: BottomTabNavigationProp<Main
           entering={FadeInDown.delay(0).duration(400)}
           style={styles.header}
         >
-          <H4 color="primary"><BodySm>New Recording</BodySm></H4>
+          <H4 color="primary">
+            <Text>New Recording</Text>
+          </H4>
           {isRecording && (
             <Badge label="● REC" variant="error" size="sm" />
           )}
@@ -318,7 +322,7 @@ const RecordScreen = ({ navigation }: { navigation: BottomTabNavigationProp<Main
               ]}
             >
               <Caption color="tertiary" style={styles.titleLabel}>
-                <Caption>Title (optional)</Caption>
+                <Text>Title (optional)</Text>
               </Caption>
               <TextInput
                 ref={titleRef}
@@ -352,12 +356,14 @@ const RecordScreen = ({ navigation }: { navigation: BottomTabNavigationProp<Main
               ]}
             >
               <Caption style={styles.folderIcon}>
-                <Caption>{selectedFolder ? selectedFolder.icon : '📁'}</Caption>
+                <Text>{selectedFolder !== undefined ? selectedFolder.icon : '📁'}</Text>
               </Caption>
-              <BodySm color={selectedFolder ? 'primary' : 'tertiary'}>
-                {selectedFolder ? selectedFolder.name : 'No folder (save to root)'}
+              <BodySm color={selectedFolder !== undefined ? 'primary' : 'tertiary'}>
+                {selectedFolder !== undefined ? selectedFolder.name : 'No folder (save to root)'}
               </BodySm>
-              <Caption color="tertiary"><Caption>›</Caption></Caption>
+              <Caption color="tertiary">
+                <Text>›</Text>
+              </Caption>
             </TouchableOpacity>
           </Animated.View>
         )}
@@ -431,10 +437,10 @@ const RecordScreen = ({ navigation }: { navigation: BottomTabNavigationProp<Main
             ].map(({ icon, text }) => (
               <View key={text} style={styles.tipRow}>
                 <Caption style={styles.tipIcon}>
-                  <Caption>{icon}</Caption>
+                  <Text>{icon}</Text>
                 </Caption>
                 <Caption color="tertiary">
-                  <Caption>{text}</Caption>
+                  <Text>{text}</Text>
                 </Caption>
               </View>
             ))}
@@ -473,7 +479,7 @@ const RecordScreen = ({ navigation }: { navigation: BottomTabNavigationProp<Main
             </View>
 
             <H4 color="primary" style={{ paddingHorizontal: spacing[5], marginBottom: spacing[3] }}>
-              <Caption>Select Folder</Caption>
+              <Text>Select Folder</Text>
             </H4>
 
             {/* None option */}
@@ -490,14 +496,14 @@ const RecordScreen = ({ navigation }: { navigation: BottomTabNavigationProp<Main
               ]}
             >
               <Caption style={styles.folderOptionIcon}>
-                <Caption>📁</Caption>
+                <Text>📁</Text>
               </Caption>
               <BodySm color={folderId === null ? 'link' : 'primary'}>
-                <BodySm>No folder (root)</BodySm>
+                <Text>No folder (root)</Text>
               </BodySm>
               {folderId === null && (
                 <Caption style={{ color: colors.primary.default }}>
-                  <Caption>✓</Caption>
+                  <Text>✓</Text>
                 </Caption>
               )}
             </TouchableOpacity>
@@ -518,7 +524,7 @@ const RecordScreen = ({ navigation }: { navigation: BottomTabNavigationProp<Main
                 ]}
               >
                 <Caption style={[styles.folderOptionIcon, { color: folder.color }]}>
-                  <Caption>{folder.icon || '📁'}</Caption>
+                  <Text>{folder.icon || '📁'}</Text>
                 </Caption>
                 <BodySm color={folderId === folder._id ? 'link' : 'primary'}>
                   {folder.name}
@@ -526,7 +532,7 @@ const RecordScreen = ({ navigation }: { navigation: BottomTabNavigationProp<Main
                 <Caption color="tertiary">{folder.recordingCount}</Caption>
                 {folderId === folder._id && (
                   <Caption style={{ color: colors.primary.default }}>
-                    <Caption>✓</Caption>
+                    <Text>✓</Text>
                   </Caption>
                 )}
               </TouchableOpacity>
@@ -537,7 +543,7 @@ const RecordScreen = ({ navigation }: { navigation: BottomTabNavigationProp<Main
               style={[styles.cancelBtn, { margin: spacing[5] }]}
             >
               <BodySm color="secondary" align="center">
-                <BodySm>Cancel</BodySm>
+                <Text>Cancel</Text>
               </BodySm>
             </TouchableOpacity>
           </View>
@@ -567,7 +573,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   } as ViewStyle,
   doneBtnText: {
-    color: '#fff',
     fontWeight: '600'
   },
   doneCard: {
@@ -634,10 +639,11 @@ const styles = StyleSheet.create({
     marginBottom:   8,
     paddingVertical: 12,
   } as ViewStyle,
+  progressText: {
+  },
   recordAnotherBtn: {
     alignItems:     'center',
     backgroundColor: 'transparent',
-    borderColor: '#ccc',
     borderRadius:   16,
     borderWidth: 1,
     height:         52,
@@ -683,6 +689,8 @@ const styles = StyleSheet.create({
   uploadFill: {
     height: '100%',
   } as ViewStyle,
+  uploadTitle: {
+  },
   uploadTrack: {
     height: 6,
     overflow: 'hidden',

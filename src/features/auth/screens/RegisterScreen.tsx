@@ -5,7 +5,6 @@ import {
   KeyboardAvoidingView,
   Platform,
   StyleSheet,
-  type ViewStyle,
 } from 'react-native';
 import { SafeAreaView }        from 'react-native-safe-area-context';
 import { useForm, Controller } from 'react-hook-form';
@@ -16,7 +15,7 @@ import Animated, { FadeInDown } from 'react-native-reanimated';
 import { AuthHeader }  from '../components/AuthHeader';
 import { Button }      from '@components/common/Button';
 import { Input }       from '@components/common/Input';
-import { BodyMd, BodySm, Caption } from '@components/common/Typography';
+import { BodyMd, Caption } from '@components/common/Typography';
 import useAuth         from '../hooks/useAuth';
 import useTheme        from '@hooks/useTheme';
 import type { AuthScreenProps } from '@navigation/types';
@@ -101,7 +100,7 @@ const RegisterScreen = ({ navigation }: Props): React.JSX.Element => {
   });
 
   useEffect(() => {
-    if (error != null) {
+    if (error !== undefined && error !== null) {
       setError('email', { message: error });
       dismissError();
     }
@@ -120,7 +119,7 @@ const RegisterScreen = ({ navigation }: Props): React.JSX.Element => {
       edges={['top', 'bottom']}
     >
       <KeyboardAvoidingView
-        style={{ flex: 1 }}
+        style={styles.keyboardView}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
         <ScrollView
@@ -181,7 +180,7 @@ const RegisterScreen = ({ navigation }: Props): React.JSX.Element => {
             />
 
             {/* Password */}
-            <View style={{ gap: spacing[2] }}>
+            <View style={[styles.passwordContainer, { gap: spacing[2] }]}>
               <Controller
                 control={control}
                 name="password"
@@ -206,7 +205,7 @@ const RegisterScreen = ({ navigation }: Props): React.JSX.Element => {
 
               {/* Strength Meter */}
               {passwordValue.length > 0 && (
-                <View style={{ gap: spacing[1.5] }}>
+                <View style={[styles.strengthMeter, { gap: spacing[1.5] }]}>
                   <View style={styles.strengthBar}>
                     {[1, 2, 3, 4].map((s) => (
                       <View
@@ -248,14 +247,14 @@ const RegisterScreen = ({ navigation }: Props): React.JSX.Element => {
                   autoComplete="new-password"
                   textContentType="newPassword"
                   returnKeyType="done"
-                  onSubmitEditing={handleSubmit(onSubmit)}
+                  onSubmitEditing={() => { void handleSubmit(onSubmit)(); }}
                 />
               )}
             />
 
             <Button
               label="Create Account"
-              onPress={handleSubmit(onSubmit)}
+              onPress={() => { void handleSubmit(onSubmit)(); }}
               variant="primary"
               size="lg"
               fullWidth
@@ -272,7 +271,7 @@ const RegisterScreen = ({ navigation }: Props): React.JSX.Element => {
               <BodyMd
                 color="link"
                 onPress={() => navigation.navigate('Login')}
-                style={{ fontWeight: '600' }}
+                style={styles.signInText}
               >
                 Sign in
               </BodyMd>
@@ -287,12 +286,16 @@ const RegisterScreen = ({ navigation }: Props): React.JSX.Element => {
 const styles = StyleSheet.create({
   footer: { marginTop: 32, paddingHorizontal: 20, alignItems: 'center' } as ViewStyle,
   form:   { paddingHorizontal: 20, marginTop: 24 } as ViewStyle,
+  keyboardView: { flex: 1 } as ViewStyle,
+  passwordContainer: { } as ViewStyle,
   screen: { flex: 1 } as ViewStyle,
   scroll: { flexGrow: 1, paddingBottom: 40 } as ViewStyle,
+  signInText: { fontWeight: '600' } as ViewStyle,
   strengthBar: {
     flexDirection: 'row',
     gap:           4,
   } as ViewStyle,
+  strengthMeter: { } as ViewStyle,
   strengthSegment: {
     flex:         1,
     height:       3,

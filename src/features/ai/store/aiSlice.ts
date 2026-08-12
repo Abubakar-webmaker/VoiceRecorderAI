@@ -5,8 +5,7 @@ import {
   type PayloadAction,
 } from '@reduxjs/toolkit';
 import type { RootState }   from '@store/index';
-import type { AISummaryDoc, AIChat, SupportedLanguage } from '@types/ai.types';
-import { AIStatus }         from '@types/recording.types';
+import type { AISummaryDoc, AIChat, SupportedLanguage } from '@shared/types/ai.types';
 import {
   getAISummaryApi, transcribeApi, summarizeApi,
   generateTitleApi, extractKeywordsApi, extractActionItemsApi,
@@ -179,7 +178,7 @@ export const updateActionItemThunk = createAsyncThunk(
   'ai/updateActionItem',
   async (
     payload: { recordingId: string; actionItemId: string; updates: Parameters<typeof updateActionItemApi>[2] },
-    { getState, rejectWithValue },
+    { rejectWithValue },
   ) => {
     try {
       const result = await updateActionItemApi(
@@ -454,23 +453,23 @@ export const {
 const aiState = (s: RootState) => s.ai;
 
 export const selectCurrentAISummary = createSelector(
-  [aiState, (_: RootState, recordingId: string) => recordingId],
-  (s, id) => s.summaries[id] ?? null,
+  [aiState, (_: RootState, recordingId: string): string => recordingId],
+  (s, id): AISummaryDoc | null => s.summaries[id] ?? null,
 );
-export const selectAIError          = createSelector(aiState, (s) => s.error);
-export const selectIsTranscribing   = createSelector(aiState, (s) => s.isTranscribing);
-export const selectIsSummarizing    = createSelector(aiState, (s) => s.isSummarizing);
-export const selectIsProcessingAll  = createSelector(aiState, (s) => s.isProcessingAll);
-export const selectIsExtractingKw   = createSelector(aiState, (s) => s.isExtractingKw);
-export const selectIsExtractingAct  = createSelector(aiState, (s) => s.isExtractingActions);
-export const selectIsTranslating    = createSelector(aiState, (s) => s.isTranslating);
-export const selectIsLoadingSummary = createSelector(aiState, (s) => s.isLoadingSummary);
-export const selectCurrentChat      = createSelector(aiState, (s) => s.currentChat);
-export const selectChatHistory      = createSelector(aiState, (s) => s.chatHistory);
-export const selectIsChatLoading    = createSelector(aiState, (s) => s.isChatLoading);
-export const selectLanguages        = createSelector(aiState, (s) => s.languages);
-export const selectSocketProgress  = createSelector(aiState, (s) => s.socketProgress);
-export const selectSocketStep      = createSelector(aiState, (s) => s.socketStep);
-export const selectIsGeneratingTitle = createSelector(aiState, (s) => s.isGeneratingTitle);
+export const selectAIError          = createSelector(aiState, (s): string | null => s.error);
+export const selectIsTranscribing   = createSelector(aiState, (s): boolean => s.isTranscribing);
+export const selectIsSummarizing    = createSelector(aiState, (s): boolean => s.isSummarizing);
+export const selectIsProcessingAll  = createSelector(aiState, (s): boolean => s.isProcessingAll);
+export const selectIsExtractingKw   = createSelector(aiState, (s): boolean => s.isExtractingKw);
+export const selectIsExtractingAct  = createSelector(aiState, (s): boolean => s.isExtractingActions);
+export const selectIsTranslating    = createSelector(aiState, (s): boolean => s.isTranslating);
+export const selectIsLoadingSummary = createSelector(aiState, (s): boolean => s.isLoadingSummary);
+export const selectCurrentChat      = createSelector(aiState, (s): AIChat | null => s.currentChat);
+export const selectChatHistory      = createSelector(aiState, (s): AIChat[] => s.chatHistory);
+export const selectIsChatLoading    = createSelector(aiState, (s): boolean => s.isChatLoading);
+export const selectLanguages        = createSelector(aiState, (s): SupportedLanguage[] => s.languages);
+export const selectSocketProgress  = createSelector(aiState, (s): number => s.socketProgress);
+export const selectSocketStep      = createSelector(aiState, (s): string | null => s.socketStep);
+export const selectIsGeneratingTitle = createSelector(aiState, (s): boolean => s.isGeneratingTitle);
 
 export default aiSlice.reducer;

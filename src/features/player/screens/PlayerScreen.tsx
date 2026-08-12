@@ -21,11 +21,10 @@ import {
 import useTheme           from '@hooks/useTheme';
 import usePlayer          from '../hooks/usePlayer';
 import {
-  formatDuration,
   SPEED_OPTIONS,
   type SpeedOption,
 } from '@features/player/store/playerSlice';
-export { formatDuration } from '@types/recording.types';
+import { formatDuration } from '@shared/types/recording.types';
 
 const { width: W } = Dimensions.get('window');
 
@@ -37,7 +36,7 @@ interface SeekBarProps {
 }
 
 const SeekBar = ({ position, duration, onSeek }: SeekBarProps): React.JSX.Element => {
-  const { colors, spacing, borderRadius } = useTheme();
+  const { colors, borderRadius } = useTheme();
   const progress = duration > 0 ? position / duration : 0;
 
   return (
@@ -86,10 +85,11 @@ const SeekBar = ({ position, duration, onSeek }: SeekBarProps): React.JSX.Elemen
       {/* Times */}
       <View style={styles.timesRow}>
         <MonoText style={styles.timeText}>
-          <MonoText>{formatDuration(Math.floor(position))}</MonoText>
+          {formatDuration(Math.floor(position))}
         </MonoText>
         <MonoText style={styles.remainingTimeText}>
-          <MonoText>-{formatDuration(Math.max(0, Math.floor(duration - position)))}</MonoText>
+          <Text>-</Text>
+          {formatDuration(Math.max(0, Math.floor(duration - position)))}
         </MonoText>
       </View>
     </View>
@@ -182,6 +182,7 @@ const MainControls = ({
             styles.playBtn,
             {
               backgroundColor: colors.primary.default,
+              shadowColor:     colors.primary.default,
               width:           componentSize.recordBtnMd,
               height:          componentSize.recordBtnMd,
               borderRadius:    componentSize.recordBtnMd / 2,
@@ -191,9 +192,9 @@ const MainControls = ({
           accessibilityLabel={isPlaying ? 'Pause' : 'Play'}
         >
           <Caption
-            style={styles.playIcon}
+            style={[styles.playIcon, { color: colors.text.inverse }]}
           >
-            <Caption>{isLoading ? '⟳' : isPlaying ? '⏸' : '▶'}</Caption>
+            <Text>{isLoading ? '⟳' : isPlaying ? '⏸' : '▶'}</Text>
           </Caption>
         </TouchableOpacity>
       </Animated.View>
@@ -276,7 +277,9 @@ const PlayerScreen = (): React.JSX.Element => {
             {currentRecording.title}
           </H4>
           <BodySm color="secondary" style={styles.trackMeta}>
-            <BodySm>{date} · {currentRecording.format.toUpperCase()}</BodySm>
+            <Text>{date}</Text>
+            <Text>{' · '}</Text>
+            <Text>{currentRecording.format.toUpperCase()}</Text>
           </BodySm>
         </View>
         <TouchableOpacity onPress={() => {}}>
@@ -412,14 +415,12 @@ const styles = StyleSheet.create({
   playBtn: {
     alignItems:     'center',
     justifyContent: 'center',
-    shadowColor:    '#6C63FF', // Use primary default or theme
     shadowOffset:   { width: 0, height: 0 },
     shadowOpacity:  0.5,
     shadowRadius:   20,
     elevation:      10,
   } as ViewStyle,
   playIcon: {
-    color:    '#fff',
     fontSize: 28,
   },
   remainingTimeText: {

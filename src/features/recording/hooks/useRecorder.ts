@@ -27,7 +27,7 @@ import {
   selectIsIdle,
 } from '../store/recorderSlice';
 
-import type { Recording } from '@types/recording.types';
+import type { Recording } from '@shared/types/recording.types';
 import type { RecorderState } from '../store/recorderSlice';
 
 const useRecorder = (): {
@@ -73,16 +73,17 @@ const useRecorder = (): {
   const isIdle           = useAppSelector(selectIsIdle);
 
   const start = useCallback(
-    (opts?: { title?: string; folderId?: string | null }) =>
-      dispatch(startRecordingThunk(opts ?? {})),
+    (opts?: { title?: string; folderId?: string | null }) => {
+      void dispatch(startRecordingThunk(opts ?? {}));
+    },
     [dispatch],
   );
 
-  const pause  = useCallback(() => dispatch(pauseRecordingThunk()),    [dispatch]);
-  const resume = useCallback(() => dispatch(resumeRecordingThunk()),   [dispatch]);
-  const stop   = useCallback(() => dispatch(stopAndUploadThunk()),     [dispatch]);
-  const discard = useCallback(() => dispatch(discardRecordingThunk()), [dispatch]);
-  const reset  = useCallback(() => dispatch(resetRecorder()),          [dispatch]);
+  const pause  = useCallback(() => { void dispatch(pauseRecordingThunk()); },    [dispatch]);
+  const resume = useCallback(() => { void dispatch(resumeRecordingThunk()); },   [dispatch]);
+  const stop   = useCallback(() => { void dispatch(stopAndUploadThunk()); },     [dispatch]);
+  const discard = useCallback(() => { void dispatch(discardRecordingThunk()); }, [dispatch]);
+  const reset  = useCallback(() => { void dispatch(resetRecorder()); },          [dispatch]);
 
   const setTitle  = useCallback(
     (t: string) => dispatch(setRecorderTitle(t)),

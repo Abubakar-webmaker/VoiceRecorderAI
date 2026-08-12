@@ -1,11 +1,9 @@
 import React, { useCallback, useEffect } from 'react';
 import {
-  View,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
   StyleSheet,
-  type ViewStyle,
 } from 'react-native';
 import { SafeAreaView }        from 'react-native-safe-area-context';
 import { useForm, Controller } from 'react-hook-form';
@@ -63,14 +61,14 @@ const ResetPasswordScreen = ({ navigation, route }: Props): React.JSX.Element =>
   });
 
   useEffect(() => {
-    if (error != null) {
+    if (error !== undefined && error !== null) {
       setError('confirmPassword', { message: error });
       dismissError();
     }
   }, [error, setError, dismissError]);
 
   useEffect(() => {
-    if (successMessage != null) {
+    if (successMessage !== undefined && successMessage !== null) {
       dismissSuccess();
       navigation.navigate('Login');
     }
@@ -89,7 +87,7 @@ const ResetPasswordScreen = ({ navigation, route }: Props): React.JSX.Element =>
       edges={['top', 'bottom']}
     >
       <KeyboardAvoidingView
-        style={{ flex: 1 }}
+        style={styles.keyboardView}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
         <ScrollView
@@ -139,14 +137,14 @@ const ResetPasswordScreen = ({ navigation, route }: Props): React.JSX.Element =>
                   isPassword
                   textContentType="newPassword"
                   returnKeyType="done"
-                  onSubmitEditing={handleSubmit(onSubmit)}
+                  onSubmitEditing={() => { void handleSubmit(onSubmit)(); }}
                 />
               )}
             />
 
             <Button
               label="Reset Password"
-              onPress={handleSubmit(onSubmit)}
+              onPress={() => { void handleSubmit(onSubmit)(); }}
               variant="primary"
               size="lg"
               fullWidth
@@ -158,7 +156,7 @@ const ResetPasswordScreen = ({ navigation, route }: Props): React.JSX.Element =>
               <BodyMd
                 color="link"
                 onPress={() => navigation.navigate('Login')}
-                style={{ fontWeight: '600' }}
+                style={styles.signInText}
               >
                 Sign in
               </BodyMd>
@@ -172,8 +170,10 @@ const ResetPasswordScreen = ({ navigation, route }: Props): React.JSX.Element =>
 
 const styles = StyleSheet.create({
   form:    { paddingHorizontal: 20, marginTop: 24 } as ViewStyle,
+  keyboardView: { flex: 1 } as ViewStyle,
   screen:  { flex: 1 } as ViewStyle,
   scroll:  { flexGrow: 1, paddingBottom: 40 } as ViewStyle,
+  signInText: { fontWeight: '600' } as ViewStyle,
 });
 
 export { ResetPasswordScreen };

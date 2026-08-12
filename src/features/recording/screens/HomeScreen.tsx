@@ -4,9 +4,7 @@ import {
   ScrollView,
   TouchableOpacity,
   StyleSheet,
-  Dimensions,
   RefreshControl,
-  type ViewStyle,
 } from 'react-native';
 import { SafeAreaView }  from 'react-native-safe-area-context';
 import Animated, {
@@ -30,10 +28,10 @@ import useTheme           from '@hooks/useTheme';
 import useAuth            from '@features/auth/hooks/useAuth';
 import useRecordings      from '../hooks/useRecordings';
 import usePlayer          from '@features/player/hooks/usePlayer';
-import { formatDuration, formatFileSize, AIStatus } from '@types/recording.types';
+import { formatDuration, formatFileSize, AIStatus } from '@shared/types/recording.types';
+import useAppDispatch    from '@hooks/useAppDispatch';
 import type { HomeScreenProps } from '@navigation/types';
-
-const { width: W } = Dimensions.get('window');
+import type { Recording } from '@shared/types/recording.types';
 
 // ─── Quick Record Orb ─────────────────────────────────────────────
 interface QuickRecordOrbProps {
@@ -41,7 +39,7 @@ interface QuickRecordOrbProps {
 }
 
 const QuickRecordOrb = ({ onPress }: QuickRecordOrbProps): React.JSX.Element => {
-  const { colors, spacing } = useTheme();
+  const { colors } = useTheme();
   const pulse  = useSharedValue(1);
   const ring   = useSharedValue(0);
 
@@ -92,7 +90,9 @@ const QuickRecordOrb = ({ onPress }: QuickRecordOrbProps): React.JSX.Element => 
           orbStyle,
         ]}
       >
-        <Typography variant="displaySm" align="center"><Typography variant="displaySm">🎙</Typography></Typography>
+        <Typography variant="displaySm" align="center">
+          🎙
+        </Typography>
       </Animated.View>
 
       <Caption
@@ -100,7 +100,7 @@ const QuickRecordOrb = ({ onPress }: QuickRecordOrbProps): React.JSX.Element => 
         align="center"
         style={styles.orbLabel}
       >
-        <Caption>Tap to record</Caption>
+        Tap to record
       </Caption>
     </TouchableOpacity>
   );
@@ -131,13 +131,15 @@ const StatItem = ({ label, value, icon }: StatItemProps): React.JSX.Element => {
           { backgroundColor: `${colors.primary.default}10` }
         ]}
       >
-        <Typography style={styles.statIcon}><Typography>{icon}</Typography></Typography>
+        <Typography style={styles.statIcon}>
+          {icon}
+        </Typography>
       </View>
       <MonoText style={[styles.statValue, { color: colors.text.primary }]}>
-        <MonoText>{value}</MonoText>
+        {value}
       </MonoText>
       <Caption color="tertiary" style={styles.statLabel}>
-        <Caption>{label}</Caption>
+        {label}
       </Caption>
     </View>
   );
@@ -145,7 +147,7 @@ const StatItem = ({ label, value, icon }: StatItemProps): React.JSX.Element => {
 
 // ─── Storage Bar ──────────────────────────────────────────────────
 const StorageBar = (): React.JSX.Element => {
-  const { colors, spacing, borderRadius } = useTheme();
+  const { colors, borderRadius } = useTheme();
   const { storage } = useAuth();
   const barWidth    = useSharedValue(0);
 
@@ -171,11 +173,11 @@ const StorageBar = (): React.JSX.Element => {
         <View style={styles.storageUsedRow}>
           <View style={[styles.storageDot, { backgroundColor: barColor }]} />
           <Caption color="secondary" style={styles.fontWeight600}>
-            <Caption>{formatFileSize(storage.used)} used</Caption>
+            {formatFileSize(storage.used)} used
           </Caption>
         </View>
         <Caption color="tertiary">
-          <Caption>{formatFileSize(storage.limit)} total</Caption>
+          {formatFileSize(storage.limit)} total
         </Caption>
       </View>
       <View
@@ -201,7 +203,7 @@ const StorageBar = (): React.JSX.Element => {
       </View>
       <View style={styles.storageBottomRow}>
         <Caption color="tertiary" style={styles.storagePercentText}>
-          <Caption>{storage.percent}% of storage used</Caption>
+          {storage.percent}% of storage used
         </Caption>
         {storage.percent > 80 && (
           <Badge label="Running Low" variant="warning" size="sm" />
@@ -232,7 +234,7 @@ const HomeScreen = ({ navigation }: Props): React.JSX.Element => {
   const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
 
   // Total duration
-  const totalDuration = recordings.reduce((sum, r) => sum + r.duration, 0);
+  const totalDuration = recordings.reduce((sum: number, r: Recording) => sum + r.duration, 0);
 
   useEffect(() => {
     void fetchRecordings({ limit: 10, sortBy: 'createdAt', sortOrder: 'desc' });
@@ -247,7 +249,7 @@ const HomeScreen = ({ navigation }: Props): React.JSX.Element => {
   const navigateToRecord = useCallback((): void => {
     navigation
       .getParent()
-      ?.navigate('RecordTab' as never);
+      ?.navigate('RecordTab');
   }, [navigation]);
 
   return (
@@ -261,7 +263,7 @@ const HomeScreen = ({ navigation }: Props): React.JSX.Element => {
         refreshControl={
           <RefreshControl
             refreshing={refreshing}
-            onRefresh={onRefresh}
+            onRefresh={() => { void onRefresh(); }}
             tintColor={colors.primary.default}
             colors={[colors.primary.default]}
           />
@@ -272,7 +274,9 @@ const HomeScreen = ({ navigation }: Props): React.JSX.Element => {
           style={[styles.header, { paddingTop: spacing[2] }]}
         >
           <View style={styles.flex1}>
-            <Caption color="secondary"><Caption>{greeting} 👋</Caption></Caption>
+            <Caption color="secondary">
+              {greeting} 👋
+            </Caption>
             <H3 color="primary" style={styles.welcomeText}>
               {user?.name ?? 'Welcome back'}
             </H3>
@@ -318,12 +322,14 @@ const HomeScreen = ({ navigation }: Props): React.JSX.Element => {
 
         {/* ─── Storage ─────────────────────────────────────── */}
         <Animated.View entering={FadeInDown.delay(280).duration(400)}>
-          <Card variant="filled" style={{ marginBottom: spacing[5] }}>
+          <Card variant="filled" style={[styles.storageCard, { marginBottom: spacing[5] }]}>
             <View style={{ gap: spacing[3] }}>
               <View style={styles.sectionHeader}>
-                <H4 color="primary"><BodySm>Storage</BodySm></H4>
+                <H4 color="primary">
+                  Storage
+                </H4>
                 <TouchableOpacity
-                  onPress={() => { (navigation as any).navigate('Subscription'); }}
+                  onPress={() => { navigation.navigate('Subscription' as any); }}
                 >
                   <Badge label="Upgrade" variant="primary" size="sm" />
                 </TouchableOpacity>
@@ -335,13 +341,18 @@ const HomeScreen = ({ navigation }: Props): React.JSX.Element => {
 
         <Animated.View entering={FadeInDown.delay(350).duration(400)}>
           <View style={[styles.sectionHeader, { marginBottom: spacing[3] }]}>
-            <H4 color="primary"><BodySm>Recent</BodySm></H4>
+            <H4 color="primary">
+              Recent
+            </H4>
             <TouchableOpacity
               onPress={() => {
-                (navigation as any).getParent()?.navigate('RecordingsTab');
+                const parent = navigation.getParent();
+                if (parent) (parent as any).navigate('RecordingsTab');
               }}
             >
-              <BodySm color="link"><BodySm>See all →</BodySm></BodySm>
+              <BodySm color="link">
+                See all →
+              </BodySm>
             </TouchableOpacity>
           </View>
 
@@ -350,28 +361,35 @@ const HomeScreen = ({ navigation }: Props): React.JSX.Element => {
           ) : recentRecordings.length === 0 ? (
             <Card variant="outlined">
               <View style={styles.emptyRecent}>
-                <Typography variant="displaySm" align="center"><Typography variant="displaySm">🎙️</Typography></Typography>
-                <H4 color="primary" align="center"><BodySm>No recordings yet</BodySm></H4>
+                <Typography variant="displaySm" align="center">
+                  🎙️
+                </Typography>
+                <H4 color="primary" align="center">
+                  No recordings yet
+                </H4>
                 <BodySm color="secondary" align="center">
-                  <BodySm>Tap the mic button to start your first recording</BodySm>
+                  Tap the mic button to start your first recording
                 </BodySm>
                 <TouchableOpacity onPress={() => { navigateToRecord(); }}>
-                  <BodySm color="link"><BodySm>Start recording →</BodySm></BodySm>
+                  <BodySm color="link">
+                    Start recording →
+                  </BodySm>
                 </TouchableOpacity>
               </View>
             </Card>
           ) : (
-            recentRecordings.map((recording) => (
+            recentRecordings.map((recording: Recording) => (
               <RecordingCard
                 key={recording._id}
                 recording={recording}
                 onPress={() => {
-                  (navigation as any)
-                    .getParent()
-                    ?.navigate('RecordingsTab', {
+                  const parent = navigation.getParent();
+                  if (parent) {
+                    (parent as any).navigate('RecordingsTab', {
                       screen: 'RecordingDetail',
                       params: { recordingId: recording._id },
                     });
+                  }
                 }}
                 onPlay={() => { void play(recording); }}
                 onFavorite={() => { void toggleFavorite(recording._id); }}
@@ -461,7 +479,7 @@ const styles = StyleSheet.create({
     borderRadius:   16,
     gap:            4,
     borderWidth: 1,
-    shadowColor: '#000',
+    shadowColor: 'rgba(0,0,0,1)',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.05,
     shadowRadius: 10,
@@ -486,6 +504,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between'
   },
+  storageCard: {
+  } as ViewStyle,
   storageContainer: {
     gap: 10
   },

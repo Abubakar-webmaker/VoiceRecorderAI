@@ -4,6 +4,7 @@ import {
   TouchableOpacity,
   StyleSheet,
   Platform,
+  Text,
   type ViewStyle,
 } from 'react-native';
 import Animated, {
@@ -22,7 +23,7 @@ interface MiniPlayerProps {
 }
 
 const MiniPlayer = ({ onExpand }: MiniPlayerProps): React.JSX.Element | null => {
-  const { colors, spacing, borderRadius, componentSize } = useTheme();
+  const { colors, spacing, borderRadius, iconSize } = useTheme();
   const {
     currentRecording, isPlaying, isLoading,
     progressPercent, position, duration,
@@ -111,7 +112,8 @@ const MiniPlayer = ({ onExpand }: MiniPlayerProps): React.JSX.Element | null => 
             {currentRecording.title}
           </BodySm>
           <MonoText style={styles.remainingTime}>
-            <MonoText>-{formatDuration(remaining)}</MonoText>
+            <Text>-</Text>
+            {formatDuration(remaining)}
           </MonoText>
         </View>
 
@@ -126,16 +128,16 @@ const MiniPlayer = ({ onExpand }: MiniPlayerProps): React.JSX.Element | null => 
                 styles.playBtn,
                 {
                   backgroundColor: colors.primary.default,
-                  width:           componentSize.iconSize.md + 12,
-                  height:          componentSize.iconSize.md + 12,
-                  borderRadius:    (componentSize.iconSize.md + 12) / 2,
+                  width:           iconSize.md + 12,
+                  height:          iconSize.md + 12,
+                  borderRadius:    (iconSize.md + 12) / 2,
                 },
               ]}
               accessibilityRole="button"
               accessibilityLabel={isPlaying ? 'Pause' : 'Play'}
             >
-              <Caption style={styles.playBtnIcon}>
-                <Caption>{isLoading ? '⟳' : isPlaying ? '⏸' : '▶'}</Caption>
+              <Caption style={[styles.playBtnIcon, { color: colors.text.inverse }]}>
+                <Text>{isLoading ? '⟳' : isPlaying ? '⏸' : '▶'}</Text>
               </Caption>
             </TouchableOpacity>
           </Animated.View>
@@ -151,7 +153,7 @@ const MiniPlayer = ({ onExpand }: MiniPlayerProps): React.JSX.Element | null => 
             accessibilityLabel="Stop playback"
           >
             <Caption style={styles.stopBtnIcon}>
-              <Caption>✕</Caption>
+              <Text>✕</Text>
             </Caption>
           </TouchableOpacity>
         </View>
@@ -167,7 +169,7 @@ const styles = StyleSheet.create({
     left:        0,
     right:       0,
     borderTopWidth: 1,
-    shadowColor:    '#000',
+    shadowColor:    'rgba(0,0,0,1)',
     shadowOffset:   { width: 0, height: -4 },
     shadowOpacity:  0.3,
     shadowRadius:   12,
@@ -193,7 +195,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   } as ViewStyle,
   playBtnIcon: {
-    color: '#fff',
     fontSize: 14
   },
   progressBar: {

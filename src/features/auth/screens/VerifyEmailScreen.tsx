@@ -2,7 +2,6 @@ import React, { useCallback, useEffect, useState } from 'react';
 import {
   View,
   StyleSheet,
-  type ViewStyle,
 } from 'react-native';
 import { SafeAreaView }   from 'react-native-safe-area-context';
 import Animated, {
@@ -28,15 +27,13 @@ const RESEND_COOLDOWN = 60; // seconds
 
 type Props = AuthScreenProps<'VerifyEmail'>;
 
-const VerifyEmailScreen = ({ navigation, route }: Props): React.JSX.Element => {
+const VerifyEmailScreen = ({ route }: Props): React.JSX.Element => {
   const { email } = route.params;
-  const { colors, spacing, borderRadius } = useTheme();
+  const { colors } = useTheme();
   const {
     resendVerification,
     isLoading,
     error,
-    successMessage,
-    dismissError,
     dismissSuccess,
     isEmailVerified,
     logout,
@@ -102,18 +99,20 @@ const VerifyEmailScreen = ({ navigation, route }: Props): React.JSX.Element => {
         edges={['top', 'bottom']}
       >
         <Animated.View style={[styles.center, checkStyle]}>
-          <View
-            style={[
-              styles.successCircle,
-              { backgroundColor: colors.ai.surface },
-            ]}
-          >
-            <BodyMd style={styles.emojiLarge}><BodyMd>✅</BodyMd></BodyMd>
-          </View>
-          <H3 align="center" color="primary">Email Verified!</H3>
-          <BodyMd color="secondary" align="center">
-            Your account is now active. Redirecting you...
-          </BodyMd>
+            <View
+              style={[
+                styles.successCircle,
+                { backgroundColor: colors.ai.surface },
+              ]}
+            >
+              <BodyMd style={styles.emojiLarge}>
+                ✅
+              </BodyMd>
+            </View>
+            <H3 align="center" color="primary">Email Verified!</H3>
+            <BodyMd color="secondary" align="center">
+              Your account is now active. Redirecting you...
+            </BodyMd>
         </Animated.View>
       </SafeAreaView>
     );
@@ -129,33 +128,35 @@ const VerifyEmailScreen = ({ navigation, route }: Props): React.JSX.Element => {
       <View style={styles.container}>
         {/* Animated Email Icon */}
         <Animated.View entering={FadeIn.delay(100)} style={bounceStyle}>
-          <View
-            style={[
-              styles.emailIcon,
-              {
-                backgroundColor: colors.primary.surface,
-                borderColor:     `${colors.primary.default}30`,
-              },
-            ]}
+            <View
+              style={[
+                styles.emailIcon,
+                {
+                  backgroundColor: colors.primary.surface,
+                  borderColor:     `${colors.primary.default}30`,
+                },
+              ]}
+            >
+              <BodyMd style={styles.emojiLarge}>
+                📧
+              </BodyMd>
+            </View>
+          </Animated.View>
+
+          {/* Content */}
+          <Animated.View
+            entering={FadeInDown.delay(200).duration(500)}
+            style={styles.contentContainer}
           >
-            <BodyMd style={styles.emojiLarge}><BodyMd>📧</BodyMd></BodyMd>
-          </View>
-        </Animated.View>
+            <H3 align="center" color="primary">Verify your email</H3>
 
-        {/* Content */}
-        <Animated.View
-          entering={FadeInDown.delay(200).duration(500)}
-          style={styles.contentContainer}
-        >
-          <H3 align="center" color="primary">Verify your email</H3>
-
-          <BodyMd color="secondary" align="center">
-            We sent a verification link to{'\n'}
-            <BodyMd color="primary" style={styles.emailText}>
-              {email}
+            <BodyMd color="secondary" align="center">
+              We sent a verification link to{' '}
+              <BodyMd color="primary" style={styles.emailText}>
+                {email}
+              </BodyMd>
             </BodyMd>
-          </BodyMd>
-        </Animated.View>
+          </Animated.View>
 
         {/* Info Card */}
         <Animated.View
@@ -165,13 +166,13 @@ const VerifyEmailScreen = ({ navigation, route }: Props): React.JSX.Element => {
           <Card variant="outlined">
             <View style={styles.cardContent}>
               <BodySm color="secondary">
-                <BodySm>📬 Check your inbox and click the verification link.</BodySm>
+                📬 Check your inbox and click the verification link.
               </BodySm>
               <BodySm color="secondary">
-                <BodySm>🕐 Link expires in 24 hours.</BodySm>
+                🕐 Link expires in 24 hours.
               </BodySm>
               <BodySm color="secondary">
-                <BodySm>📁 Don&apos;t see it? Check your spam folder.</BodySm>
+                📁 Don&apos;t see it? Check your spam folder.
               </BodySm>
             </View>
           </Card>
@@ -183,7 +184,7 @@ const VerifyEmailScreen = ({ navigation, route }: Props): React.JSX.Element => {
           style={styles.resendContainer}
         >
           {error !== null && (
-            <Caption style={{ color: colors.error.text }} align="center">
+            <Caption style={[styles.errorText, { color: colors.error.text }]} align="center">
               {error}
             </Caption>
           )}
@@ -251,6 +252,8 @@ const styles = StyleSheet.create({
   },
   emojiLarge: {
     fontSize: 56,
+  },
+  errorText: {
   },
   fullWidth: {
     width: '100%',

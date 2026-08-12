@@ -99,7 +99,7 @@ const RecordingCard = ({
                 },
               ]}
             >
-              {isSelected && <Caption style={styles.whiteTextSm}><Caption>✓</Caption></Caption>}
+              {isSelected && <Caption style={styles.whiteTextSm}>✓</Caption>}
             </View>
           )}
 
@@ -113,9 +113,9 @@ const RecordingCard = ({
               {recording.title}
             </BodySm>
             <Caption color="tertiary" style={styles.recordingDate}>
-              <Caption>{new Date(recording.recordedAt).toLocaleDateString('en-US', {
+              {new Date(recording.recordedAt).toLocaleDateString('en-US', {
                 month: 'short', day: 'numeric', year: 'numeric',
-              })}</Caption>
+              })}
             </Caption>
           </View>
 
@@ -125,7 +125,7 @@ const RecordingCard = ({
             hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
           >
             <Caption style={styles.favIcon}>
-              <Caption>{recording.isFavorite ? '💛' : '🤍'}</Caption>
+              {recording.isFavorite ? '💛' : '🤍'}
             </Caption>
           </TouchableOpacity>
         </View>
@@ -135,11 +135,11 @@ const RecordingCard = ({
           {/* Duration + size */}
           <View style={styles.metaRow}>
             <MonoText style={[styles.durationText, { color: colors.text.secondary }]}>
-              <MonoText>{formatDuration(recording.duration)}</MonoText>
+              {formatDuration(recording.duration)}
             </MonoText>
-            <Caption color="tertiary"><Caption>·</Caption></Caption>
+            <Caption color="tertiary">·</Caption>
             <Caption color="tertiary">
-              <Caption>{formatFileSize(recording.fileSize)}</Caption>
+              {formatFileSize(recording.fileSize)}
             </Caption>
           </View>
 
@@ -162,7 +162,7 @@ const RecordingCard = ({
               ]}
               hitSlop={{ top: 4, bottom: 4, left: 4, right: 4 }}
             >
-              <Caption style={styles.whiteTextSm}><Caption>▶</Caption></Caption>
+              <Caption style={styles.whiteTextSm}>▶</Caption>
             </TouchableOpacity>
 
             {/* Delete */}
@@ -174,7 +174,7 @@ const RecordingCard = ({
               ]}
               hitSlop={{ top: 4, bottom: 4, left: 4, right: 4 }}
             >
-              <Caption style={[styles.deleteIcon, { color: colors.error.text }]}><Caption>🗑</Caption></Caption>
+              <Caption style={[styles.deleteIcon, { color: colors.error.text }]}>🗑</Caption>
             </TouchableOpacity>
           </View>
         </View>

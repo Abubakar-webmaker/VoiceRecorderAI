@@ -1,7 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import {
   View,
-  ScrollView,
   TouchableOpacity,
   Clipboard,
   StyleSheet,
@@ -20,7 +19,7 @@ import type { TranscriptSegment } from '@types/ai.types';
 interface TranscriptionViewProps {
   fullText:    string;
   segments:    TranscriptSegment[];
-  language:    string;
+  _language:   string;
   languageName: string;
   confidence:  number;
   wordCount:   number;
@@ -35,12 +34,12 @@ const formatTime = (seconds: number): string => {
 const TranscriptionView = ({
   fullText,
   segments,
-  language,
+  _language,
   languageName,
   confidence,
   wordCount,
 }: TranscriptionViewProps): React.JSX.Element => {
-  const { colors, spacing, borderRadius } = useTheme();
+  const { colors, spacing } = useTheme();
   const [showSegments, setShowSegments]   = useState(false);
   const [copied, setCopied]               = useState(false);
 
@@ -82,7 +81,7 @@ const TranscriptionView = ({
           {/* Full text */}
           <BodySm
             color="primary"
-            style={{ lineHeight: 22 }}
+            style={styles.fullText}
           >
             {fullText}
           </BodySm>
@@ -115,24 +114,23 @@ const TranscriptionView = ({
                   <Card variant="outlined" padding={12}>
                     <View style={styles.segmentHeader}>
                       <MonoText
-                        style={{
-                          color:    colors.primary.light,
-                          fontSize: 11,
-                          fontWeight: '600',
-                        }}
+                        style={[
+                          styles.segmentTime,
+                          { color: colors.primary.light },
+                        ]}
                       >
                         {formatTime(seg.start)} → {formatTime(seg.end)}
                       </MonoText>
                       <Caption
-                        style={{
-                          color:    colors.ai.default,
-                          fontSize: 10,
-                        }}
+                        style={[
+                          styles.segmentConfidence,
+                          { color: colors.ai.default },
+                        ]}
                       >
                         {Math.round(seg.confidence * 100)}%
                       </Caption>
                     </View>
-                    <BodySm color="primary" style={{ marginTop: 4, lineHeight: 20 }}>
+                    <BodySm color="primary" style={styles.segmentText}>
                       {seg.text}
                     </BodySm>
                   </Card>
@@ -157,10 +155,24 @@ const styles = StyleSheet.create({
     paddingVertical:   4,
     borderRadius:      8,
   } as ViewStyle,
+  fullText: {
+    lineHeight: 22,
+  },
+  segmentConfidence: {
+    fontSize: 10,
+  },
   segmentHeader: {
     flexDirection:  'row',
     justifyContent: 'space-between',
   } as ViewStyle,
+  segmentText: {
+    lineHeight: 20,
+    marginTop:  4,
+  },
+  segmentTime: {
+    fontSize:   11,
+    fontWeight: '600',
+  },
   segmentToggle: {
     alignItems:      'center',
     paddingVertical: 10,

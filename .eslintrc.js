@@ -5,7 +5,8 @@ module.exports = {
     ecmaVersion: 2020,
     sourceType: 'module',
     ecmaFeatures: { jsx: true },
-    project: './tsconfig.json',
+    project: ['./tsconfig.json'],
+    tsconfigRootDir: __dirname,
   },
   plugins: [
     '@typescript-eslint',
@@ -50,7 +51,22 @@ module.exports = {
     'react-native/split-platform-components': 'warn',
     'react-native/no-inline-styles': 'warn',
     'react-native/no-color-literals': 'warn',
-    'react-native/no-raw-text': 'warn',
+    'react-native/no-raw-text': ['warn', {
+      skip: [
+        'Typography',
+        'H1',
+        'H2',
+        'H3',
+        'H4',
+        'H5',
+        'BodyLg',
+        'BodyMd',
+        'BodySm',
+        'Caption',
+        'Label',
+        'MonoText',
+      ],
+    }],
 
     // General
     'no-console': ['warn', { allow: ['warn', 'error'] }],
@@ -63,6 +79,7 @@ module.exports = {
     'android/',
     'ios/',
     'dist/',
+    'backend/',
     '*.config.js',
     '*.config.ts',
     'babel.config.js',

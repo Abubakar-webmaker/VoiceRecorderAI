@@ -3,6 +3,7 @@ import {
   View,
   StyleSheet,
   Dimensions,
+  Text,
   type ViewStyle,
 } from 'react-native';
 import Animated, {
@@ -286,7 +287,7 @@ const WelcomeScreen = ({ navigation }: Props): React.JSX.Element => {
               variant="labelSm"
               style={[styles.badgeText, { color: colors.primary.light }]}
             >
-              <Typography variant="labelSm">✦ POWERED BY AI</Typography>
+              <Text>✦ POWERED BY AI</Text>
             </Typography>
           </View>
 
@@ -295,7 +296,8 @@ const WelcomeScreen = ({ navigation }: Props): React.JSX.Element => {
             align="center"
             style={styles.headline}
           >
-            <Typography variant="h1">Record.</Typography>{'\n'}
+            <Text>Record.</Text>
+            {'\n'}
             <Typography
               variant="h1"
               style={[
@@ -303,14 +305,15 @@ const WelcomeScreen = ({ navigation }: Props): React.JSX.Element => {
                 { color: colors.primary.default }
               ]}
             >
-              <Typography variant="h1">Understand.</Typography>
-            </Typography>{'\n'}
-            <Typography variant="h1">Act.</Typography>
+              <Text>Understand.</Text>
+            </Typography>
+            {'\n'}
+            <Text>Act.</Text>
           </H1>
 
           {/* Subtext */}
           <BodyMd color="secondary" align="center" style={styles.subtext}>
-            <BodyMd>Your voice — instantly transcribed, summarized, and analyzed by AI.</BodyMd>
+            <Text>Your voice — instantly transcribed, summarized, and analyzed by AI.</Text>
           </BodyMd>
 
           {/* CTA Buttons */}
@@ -333,13 +336,13 @@ const WelcomeScreen = ({ navigation }: Props): React.JSX.Element => {
 
           {/* Terms */}
           <Caption color="tertiary" align="center">
-            <Caption color="tertiary">By continuing, you agree to our </Caption>
+            <Text>By continuing, you agree to our </Text>
             <Caption color="secondary" style={styles.underline}>
-              <Caption color="secondary">Terms of Service</Caption>
+              <Text>Terms of Service</Text>
             </Caption>
-            <Caption color="tertiary"> and </Caption>
+            <Text> and </Text>
             <Caption color="secondary" style={styles.underline}>
-              <Caption color="secondary">Privacy Policy</Caption>
+              <Text>Privacy Policy</Text>
             </Caption>
           </Caption>
         </Animated.View>
@@ -387,20 +390,20 @@ const styles = StyleSheet.create({
     lineHeight: 38,
   },
   micBase: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.text.inverse,
     height:       2,
     opacity: 0.8,
     width:        20,
   },
   micBody: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.text.inverse,
     borderRadius: 14,
     height:       40,
     opacity:      0.95,
     width:        28,
   },
   micStand: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.text.inverse,
     height: 14,
     marginTop: 4,
     opacity: 0.8,

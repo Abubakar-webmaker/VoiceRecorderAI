@@ -35,7 +35,7 @@ import {
   formatDuration,
   formatFileSize,
   AIStatus,
-} from '@types/recording.types';
+} from '@shared/types/recording.types';
 import { generateShareLinkApi } from '../services/recording.api';
 import type { RecordingsScreenProps } from '@navigation/types';
 
@@ -184,14 +184,17 @@ const RecordingDetailScreen = ({ navigation, route }: Props): React.JSX.Element 
           entering={FadeInDown.delay(100).duration(400)}
           style={[styles.actions, { paddingHorizontal: spacing[5] }]}
         >
-          {/* Play */}
-          <TouchableOpacity
-            onPress={() => { void play(recording); }}
-            style={[styles.actionBtn, styles.playActionBtn, { backgroundColor: colors.primary.default }]}
-          >
-            <Caption style={styles.actionIcon}><Text>▶</Text></Caption>
-            <Caption style={styles.whiteText}><Text>Play</Text></Caption>
-          </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => { void play(recording); }}
+          style={[styles.actionBtn, styles.playActionBtn, { backgroundColor: colors.primary.default }]}
+        >
+          <Caption style={styles.actionIcon}>
+            <Text>▶</Text>
+          </Caption>
+          <Caption style={[styles.whiteText, { color: colors.text.inverse }]}>
+            <Text>Play</Text>
+          </Caption>
+        </TouchableOpacity>
 
           {/* AI */}
           <TouchableOpacity
@@ -245,7 +248,7 @@ const RecordingDetailScreen = ({ navigation, route }: Props): React.JSX.Element 
                   activeTab === tab.id ? styles.fontWeight600 : styles.fontWeight400
                 ]}
               >
-                <BodySm>{tab.label}</BodySm>
+                <Text>{tab.label}</Text>
               </BodySm>
             </TouchableOpacity>
           ))}
@@ -256,11 +259,13 @@ const RecordingDetailScreen = ({ navigation, route }: Props): React.JSX.Element 
         {/* ─── Tab Content ─────────────────────────────────── */}
         <View style={{ paddingHorizontal: spacing[5], paddingTop: spacing[4] }}>
           {activeTab === 'info' && (
-            <Animated.View entering={FadeInDown.duration(300)} style={{ gap: spacing[4] }}>
+            <Animated.View entering={FadeInDown.duration(300)} style={styles.tabContentGap}>
               {/* Metadata */}
               <Card variant="filled">
                 <View style={styles.cardContent}>
-                  <H5 color="primary"><BodySm>File Info</BodySm></H5>
+                  <H5 color="primary">
+                    <Text>File Info</Text>
+                  </H5>
                   {[
                     { label: 'Format',      value: recording.format.toUpperCase() },
                     { label: 'Quality',     value: recording.quality },
@@ -272,8 +277,12 @@ const RecordingDetailScreen = ({ navigation, route }: Props): React.JSX.Element 
                     { label: 'Plays',       value: String(recording.playCount) },
                   ].map(({ label, value }) => (
                     <View key={label} style={styles.infoRow}>
-                      <Caption color="tertiary"><Caption>{label}</Caption></Caption>
-                      <BodySm color="secondary"><BodySm>{value}</BodySm></BodySm>
+                      <Caption color="tertiary">
+                        <Text>{label}</Text>
+                      </Caption>
+                      <BodySm color="secondary">
+                        <Text>{value}</Text>
+                      </BodySm>
                     </View>
                   ))}
                 </View>
@@ -282,7 +291,9 @@ const RecordingDetailScreen = ({ navigation, route }: Props): React.JSX.Element 
               {/* Tags */}
               {recording.tags.length > 0 && (
                 <View style={styles.cardContentSmall}>
-                  <H5 color="primary"><BodySm>Tags</BodySm></H5>
+                  <H5 color="primary">
+                    <Text>Tags</Text>
+                  </H5>
                   <View style={styles.tags}>
                     {recording.tags.map((tag) => (
                       <Badge key={tag} label={tag} variant="neutral" size="md" />
@@ -294,12 +305,14 @@ const RecordingDetailScreen = ({ navigation, route }: Props): React.JSX.Element 
           )}
 
           {activeTab === 'ai' && (
-            <Animated.View entering={FadeInDown.duration(300)} style={{ gap: spacing[4] }}>
+            <Animated.View entering={FadeInDown.duration(300)} style={styles.tabContentGap}>
               {/* Transcription Status */}
               <Card variant="filled">
                 <View style={styles.cardContent}>
                   <View style={styles.aiStatusRow}>
-                    <H5 color="primary"><BodySm>Transcription</BodySm></H5>
+                    <H5 color="primary">
+                      <Text>Transcription</Text>
+                    </H5>
                     <Badge
                       label={recording.ai.transcriptionStatus}
                       variant={
@@ -479,6 +492,9 @@ const styles = StyleSheet.create({
     flex:            1,
     paddingVertical: 10,
   } as ViewStyle,
+  tabContentGap: {
+    gap: 16
+  },
   tabText: {
     // colors handled inline
   },
@@ -499,7 +515,6 @@ const styles = StyleSheet.create({
     paddingVertical:   24,
   } as ViewStyle,
   whiteText: {
-    color: '#fff'
   }
 });
 

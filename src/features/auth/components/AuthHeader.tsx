@@ -3,6 +3,7 @@ import {
   View,
   TouchableOpacity,
   StyleSheet,
+  Text,
   type ViewStyle,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -36,7 +37,7 @@ const AuthHeader = ({
     >
       {/* Back Button Row */}
       <View style={styles.row}>
-        {showBack && onBack != null ? (
+        {showBack && onBack !== undefined ? (
           <TouchableOpacity
             onPress={onBack}
             style={[
@@ -50,27 +51,29 @@ const AuthHeader = ({
             accessibilityRole="button"
             accessibilityLabel="Go back"
           >
-            <Typography variant="bodyLg" color="secondary">←</Typography>
+            <Typography variant="bodyLg" color="secondary">
+              <Text>←</Text>
+            </Typography>
           </TouchableOpacity>
         ) : (
           <View style={styles.backPlaceholder} />
         )}
 
         {/* Right element */}
-        {rightElement != null ? rightElement : <View style={styles.backPlaceholder} />}
+        {rightElement !== undefined ? rightElement : <View style={styles.backPlaceholder} />}
       </View>
 
       {/* Title + Subtitle */}
-      {title != null && (
+      {title !== undefined && (
         <View style={[styles.titleBlock, { marginTop: spacing[4] }]}>
           <Typography variant="h2" color="primary">
             {title}
           </Typography>
-          {subtitle != null && (
+          {subtitle !== undefined && (
             <Typography
               variant="bodyMd"
               color="secondary"
-              style={{ marginTop: spacing[1.5] }}
+              style={[styles.subtitle, { marginTop: spacing[1.5] }]}
             >
               {subtitle}
             </Typography>
@@ -102,6 +105,8 @@ const styles = StyleSheet.create({
     flexDirection:  'row',
     justifyContent: 'space-between',
     alignItems:     'center',
+  } as ViewStyle,
+  subtitle: {
   } as ViewStyle,
   titleBlock: {
     gap: 4,

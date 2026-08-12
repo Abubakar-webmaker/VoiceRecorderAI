@@ -4,9 +4,9 @@ import {
   createSelector,
   type PayloadAction,
 } from '@reduxjs/toolkit';
-import TrackPlayer, { State as TrackState } from 'react-native-track-player';
+import { State as TrackState } from 'react-native-track-player';
 import type { RootState } from '@store/index';
-import type { Recording }  from '@types/recording.types';
+import type { Recording }  from '@shared/types/recording.types';
 import {
   loadTrack, playTrack, pauseTrack,
   seekTo, setSpeed, skipForward, skipBackward, stopTrack,
@@ -185,18 +185,18 @@ export const {
 } = playerSlice.actions;
 
 // ─── Selectors ────────────────────────────────────────────────────
-const pState = (s: RootState) => s.player;
-export const selectCurrentRecording = createSelector(pState, (s) => s.currentRecording);
-export const selectTrackState       = createSelector(pState, (s) => s.trackState);
-export const selectPosition         = createSelector(pState, (s) => s.position);
-export const selectDuration         = createSelector(pState, (s) => s.duration);
-export const selectSpeed            = createSelector(pState, (s) => s.speed);
-export const selectIsPlayerLoading  = createSelector(pState, (s) => s.isLoading);
-export const selectIsMiniPlayer     = createSelector(pState, (s) => s.isMiniPlayer);
+const pState = (s: RootState): PlayerState => s.player;
+export const selectCurrentRecording = createSelector(pState, (s): Recording | null => s.currentRecording);
+export const selectTrackState       = createSelector(pState, (s): TrackState => s.trackState);
+export const selectPosition         = createSelector(pState, (s): number => s.position);
+export const selectDuration         = createSelector(pState, (s): number => s.duration);
+export const selectSpeed            = createSelector(pState, (s): SpeedOption => s.speed);
+export const selectIsPlayerLoading  = createSelector(pState, (s): boolean => s.isLoading);
+export const selectIsMiniPlayer     = createSelector(pState, (s): boolean => s.isMiniPlayer);
 export const selectIsPlaying        = createSelector(
-  pState, (s) => s.trackState === TrackState.Playing,
+  pState, (s): boolean => s.trackState === TrackState.Playing,
 );
-export const selectProgressPercent  = createSelector(pState, (s) =>
+export const selectProgressPercent  = createSelector(pState, (s): number =>
   s.duration > 0 ? s.position / s.duration : 0,
 );
 
