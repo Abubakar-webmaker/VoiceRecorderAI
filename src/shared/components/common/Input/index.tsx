@@ -5,7 +5,6 @@ import {
   Text,
   TouchableOpacity,
   StyleSheet,
-  Animated,
   type TextInputProps,
   type ViewStyle,
 } from 'react-native';
@@ -47,28 +46,13 @@ const Input = ({
   const [showPassword, setShowPassword] = useState(false);
   const inputRef = useRef<TextInput>(null);
 
-  // Floating label animation
-  const labelAnim = useRef(new Animated.Value(value ? 1 : 0)).current;
-
   const handleFocus = useCallback((): void => {
     setIsFocused(true);
-    Animated.timing(labelAnim, {
-      toValue:         1,
-      duration:        160,
-      useNativeDriver: false,
-    }).start();
-  }, [labelAnim]);
+  }, []);
 
   const handleBlur = useCallback((): void => {
     setIsFocused(false);
-    if (!value) {
-      Animated.timing(labelAnim, {
-        toValue:         0,
-        duration:        160,
-        useNativeDriver: false,
-      }).start();
-    }
-  }, [labelAnim, value]);
+  }, []);
 
   const heightMap = {
     sm: componentSize.inputSm,
@@ -88,19 +72,10 @@ const Input = ({
     ? colors.primary.light
     : colors.text.secondary;
 
-  const floatingLabelTop = labelAnim.interpolate({
-    inputRange:  [0, 1],
-    outputRange: [heightMap[size] / 2 - 9, -10],
-  });
-  const floatingLabelSize = labelAnim.interpolate({
-    inputRange:  [0, 1],
-    outputRange: [textStyles.bodyMd.fontSize, textStyles.caption.fontSize],
-  });
-
   return (
     <View style={[styles.container, containerStyle]}>
       {/* Static Label (no floating) */}
-      {label != null && (
+      {label !== undefined && label !== null && (
         <Text
           style={[
             textStyles.label,
@@ -135,7 +110,7 @@ const Input = ({
         ]}
       >
         {/* Left Icon */}
-        {leftIcon != null && (
+        {leftIcon !== undefined && leftIcon !== null && (
           <View style={styles.iconLeft}>{leftIcon}</View>
         )}
 
@@ -156,8 +131,8 @@ const Input = ({
             {
               color:     isDisabled ? colors.text.disabled : colors.text.primary,
               flex:      1,
-              marginLeft: leftIcon != null ? spacing[2] : 0,
-              marginRight: (rightIcon != null || isPassword) ? spacing[2] : 0,
+              marginLeft: leftIcon !== undefined && leftIcon !== null ? spacing[2] : 0,
+              marginRight: (rightIcon !== undefined && rightIcon !== null || isPassword) ? spacing[2] : 0,
             },
           ]}
           selectionColor={colors.primary.default}
@@ -167,29 +142,29 @@ const Input = ({
         {/* Password Toggle */}
         {isPassword && (
           <TouchableOpacity
-            onPress={() => setShowPassword((prev) => !prev)}
+            onPress={() => { setShowPassword((prev) => !prev); }}
             style={styles.iconRight}
             hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
           >
-            <Text style={{ color: colors.text.secondary, fontSize: 14 }}>
-              {showPassword ? '🙈' : '👁'}
+            <Text style={styles.passwordToggleText}>
+              <Text>{showPassword ? '🙈' : '👁'}</Text>
             </Text>
           </TouchableOpacity>
         )}
 
         {/* Right Icon */}
-        {rightIcon != null && !isPassword && (
+        {rightIcon !== undefined && rightIcon !== null && !isPassword && (
           <View style={styles.iconRight}>{rightIcon}</View>
         )}
       </TouchableOpacity>
 
       {/* Error / Hint */}
-      {(error != null || hint != null) && (
+      {(error !== undefined && error !== null || hint !== undefined && hint !== null) && (
         <Text
           style={[
             textStyles.caption,
             styles.helperText,
-            { color: error != null ? colors.error.text : colors.text.tertiary },
+            { color: error !== undefined && error !== null ? colors.error.text : colors.text.tertiary },
           ]}
         >
           {error ?? hint}
@@ -203,16 +178,9 @@ const styles = StyleSheet.create({
   container: {
     gap: 6,
   },
-  label: {
-    marginBottom: 2,
-  },
-  inputContainer: {
-    flexDirection:  'row',
-    alignItems:     'center',
-    borderWidth:    1.5,
-  },
-  input: {
-    padding: 0, // Reset default padding
+  helperText: {
+    marginLeft: 4,
+    marginTop: 2,
   },
   iconLeft: {
     marginRight: 4,
@@ -220,9 +188,19 @@ const styles = StyleSheet.create({
   iconRight: {
     marginLeft: 4,
   },
-  helperText: {
-    marginTop: 2,
-    marginLeft: 4,
+  input: {
+    padding: 0, // Reset default padding
+  },
+  inputContainer: {
+    alignItems:     'center',
+    borderWidth:    1.5,
+    flexDirection:  'row',
+  },
+  label: {
+    marginBottom: 2,
+  },
+  passwordToggleText: {
+    fontSize: 14,
   },
 });
 

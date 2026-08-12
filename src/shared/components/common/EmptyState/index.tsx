@@ -25,7 +25,7 @@ const EmptyState = ({
   onSecondaryAction,
   style,
 }: EmptyStateProps): React.JSX.Element => {
-  const { colors, spacing, borderRadius } = useTheme();
+  const { colors, borderRadius } = useTheme();
 
   return (
     <View style={[styles.container, style]}>
@@ -52,12 +52,12 @@ const EmptyState = ({
         variant="bodyMd"
         align="center"
         color="secondary"
-        style={{ maxWidth: 260 }}
+        style={styles.description}
       >
         {description}
       </Typography>
 
-      {actionLabel != null && onAction != null && (
+      {actionLabel !== undefined && actionLabel !== null && onAction !== undefined && onAction !== null && (
         <View style={styles.actions}>
           <Button
             label={actionLabel}
@@ -65,7 +65,7 @@ const EmptyState = ({
             variant="primary"
             size="md"
           />
-          {secondaryActionLabel != null && onSecondaryAction != null && (
+          {secondaryActionLabel !== undefined && secondaryActionLabel !== null && onSecondaryAction !== undefined && onSecondaryAction !== null && (
             <Button
               label={secondaryActionLabel}
               onPress={onSecondaryAction}
@@ -80,6 +80,12 @@ const EmptyState = ({
 };
 
 const styles = StyleSheet.create({
+  actions: {
+    gap:       10,
+    marginTop: 8,
+    width:     '100%',
+    alignItems: 'center',
+  } as ViewStyle,
   container: {
     flex:           1,
     alignItems:     'center',
@@ -87,15 +93,12 @@ const styles = StyleSheet.create({
     gap:            16,
     paddingHorizontal: 32,
   } as ViewStyle,
+  description: {
+    maxWidth: 260
+  } as ViewStyle,
   iconContainer: {
     padding:      24,
     marginBottom: 8,
-  } as ViewStyle,
-  actions: {
-    gap:       10,
-    marginTop: 8,
-    width:     '100%',
-    alignItems: 'center',
   } as ViewStyle,
 });
 

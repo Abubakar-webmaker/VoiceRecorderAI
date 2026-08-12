@@ -8,7 +8,7 @@ import { v4 as uuidv4 }       from 'uuid';
 import type { RootState }      from '@store/index';
 import type { QueueItem }      from '@services/audio/offlineQueue.service';
 import {
-  loadQueue, saveQueue, addToQueue,
+  loadQueue, addToQueue,
   removeFromQueue, updateQueueItem, purgeInvalidItems,
 } from '@services/audio/offlineQueue.service';
 import { buildAudioFormData }  from '@services/audio/upload.builder';
@@ -53,7 +53,7 @@ export const enqueueRecordingThunk = createAsyncThunk(
 
 export const processQueueThunk = createAsyncThunk(
   'offlineQueue/process',
-  async (_, { getState, dispatch, rejectWithValue }) => {
+  async (_, { getState, dispatch }) => {
     const state  = getState() as RootState;
     const queue  = state.offlineQueue.items.filter(
       (i) => i.status === 'pending' && i.retryCount < i.maxRetries,
@@ -112,7 +112,7 @@ export const retryQueueItemThunk = createAsyncThunk(
   async (id: string, { dispatch }) => {
     await updateQueueItem(id, { status: 'pending', retryCount: 0, error: undefined });
     dispatch(updateQueueItemAction({ id, updates: { status: 'pending', retryCount: 0 } }));
-    dispatch(processQueueThunk());
+    void dispatch(processQueueThunk());
   },
 );
 
@@ -136,7 +136,7 @@ const offlineQueueSlice = createSlice({
     ) => {
       const idx = state.items.findIndex((i) => i.id === action.payload.id);
       if (idx !== -1) {
-        state.items[idx] = { ...state.items[idx]!, ...action.payload.updates };
+        state.items[idx] = { ...state.items[idx], ...action.payload.updates };
       }
     },
     clearQueueError: (state) => { state.error = null; },
@@ -176,7 +176,7 @@ const offlineQueueSlice = createSlice({
 export const { updateQueueItemAction, clearQueueError } = offlineQueueSlice.actions;
 
 // ─── Selectors ────────────────────────────────────────────────────
-const qState = (s: RootState) => s.offlineQueue;
+const qState = (s: RootState): OfflineQueueState => s.offlineQueue;
 export const selectQueueItems    = createSelector(qState, (s) => s.items);
 export const selectQueueCount    = createSelector(qState, (s) => s.items.length);
 export const selectPendingCount  = createSelector(

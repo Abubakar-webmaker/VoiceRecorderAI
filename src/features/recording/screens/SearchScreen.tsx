@@ -7,6 +7,7 @@ import {
   FlatList,
   TouchableOpacity,
   StyleSheet,
+  Text,
   type ViewStyle,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -15,7 +16,7 @@ import Animated, { FadeIn, FadeInDown } from 'react-native-reanimated';
 
 import { RecordingCard }   from '@components/recording/RecordingCard';
 import {
-  H4, H5, BodySm, Caption,
+  H5, BodySm, Caption,
 } from '@components/common/Typography';
 import { Badge }           from '@components/common/Badge';
 import { EmptyState }      from '@components/common/EmptyState';
@@ -23,15 +24,19 @@ import { Loader }          from '@components/common/Loader';
 import useTheme            from '@hooks/useTheme';
 import useRecordings       from '../hooks/useRecordings';
 import usePlayer           from '@features/player/hooks/usePlayer';
+import type { SearchStackParamList } from '@navigation/types';
+import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 
 const RECENT_SEARCHES_KEY = '@AIVoiceRecorder:recentSearches';
 const MAX_RECENT          = 8;
 
-const SearchScreen = ({ navigation }: { navigation: any }): React.JSX.Element => {
+type Props = NativeStackScreenProps<SearchStackParamList, 'Search'>;
+
+const SearchScreen = ({ navigation }: Props): React.JSX.Element => {
   const { colors, spacing, borderRadius } = useTheme();
   const {
-    searchResults, isSearching, error,
-    search, setQuery, searchQuery,
+    searchResults, isSearching,
+    search, setQuery,
     toggleFavorite, deleteRecording,
   } = useRecordings();
   const { play } = usePlayer();
@@ -97,11 +102,14 @@ const SearchScreen = ({ navigation }: { navigation: any }): React.JSX.Element =>
     <RecordingCard
       recording={item}
       onPress={() =>
-        navigation.navigate('RecordingDetail', { recordingId: item._id })
+        (navigation as any).navigate('RecordingsTab', {
+          screen: 'RecordingDetail',
+          params: { recordingId: item._id }
+        })
       }
-      onPlay={() => play(item)}
-      onFavorite={() => toggleFavorite(item._id)}
-      onDelete={() => deleteRecording(item._id)}
+      onPlay={() => { void play(item); }}
+      onFavorite={() => { void toggleFavorite(item._id); }}
+      onDelete={() => { void deleteRecording(item._id); }}
     />
   ), [navigation, play, toggleFavorite, deleteRecording]);
 
@@ -130,7 +138,7 @@ const SearchScreen = ({ navigation }: { navigation: any }): React.JSX.Element =>
             },
           ]}
         >
-          <Caption color="tertiary" style={{ marginRight: 8 }}>🔍</Caption>
+          <Caption color="tertiary" style={styles.searchIcon}><Text>🔍</Text></Caption>
 
           <TextInput
             ref={inputRef}
@@ -141,12 +149,7 @@ const SearchScreen = ({ navigation }: { navigation: any }): React.JSX.Element =>
             onBlur={() => setIsFocused(false)}
             placeholder="Search recordings, transcripts, tags..."
             placeholderTextColor={colors.text.tertiary}
-            style={{
-              flex:     1,
-              color:    colors.text.primary,
-              fontSize: 15,
-              padding:  0,
-            }}
+            style={[styles.searchInput, { color: colors.text.primary }]}
             returnKeyType="search"
             autoCorrect={false}
             autoCapitalize="none"
@@ -154,7 +157,7 @@ const SearchScreen = ({ navigation }: { navigation: any }): React.JSX.Element =>
 
           {localQuery.length > 0 && (
             <TouchableOpacity onPress={clearQuery} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
-              <Caption color="secondary">✕</Caption>
+              <Caption color="secondary"><Text>✕</Text></Caption>
             </TouchableOpacity>
           )}
         </View>
@@ -165,14 +168,14 @@ const SearchScreen = ({ navigation }: { navigation: any }): React.JSX.Element =>
         // ─── No Query — Show Recents ────────────────────────
         <Animated.View
           entering={FadeInDown.delay(100).duration(300)}
-          style={{ flex: 1, paddingHorizontal: spacing[5] }}
+          style={styles.contentContainer}
         >
           {recentSearches.length > 0 ? (
             <>
               <View style={[styles.sectionHeader, { marginVertical: spacing[3] }]}>
-                <H5 color="secondary">Recent Searches</H5>
-                <TouchableOpacity onPress={handleClearRecent}>
-                  <Caption color="link">Clear</Caption>
+                <H5 color="secondary"><Text>Recent Searches</Text></H5>
+                <TouchableOpacity onPress={() => { void handleClearRecent(); }}>
+                  <Caption color="link"><Text>Clear</Text></Caption>
                 </TouchableOpacity>
               </View>
 
@@ -185,8 +188,8 @@ const SearchScreen = ({ navigation }: { navigation: any }): React.JSX.Element =>
                     { borderBottomColor: colors.border.default },
                   ]}
                 >
-                  <Caption color="tertiary" style={{ fontSize: 14 }}>🕐</Caption>
-                  <BodySm color="primary" style={{ flex: 1 }}>{term}</BodySm>
+                  <Caption color="tertiary" style={styles.recentIcon}><Text>🕐</Text></Caption>
+                  <BodySm color="primary" style={styles.flex1}><Text>{term}</Text></BodySm>
                   <TouchableOpacity
                     onPress={() => {
                       const updated = recentSearches.filter((r) => r !== term);
@@ -198,7 +201,7 @@ const SearchScreen = ({ navigation }: { navigation: any }): React.JSX.Element =>
                     }}
                     hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
                   >
-                    <Caption color="tertiary">✕</Caption>
+                    <Caption color="tertiary"><Text>✕</Text></Caption>
                   </TouchableOpacity>
                 </TouchableOpacity>
               ))}
@@ -231,7 +234,7 @@ const SearchScreen = ({ navigation }: { navigation: any }): React.JSX.Element =>
           {/* Result count */}
           <View style={[styles.resultsHeader, { paddingHorizontal: spacing[5] }]}>
             <Caption color="secondary">
-              {searchResults.length} result{searchResults.length !== 1 ? 's' : ''} for
+              <Text>{searchResults.length} result{searchResults.length !== 1 ? 's' : ''} for</Text>
             </Caption>
             <Badge label={`"${localQuery}"`} variant="primary" size="sm" />
           </View>
@@ -253,22 +256,24 @@ const SearchScreen = ({ navigation }: { navigation: any }): React.JSX.Element =>
 };
 
 const styles = StyleSheet.create({
-  screen:  { flex: 1 } as ViewStyle,
-  searchHeader: {
-    paddingVertical: 12,
-  } as ViewStyle,
-  searchBar: {
-    flexDirection:   'row',
-    alignItems:      'center',
-    height:          48,
-    paddingHorizontal: 14,
-    borderWidth:     1.5,
-  } as ViewStyle,
-  sectionHeader: {
-    flexDirection:  'row',
-    justifyContent: 'space-between',
+  center: {
+    flex:           1,
     alignItems:     'center',
+    justifyContent: 'center',
   } as ViewStyle,
+  contentContainer: {
+    flex: 1,
+  } as ViewStyle,
+  flex1: {
+    flex: 1
+  },
+  list: {
+    paddingTop:    8,
+    paddingBottom: 100,
+  } as ViewStyle,
+  recentIcon: {
+    fontSize: 14
+  },
   recentItem: {
     flexDirection:   'row',
     alignItems:      'center',
@@ -282,14 +287,29 @@ const styles = StyleSheet.create({
     gap:            8,
     paddingVertical: 8,
   } as ViewStyle,
-  list: {
-    paddingTop:    8,
-    paddingBottom: 100,
+  screen:  { flex: 1 } as ViewStyle,
+  searchBar: {
+    flexDirection:   'row',
+    alignItems:      'center',
+    height:          48,
+    paddingHorizontal: 14,
+    borderWidth:     1.5,
   } as ViewStyle,
-  center: {
-    flex:           1,
+  searchHeader: {
+    paddingVertical: 12,
+  } as ViewStyle,
+  searchIcon: {
+    marginRight: 8
+  },
+  searchInput: {
+    flex:     1,
+    fontSize: 15,
+    padding:  0,
+  },
+  sectionHeader: {
+    flexDirection:  'row',
+    justifyContent: 'space-between',
     alignItems:     'center',
-    justifyContent: 'center',
   } as ViewStyle,
 });
 

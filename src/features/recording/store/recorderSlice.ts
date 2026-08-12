@@ -132,7 +132,7 @@ export const stopAndUploadThunk = createAsyncThunk(
       const filePath = await stopRecording();
 
       // 2. Get file size
-      const fileSize = await getFileSize(filePath);
+      await getFileSize(filePath);
 
       // 3. Build FormData
       const formData = buildAudioFormData(filePath, {
@@ -271,7 +271,7 @@ export const {
 } = recorderSlice.actions;
 
 // ─── Selectors ────────────────────────────────────────────────────
-const recState = (s: RootState) => s.recorder;
+const recState = (s: RootState): RecorderSliceState => s.recorder;
 export const selectRecorderState      = createSelector(recState, (s) => s.state);
 export const selectRecordingDuration  = createSelector(recState, (s) => s.duration);
 export const selectAmplitudeList      = createSelector(recState, (s) => s.amplitudeList);

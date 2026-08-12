@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback } from 'react';
 import NetInfo, {
   type NetInfoState,
   type NetInfoSubscription,
+  NetInfoStateType,
 } from '@react-native-community/netinfo';
 
 export interface NetInfoResult {
@@ -14,8 +15,8 @@ export interface NetInfoResult {
 
 const mapState = (state: NetInfoState): NetInfoResult => ({
   isConnected:         state.isConnected ?? false,
-  isWifi:              state.type === 'wifi',
-  isCellular:          state.type === 'cellular',
+  isWifi:              state.type === NetInfoStateType.wifi,
+  isCellular:          state.type === NetInfoStateType.cellular,
   isInternetReachable: state.isInternetReachable,
   connectionType:      state.type,
 });
@@ -32,19 +33,17 @@ const useNetInfo = (): NetInfoResult & {
   });
 
   useEffect(() => {
-    let sub: NetInfoSubscription;
-
     // Get initial state
     void NetInfo.fetch().then((state) => {
       setNetInfo(mapState(state));
     });
 
     // Subscribe to changes
-    sub = NetInfo.addEventListener((state) => {
+    const sub = NetInfo.addEventListener((state) => {
       setNetInfo(mapState(state));
     });
 
-    return () => { sub?.(); };
+    return () => { sub(); };
   }, []);
 
   const checkConnection = useCallback(async (): Promise<boolean> => {

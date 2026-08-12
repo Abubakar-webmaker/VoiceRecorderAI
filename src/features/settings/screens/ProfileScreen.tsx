@@ -1,10 +1,11 @@
-import React, { useCallback, useState, useRef } from 'react';
+import React, { useCallback, useState } from 'react';
 import {
   View,
   ScrollView,
   TouchableOpacity,
   Alert,
   StyleSheet,
+  Text,
   type ViewStyle,
 } from 'react-native';
 import { SafeAreaView }  from 'react-native-safe-area-context';
@@ -42,7 +43,6 @@ const ProfileScreen = ({ navigation }: Props): React.JSX.Element => {
   const dispatch = useAppDispatch();
   const { user, logout, isLoading } = useAuth();
   const storage  = useAppSelector(selectStorageInfo);
-  const isDark   = useAppSelector(selectIsDark);
 
   const [name,        setName]        = useState(user?.name ?? '');
   const [nameError,   setNameError]   = useState<string | undefined>(undefined);
@@ -111,7 +111,7 @@ const ProfileScreen = ({ navigation }: Props): React.JSX.Element => {
         }
       },
     );
-  }, [dispatch]);
+  }, []);
 
   // ─── Logout ───────────────────────────────────────────────────
   const handleLogout = useCallback((): void => {
@@ -139,18 +139,20 @@ const ProfileScreen = ({ navigation }: Props): React.JSX.Element => {
         {
           text:    'Delete Account',
           style:   'destructive',
-          onPress: () => Alert.alert(
-            'Confirm',
-            'Type DELETE to confirm',
-            [
-              { text: 'Cancel', style: 'cancel' },
-              {
-                text:    'I understand, delete my account',
-                style:   'destructive',
-                onPress: () => { /* Phase 11 mein implement */ },
-              },
-            ],
-          ),
+          onPress: () => {
+            Alert.alert(
+              'Confirm',
+              'Type DELETE to confirm',
+              [
+                { text: 'Cancel', style: 'cancel' },
+                {
+                  text:    'I understand, delete my account',
+                  style:   'destructive',
+                  onPress: () => { /* Phase 11 mein implement */ },
+                },
+              ],
+            );
+          },
         },
       ],
     );
@@ -174,15 +176,15 @@ const ProfileScreen = ({ navigation }: Props): React.JSX.Element => {
         showsVerticalScrollIndicator={false}
       >
         {/* ─── Header ──────────────────────────────────────── */}
-        <View style={[styles.navRow]}>
+        <View style={styles.navRow}>
           <TouchableOpacity
             onPress={() => navigation.goBack()}
             style={[styles.backBtn, { backgroundColor: colors.bg.elevated }]}
           >
-            <Caption color="secondary">←</Caption>
+            <Caption color="secondary"><Text>←</Text></Caption>
           </TouchableOpacity>
-          <H3 color="primary">Profile</H3>
-          <View style={{ width: 40 }} />
+          <H3 color="primary"><BodySm>Profile</BodySm></H3>
+          <View style={styles.headerRightPlaceholder} />
         </View>
 
         {/* ─── Avatar Section ──────────────────────────────── */}
@@ -191,9 +193,9 @@ const ProfileScreen = ({ navigation }: Props): React.JSX.Element => {
           style={styles.avatarSection}
         >
           <TouchableOpacity
-            onPress={handleChangeAvatar}
+            onPress={() => { handleChangeAvatar(); }}
             disabled={isUploadingAvatar}
-            style={{ alignItems: 'center', gap: spacing[2] }}
+            style={styles.avatarButton}
           >
             <View>
               <Avatar
@@ -209,11 +211,11 @@ const ProfileScreen = ({ navigation }: Props): React.JSX.Element => {
                   { backgroundColor: colors.primary.default },
                 ]}
               >
-                <Caption style={{ color: '#fff', fontSize: 10 }}>✏</Caption>
+                <Caption style={styles.editBadgeIcon}><Text>✏</Text></Caption>
               </View>
             </View>
             <BodySm style={{ color: colors.primary.light }}>
-              {isUploadingAvatar ? 'Uploading...' : 'Change Photo'}
+              <BodySm>{isUploadingAvatar ? 'Uploading...' : 'Change Photo'}</BodySm>
             </BodySm>
           </TouchableOpacity>
 
@@ -224,7 +226,7 @@ const ProfileScreen = ({ navigation }: Props): React.JSX.Element => {
         {/* ─── Edit Name ───────────────────────────────────── */}
         <Animated.View
           entering={FadeInDown.delay(120).duration(400)}
-          style={{ gap: spacing[3], marginBottom: spacing[5] }}
+          style={styles.editNameSection}
         >
           <Input
             label="Full Name"
@@ -233,12 +235,12 @@ const ProfileScreen = ({ navigation }: Props): React.JSX.Element => {
             error={nameError}
             placeholder="Enter your name"
             returnKeyType="done"
-            onSubmitEditing={handleSaveName}
+            onSubmitEditing={() => { void handleSaveName(); }}
           />
           {name !== user?.name && (
             <Button
               label="Save Name"
-              onPress={handleSaveName}
+              onPress={() => { void handleSaveName(); }}
               variant="primary"
               size="md"
               isLoading={isSavingName}
@@ -250,11 +252,11 @@ const ProfileScreen = ({ navigation }: Props): React.JSX.Element => {
         {/* ─── Account Info ─────────────────────────────────── */}
         <Animated.View
           entering={FadeInDown.delay(180).duration(400)}
-          style={{ marginBottom: spacing[5] }}
+          style={styles.accountInfoSection}
         >
           <Card variant="filled">
-            <View style={{ gap: spacing[3] }}>
-              <H5 color="primary">Account</H5>
+            <View style={styles.cardContent}>
+              <H5 color="primary"><BodySm>Account</BodySm></H5>
               {[
                 { label: 'Email',        value: user?.email ?? '' },
                 { label: 'Account Type', value: (user?.role ?? 'free').charAt(0).toUpperCase() + (user?.role ?? 'free').slice(1) },
@@ -272,16 +274,16 @@ const ProfileScreen = ({ navigation }: Props): React.JSX.Element => {
         {/* ─── Storage ──────────────────────────────────────── */}
         <Animated.View
           entering={FadeInDown.delay(240).duration(400)}
-          style={{ marginBottom: spacing[5] }}
+          style={styles.storageSection}
         >
           <Card variant="filled">
-            <View style={{ gap: spacing[3] }}>
+            <View style={styles.cardContent}>
               <View style={styles.cardHeader}>
-                <H5 color="primary">Storage</H5>
+                <H5 color="primary"><BodySm>Storage</BodySm></H5>
                 <TouchableOpacity
-                  onPress={() => navigation.navigate('StorageManager')}
+                  onPress={() => navigation.navigate('StorageManager' as any)}
                 >
-                  <Caption color="link">Manage →</Caption>
+                  <Caption color="link"><BodySm>Manage →</BodySm></Caption>
                 </TouchableOpacity>
               </View>
 
@@ -306,27 +308,29 @@ const ProfileScreen = ({ navigation }: Props): React.JSX.Element => {
 
               <View style={styles.storageInfo}>
                 <Caption color="secondary">
-                  {formatStorageSize(storage.used)} used
+                  <BodySm>{formatStorageSize(storage.used)} used</BodySm>
                 </Caption>
                 <Caption color="tertiary">
-                  {formatStorageSize(storage.limit)} total
+                  <BodySm>{formatStorageSize(storage.limit)} total</BodySm>
                 </Caption>
               </View>
 
               <BodySm
-                style={{
-                  color: storageColor,
-                  fontWeight: '600',
-                }}
+                style={[
+                  styles.storageStatusText,
+                  { color: storageColor }
+                ]}
               >
-                {storage.percent}% used
-                {storage.percent > 80 && ' — Consider upgrading to Pro'}
+                <BodySm>{storage.percent}% used</BodySm>
+                {storage.percent > 80 && (
+                  <BodySm> — Consider upgrading to Pro</BodySm>
+                )}
               </BodySm>
 
               {storage.percent > 70 && (
                 <Button
                   label="Upgrade Storage"
-                  onPress={() => navigation.navigate('Subscription')}
+                  onPress={() => { (navigation as any).navigate('Subscription'); }}
                   variant="primary"
                   size="sm"
                 />
@@ -338,13 +342,13 @@ const ProfileScreen = ({ navigation }: Props): React.JSX.Element => {
         {/* ─── Danger Zone ──────────────────────────────────── */}
         <Animated.View
           entering={FadeInDown.delay(300).duration(400)}
-          style={{ gap: spacing[3], marginBottom: spacing[8] }}
+          style={styles.dangerZone}
         >
           <Divider label="DANGER ZONE" />
 
           <Button
             label="Sign Out"
-            onPress={handleLogout}
+            onPress={() => { handleLogout(); }}
             variant="outline"
             size="md"
             fullWidth
@@ -353,7 +357,7 @@ const ProfileScreen = ({ navigation }: Props): React.JSX.Element => {
 
           <Button
             label="Delete Account"
-            onPress={handleDeleteAccount}
+            onPress={() => { handleDeleteAccount(); }}
             variant="danger"
             size="md"
             fullWidth
@@ -365,14 +369,18 @@ const ProfileScreen = ({ navigation }: Props): React.JSX.Element => {
 };
 
 const styles = StyleSheet.create({
-  screen:  { flex: 1 } as ViewStyle,
-  scroll:  { flexGrow: 1, paddingBottom: 40 } as ViewStyle,
-  navRow: {
-    flexDirection:  'row',
-    alignItems:     'center',
-    justifyContent: 'space-between',
-    paddingVertical: 12,
-    marginBottom:   8,
+  accountInfoSection: {
+    marginBottom: 20,
+  },
+  avatarButton: {
+    alignItems: 'center',
+    gap: 8
+  },
+  avatarSection: {
+    alignItems:   'center',
+    gap:          8,
+    marginBottom: 28,
+    paddingTop:   8,
   } as ViewStyle,
   backBtn: {
     width:          40,
@@ -381,12 +389,18 @@ const styles = StyleSheet.create({
     alignItems:     'center',
     justifyContent: 'center',
   } as ViewStyle,
-  avatarSection: {
-    alignItems:   'center',
-    gap:          8,
-    marginBottom: 28,
-    paddingTop:   8,
+  cardContent: {
+    gap: 12
+  },
+  cardHeader: {
+    flexDirection:  'row',
+    justifyContent: 'space-between',
+    alignItems:     'center',
   } as ViewStyle,
+  dangerZone: {
+    gap: 12,
+    marginBottom: 32,
+  },
   editBadge: {
     position:       'absolute',
     bottom:         2,
@@ -397,27 +411,48 @@ const styles = StyleSheet.create({
     alignItems:     'center',
     justifyContent: 'center',
   } as ViewStyle,
+  editBadgeIcon: {
+    color: '#fff',
+    fontSize: 10
+  },
+  editNameSection: {
+    gap: 12,
+    marginBottom: 20,
+  },
+  headerRightPlaceholder: {
+    width: 40
+  },
   infoRow: {
     flexDirection:  'row',
     justifyContent: 'space-between',
     alignItems:     'center',
   } as ViewStyle,
-  cardHeader: {
+  navRow: {
     flexDirection:  'row',
-    justifyContent: 'space-between',
     alignItems:     'center',
+    justifyContent: 'space-between',
+    paddingVertical: 12,
+    marginBottom:   8,
   } as ViewStyle,
-  storageTrack: {
-    height:   6,
-    width:    '100%',
-    overflow: 'hidden',
-  } as ViewStyle,
+  screen:  { flex: 1 } as ViewStyle,
+  scroll:  { flexGrow: 1, paddingBottom: 40 } as ViewStyle,
   storageFill: {
     height: '100%',
   } as ViewStyle,
   storageInfo: {
     flexDirection:  'row',
     justifyContent: 'space-between',
+  } as ViewStyle,
+  storageSection: {
+    marginBottom: 20,
+  },
+  storageStatusText: {
+    fontWeight: '600'
+  },
+  storageTrack: {
+    height:   6,
+    width:    '100%',
+    overflow: 'hidden',
   } as ViewStyle,
 });
 

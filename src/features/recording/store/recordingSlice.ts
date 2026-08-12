@@ -256,7 +256,7 @@ const recordingSlice = createSlice({
     },
     addRecording: (state, action: PayloadAction<Recording>) => {
       state.items.unshift(action.payload);
-      if (state.pagination != null) {
+      if (state.pagination !== null && state.pagination !== undefined) {
         state.pagination.totalItems += 1;
       }
     },
@@ -408,7 +408,7 @@ export const {
 } = recordingSlice.actions;
 
 // ─── Selectors ────────────────────────────────────────────────────
-const recState = (s: RootState) => s.recording;
+const recState = (s: RootState): RecordingState => s.recording;
 
 export const selectRecordings       = createSelector(recState, (s) => s.items);
 export const selectPagination       = createSelector(recState, (s) => s.pagination);

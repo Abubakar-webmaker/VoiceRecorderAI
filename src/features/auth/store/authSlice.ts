@@ -58,10 +58,10 @@ const initialState: AuthState = {
 // App cold start — silently check karo ki session valid hai ya nahi
 export const initializeAuth = createAsyncThunk(
   'auth/initialize',
-  async (_, { rejectWithValue }) => {
+  async () => {
     try {
       const stored = await getRefreshToken();
-      if (stored == null) return null; // Koi session nahi
+      if (stored === null || stored === undefined) return null; // Koi session nahi
 
       // Try silent refresh — agar refresh token valid hai
       const { apiClient } = await import('@api/axios.instance');
@@ -71,7 +71,7 @@ export const initializeAuth = createAsyncThunk(
       }>('/auth/refresh', { refreshToken: stored.refreshToken });
 
       const accessToken = response.data.data?.accessToken;
-      if (accessToken == null) return null;
+      if (accessToken === null || accessToken === undefined) return null;
 
       // User profile fetch karo
       const { getMeApi: getMe } = await import('../services/auth.api');
@@ -120,10 +120,10 @@ export const loginThunk = createAsyncThunk(
 // Logout
 export const logoutThunk = createAsyncThunk(
   'auth/logout',
-  async (_, { getState, rejectWithValue }) => {
+  async (_, { rejectWithValue }) => {
     try {
       const stored = await getRefreshToken();
-      if (stored != null) {
+      if (stored !== null && stored !== undefined) {
         await logoutApi(stored.refreshToken).catch(() => {
           // Server error ignore karo — local logout karo
         });
@@ -243,7 +243,7 @@ const authSlice = createSlice({
 
     // User profile update
     updateUser: (state, action: PayloadAction<Partial<AuthUser>>) => {
-      if (state.user != null) {
+      if (state.user !== null && state.user !== undefined) {
         state.user = { ...state.user, ...action.payload };
       }
     },
@@ -278,7 +278,7 @@ const authSlice = createSlice({
       .addCase(initializeAuth.fulfilled, (state, action) => {
         state.isLoading     = false;
         state.isInitialized = true;
-        if (action.payload != null) {
+        if (action.payload !== null && action.payload !== undefined) {
           state.user            = action.payload.user;
           state.accessToken     = action.payload.accessToken;
           state.isAuthenticated = true;
@@ -354,7 +354,7 @@ const authSlice = createSlice({
       })
       .addCase(verifyEmailThunk.fulfilled, (state) => {
         state.isLoading = false;
-        if (state.user != null) {
+        if (state.user !== null && state.user !== undefined) {
           state.user.isEmailVerified = true;
         }
         state.successMessage = 'Email verified successfully!';

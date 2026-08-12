@@ -21,14 +21,14 @@ export const uploadRecordingApi = async (
     {
       headers: { 'Content-Type': 'multipart/form-data' },
       onUploadProgress: (e) => {
-        if (e.total != null && onProgress != null) {
+        if (e.total !== undefined && onProgress !== undefined) {
           onProgress(Math.round((e.loaded / e.total) * 100));
         }
       },
     },
   );
   const data = response.data.data;
-  if (data == null) throw new Error(response.data.message);
+  if (data === undefined || data === null) throw new Error(response.data.message);
   return data;
 };
 
@@ -37,22 +37,22 @@ export const getRecordingsApi = async (
   params: RecordingQueryParams = {},
 ): Promise<{ recordings: Recording[]; pagination: PaginationInfo }> => {
   const query: Record<string, string> = {};
-  if (params.page     != null)  query['page']      = String(params.page);
-  if (params.limit    != null)  query['limit']     = String(params.limit);
-  if (params.sortBy   != null)  query['sortBy']    = params.sortBy;
-  if (params.sortOrder != null) query['sortOrder'] = params.sortOrder;
+  if (params.page     !== undefined && params.page !== null)  query['page']      = String(params.page);
+  if (params.limit    !== undefined && params.limit !== null)  query['limit']     = String(params.limit);
+  if (params.sortBy   !== undefined && params.sortBy !== null)  query['sortBy']    = params.sortBy;
+  if (params.sortOrder !== undefined && params.sortOrder !== null) query['sortOrder'] = params.sortOrder;
   if (params.folderId !== undefined) {
     query['folderId'] = params.folderId === null ? 'null' : params.folderId;
   }
-  if (params.tags       != null) query['tags']       = params.tags;
-  if (params.isFavorite != null) query['isFavorite'] = String(params.isFavorite);
+  if (params.tags       !== undefined && params.tags !== null) query['tags']       = params.tags;
+  if (params.isFavorite !== undefined && params.isFavorite !== null) query['isFavorite'] = String(params.isFavorite);
 
   const response = await apiClient.get<
     ApiResponse<{ recordings: Recording[]; pagination: PaginationInfo }>
   >(ENDPOINTS.RECORDINGS.BASE, { params: query });
 
   const data = response.data.data;
-  if (data == null) throw new Error(response.data.message);
+  if (data === undefined || data === null) throw new Error(response.data.message);
   return data;
 };
 
@@ -62,7 +62,7 @@ export const getRecordingByIdApi = async (id: string): Promise<Recording> => {
     ENDPOINTS.RECORDINGS.DETAIL(id),
   );
   const data = response.data.data;
-  if (data == null) throw new Error(response.data.message);
+  if (data === undefined || data === null) throw new Error(response.data.message);
   return data;
 };
 
@@ -84,7 +84,7 @@ export const getFavoritesApi = async (
   >(ENDPOINTS.RECORDINGS.FAVORITES, { params: { page, limit } });
 
   const data = response.data.data;
-  if (data == null) throw new Error(response.data.message);
+  if (data === undefined || data === null) throw new Error(response.data.message);
   return data;
 };
 
@@ -97,7 +97,7 @@ export const searchRecordingsApi = async (
   >(ENDPOINTS.RECORDINGS.SEARCH, { params });
 
   const data = response.data.data;
-  if (data == null) throw new Error(response.data.message);
+  if (data === undefined || data === null) throw new Error(response.data.message);
   return data;
 };
 
@@ -111,7 +111,7 @@ export const updateRecordingApi = async (
     payload,
   );
   const data = response.data.data;
-  if (data == null) throw new Error(response.data.message);
+  if (data === undefined || data === null) throw new Error(response.data.message);
   return data;
 };
 
@@ -124,7 +124,7 @@ export const toggleFavoriteApi = async (
   >(ENDPOINTS.RECORDINGS.FAVORITE(id));
 
   const data = response.data.data;
-  if (data == null) throw new Error(response.data.message);
+  if (data === undefined || data === null) throw new Error(response.data.message);
   return data;
 };
 
@@ -138,7 +138,7 @@ export const moveRecordingApi = async (
     { folderId },
   );
   const data = response.data.data;
-  if (data == null) throw new Error(response.data.message);
+  if (data === undefined || data === null) throw new Error(response.data.message);
   return data;
 };
 
@@ -153,7 +153,7 @@ export const getDownloadUrlApi = async (id: string): Promise<DownloadUrlResult> 
     ENDPOINTS.RECORDINGS.DOWNLOAD(id),
   );
   const data = response.data.data;
-  if (data == null) throw new Error(response.data.message);
+  if (data === undefined || data === null) throw new Error(response.data.message);
   return data;
 };
 
@@ -167,7 +167,7 @@ export const generateShareLinkApi = async (
     { expiresInHours },
   );
   const data = response.data.data;
-  if (data == null) throw new Error(response.data.message);
+  if (data === undefined || data === null) throw new Error(response.data.message);
   return data;
 };
 
@@ -184,6 +184,6 @@ export const bulkDeleteApi = async (
     ApiResponse<{ deleted: number; failed: number }>
   >(ENDPOINTS.RECORDINGS.BULK_DELETE, { recordingIds });
   const data = response.data.data;
-  if (data == null) throw new Error(response.data.message);
+  if (data === undefined || data === null) throw new Error(response.data.message);
   return data;
 };

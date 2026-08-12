@@ -21,7 +21,7 @@ const AppNavigator = (): React.JSX.Element => {
   );
 
   useEffect(() => {
-    dispatch(initializeAuth());
+    void dispatch(initializeAuth());
   }, [dispatch]);
 
   if (!isInitialized) {

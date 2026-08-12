@@ -1,10 +1,9 @@
-import React, { useMemo } from 'react';
-import { View, Dimensions, type ViewStyle } from 'react-native';
+import React, { useMemo, useEffect } from 'react';
+import { View, Dimensions, StyleSheet } from 'react-native';
 import Animated, {
   useAnimatedStyle,
   withSpring,
   useSharedValue,
-  useEffect,
 } from 'react-native-reanimated';
 import useTheme from '@hooks/useTheme';
 
@@ -12,7 +11,6 @@ const { width: W } = Dimensions.get('window');
 
 interface LiveWaveformProps {
   amplitudes:        number[];  // 0-1 values
-  currentAmplitude:  number;
   isRecording:       boolean;
   isPaused:          boolean;
   width?:            number;
@@ -51,7 +49,7 @@ const AnimatedBar = ({
       stiffness: 200,
       mass:      0.5,
     });
-  }, [height]);
+  }, [height, barHeight]);
 
   const animStyle = useAnimatedStyle(() => ({
     height: barHeight.value,
@@ -82,7 +80,6 @@ const AnimatedBar = ({
 
 const LiveWaveform = ({
   amplitudes,
-  currentAmplitude,
   isRecording,
   isPaused,
   width  = W - 40,
@@ -93,7 +90,7 @@ const LiveWaveform = ({
   const barCount = Math.floor(width / (BAR_WIDTH + BAR_GAP));
 
   // Fit amplitudes into bar count (right-aligned — latest on right)
-  const bars = useMemo(() => {
+  const bars = useMemo((): number[] => {
     const minHeight = 0.08;
 
     if (amplitudes.length === 0) {
@@ -110,21 +107,20 @@ const LiveWaveform = ({
     // Pad left with silence
     const padCount = barCount - amplitudes.length;
     return [
-      ...Array(padCount).fill(minHeight),
+      ...Array<number>(padCount).fill(minHeight),
       ...amplitudes,
     ];
   }, [amplitudes, barCount]);
 
   return (
     <View
-      style={{
-        width,
-        height,
-        flexDirection:  'row',
-        alignItems:     'flex-end',
-        justifyContent: 'flex-start',
-        overflow:       'hidden',
-      }}
+      style={[
+        styles.container,
+        {
+          width,
+          height,
+        },
+      ]}
     >
       {bars.map((amp, i) => (
         <AnimatedBar
@@ -140,5 +136,14 @@ const LiveWaveform = ({
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    alignItems:     'flex-end',
+    flexDirection:  'row',
+    justifyContent: 'flex-start',
+    overflow:       'hidden',
+  },
+});
 
 export { LiveWaveform };

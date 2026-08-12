@@ -47,7 +47,7 @@ const Avatar = ({
   style,
   showBorder  = false,
 }: AvatarProps): React.JSX.Element => {
-  const { colors, componentSize, borderRadius, textStyles } = useTheme();
+  const { colors, componentSize, textStyles } = useTheme();
   const [imgError, setImgError] = useState(false);
 
   const sizePx = {
@@ -68,24 +68,20 @@ const Avatar = ({
 
   const [bgColor] = getColorPair(name);
   const initials  = getInitials(name);
-  const showImage = uri != null && !imgError;
+  const showImage = uri !== undefined && uri !== null && !imgError;
 
   return (
     <View
       style={[
+        styles.container,
         {
           width:           sizePx,
           height:          sizePx,
           borderRadius:    sizePx / 2,
           backgroundColor: bgColor,
-          alignItems:      'center',
-          justifyContent:  'center',
-          overflow:        'hidden',
         },
-        showBorder && {
-          borderWidth: 2,
-          borderColor: colors.border.focus,
-        },
+        showBorder && styles.border,
+        showBorder && { borderColor: colors.border.focus },
         style,
       ]}
     >
@@ -99,12 +95,10 @@ const Avatar = ({
         />
       ) : (
         <Text
-          style={{
-            fontSize:   fontSizeMap,
-            fontWeight: '700',
-            color:      '#FFFFFF',
-            letterSpacing: -0.5,
-          }}
+          style={[
+            styles.initials,
+            { fontSize: fontSizeMap }
+          ]}
         >
           {initials}
         </Text>
@@ -112,5 +106,21 @@ const Avatar = ({
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  border: {
+    borderWidth: 2,
+  },
+  container: {
+    alignItems:      'center',
+    justifyContent:  'center',
+    overflow:        'hidden',
+  },
+  initials: {
+    color: '#FFFFFF',
+    fontWeight: '700',
+    letterSpacing: -0.5,
+  },
+});
 
 export { Avatar };

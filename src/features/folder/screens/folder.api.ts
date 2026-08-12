@@ -1,5 +1,5 @@
-import { apiClient } from '@services/api/axios.instance';
-import { ENDPOINTS } from '@services/api/endpoints';
+import { apiClient } from '@api/axios.instance';
+import { ENDPOINTS } from '@api/endpoints';
 import type { Folder } from '@types/recording.types';
 import type { ApiResponse } from '@types/api.types';
 import type { Recording } from '@types/recording.types';
@@ -18,7 +18,7 @@ export const createFolderApi = async (payload: {
     payload,
   );
   const data = response.data.data;
-  if (data == null) throw new Error(response.data.message);
+  if (data === undefined || data === null) throw new Error(response.data.message);
   return data;
 };
 
@@ -47,7 +47,7 @@ export const getFolderWithRecordingsApi = async (
   }>>(ENDPOINTS.FOLDERS.DETAIL(id), { params: { page, limit } });
 
   const data = response.data.data;
-  if (data == null) throw new Error(response.data.message);
+  if (data === undefined || data === null) throw new Error(response.data.message);
   return data;
 };
 
@@ -64,7 +64,7 @@ export const updateFolderApi = async (
     payload,
   );
   const data = response.data.data;
-  if (data == null) throw new Error(response.data.message);
+  if (data === undefined || data === null) throw new Error(response.data.message);
   return data;
 };
 

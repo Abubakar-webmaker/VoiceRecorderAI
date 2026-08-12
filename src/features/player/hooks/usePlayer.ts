@@ -14,8 +14,6 @@ import {
   setIsMiniPlayer,
   selectCurrentRecording,
   selectTrackState,
-  selectPosition,
-  selectDuration,
   selectSpeed,
   selectIsPlayerLoading,
   selectIsMiniPlayer,
@@ -25,7 +23,25 @@ import {
 } from '../store/playerSlice';
 import type { Recording } from '@types/recording.types';
 
-const usePlayer = () => {
+const usePlayer = (): {
+  currentRecording: Recording | null;
+  trackState: any;
+  position: number;
+  duration: number;
+  speed: SpeedOption;
+  isLoading: boolean;
+  isMiniPlayer: boolean;
+  isPlaying: boolean;
+  progressPercent: number;
+  play: (recording: Recording) => void;
+  togglePlay: () => void;
+  seek: (seconds: number) => void;
+  changeSpeed: (s: SpeedOption) => void;
+  skipFwd: () => void;
+  skipBwd: () => void;
+  stop: () => void;
+  showMini: (show: boolean) => void;
+} => {
   const dispatch = useAppDispatch();
 
   // TrackPlayer progress (position + duration)

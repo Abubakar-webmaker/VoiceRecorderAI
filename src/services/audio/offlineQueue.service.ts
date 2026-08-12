@@ -66,7 +66,7 @@ export const updateQueueItem = async (
   const queue = await loadQueue();
   const idx   = queue.findIndex((i) => i.id === id);
   if (idx !== -1) {
-    queue[idx] = { ...queue[idx]!, ...updates };
+    queue[idx] = { ...queue[idx], ...updates };
     await saveQueue(queue);
   }
 };

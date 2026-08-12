@@ -12,7 +12,7 @@ import { Platform } from 'react-native';
 
 // ─── Singleton instance ───────────────────────────────────────────
 const recorderPlayer = new AudioRecorderPlayer();
-recorderPlayer.setSubscriptionDuration(0.1); // Update every 100ms
+void recorderPlayer.setSubscriptionDuration(0.1); // Update every 100ms
 
 // ─── Amplitude normalization ──────────────────────────────────────
 // dB range: -160 (silence) to 0 (max)

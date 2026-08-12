@@ -1,6 +1,5 @@
 import notifee, {
   AndroidImportance,
-  AndroidStyle,
   EventType,
   type Notification,
 } from '@notifee/react-native';
@@ -55,8 +54,8 @@ export const requestNotificationPermission = async (): Promise<boolean> => {
     if (Platform.OS === 'android') {
       try {
         const status = await messaging().requestPermission();
-        return status === messaging.AuthorizationStatus.AUTHORIZED ||
-               status === messaging.AuthorizationStatus.PROVISIONAL;
+        return status === (messaging.AuthorizationStatus.AUTHORIZED as any) ||
+               status === (messaging.AuthorizationStatus.PROVISIONAL as any);
       } catch (err) {
         logger.warn('[Notification] Firebase messaging permission request skipped:', err);
       }
@@ -150,6 +149,7 @@ export const setupBackgroundMessageHandler = (): void => {
   try {
     messaging().setBackgroundMessageHandler(async (remoteMessage) => {
       logger.info('[Notification] Background message:', remoteMessage.data);
+      return Promise.resolve();
     });
   } catch (err) {
     logger.error('[Notification] Failed to set background message handler:', err);

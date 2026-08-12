@@ -2,7 +2,6 @@ import {
   createSlice,
   createAsyncThunk,
   createSelector,
-  type PayloadAction,
 } from '@reduxjs/toolkit';
 import type { RootState } from '@store/index';
 import type { Folder }    from '@types/recording.types';
@@ -94,7 +93,7 @@ const folderSlice = createSlice({
 
 export const { clearFolderError } = folderSlice.actions;
 
-const folState = (s: RootState) => s.folder;
+const folState = (s: RootState): FolderState => s.folder;
 export const selectFolders     = createSelector(folState, (s) => s.items);
 export const selectFolderById  = (id: string) =>
   createSelector(folState, (s) => s.items.find((f) => f._id === id));

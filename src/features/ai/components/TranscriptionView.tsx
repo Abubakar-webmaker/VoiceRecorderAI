@@ -147,11 +147,6 @@ const TranscriptionView = ({
 };
 
 const styles = StyleSheet.create({
-  statsRow: {
-    flexDirection:  'row',
-    alignItems:     'center',
-    justifyContent: 'space-between',
-  } as ViewStyle,
   actionRow: {
     flexDirection:  'row',
     alignItems:     'center',
@@ -162,6 +157,10 @@ const styles = StyleSheet.create({
     paddingVertical:   4,
     borderRadius:      8,
   } as ViewStyle,
+  segmentHeader: {
+    flexDirection:  'row',
+    justifyContent: 'space-between',
+  } as ViewStyle,
   segmentToggle: {
     alignItems:      'center',
     paddingVertical: 10,
@@ -169,8 +168,9 @@ const styles = StyleSheet.create({
     borderRadius:    10,
     borderStyle:     'dashed',
   } as ViewStyle,
-  segmentHeader: {
+  statsRow: {
     flexDirection:  'row',
+    alignItems:     'center',
     justifyContent: 'space-between',
   } as ViewStyle,
 });

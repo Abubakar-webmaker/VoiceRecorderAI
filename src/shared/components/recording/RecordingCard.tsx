@@ -9,7 +9,6 @@ import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withSpring,
-  withTiming,
 } from 'react-native-reanimated';
 
 import { BodySm, Caption, MonoText } from '@components/common/Typography';
@@ -86,7 +85,7 @@ const RecordingCard = ({
         style,
       ]}
     >
-      <AnimatedTouchable style={[animStyle]}>
+      <AnimatedTouchable style={animStyle}>
         {/* ─── Top Row ──────────────────────────────────── */}
         <View style={styles.topRow}>
           {/* Selection checkbox */}
@@ -100,23 +99,23 @@ const RecordingCard = ({
                 },
               ]}
             >
-              {isSelected && <Caption style={{ color: '#fff', fontSize: 10 }}>✓</Caption>}
+              {isSelected && <Caption style={styles.whiteTextSm}><Caption>✓</Caption></Caption>}
             </View>
           )}
 
           {/* Title + date */}
-          <View style={{ flex: 1 }}>
+          <View style={styles.flex1}>
             <BodySm
               color="primary"
               numberOfLines={1}
-              style={{ fontWeight: '600' }}
+              style={styles.recordingTitle}
             >
               {recording.title}
             </BodySm>
-            <Caption color="tertiary" style={{ marginTop: 2 }}>
-              {new Date(recording.recordedAt).toLocaleDateString('en-US', {
+            <Caption color="tertiary" style={styles.recordingDate}>
+              <Caption>{new Date(recording.recordedAt).toLocaleDateString('en-US', {
                 month: 'short', day: 'numeric', year: 'numeric',
-              })}
+              })}</Caption>
             </Caption>
           </View>
 
@@ -125,8 +124,8 @@ const RecordingCard = ({
             onPress={onFavorite}
             hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
           >
-            <Caption style={{ fontSize: 16 }}>
-              {recording.isFavorite ? '💛' : '🤍'}
+            <Caption style={styles.favIcon}>
+              <Caption>{recording.isFavorite ? '💛' : '🤍'}</Caption>
             </Caption>
           </TouchableOpacity>
         </View>
@@ -135,12 +134,12 @@ const RecordingCard = ({
         <View style={[styles.bottomRow, { marginTop: spacing[2] }]}>
           {/* Duration + size */}
           <View style={styles.metaRow}>
-            <MonoText style={{ color: colors.text.secondary, fontSize: 12 }}>
-              {formatDuration(recording.duration)}
+            <MonoText style={[styles.durationText, { color: colors.text.secondary }]}>
+              <MonoText>{formatDuration(recording.duration)}</MonoText>
             </MonoText>
-            <Caption color="tertiary">·</Caption>
+            <Caption color="tertiary"><Caption>·</Caption></Caption>
             <Caption color="tertiary">
-              {formatFileSize(recording.fileSize)}
+              <Caption>{formatFileSize(recording.fileSize)}</Caption>
             </Caption>
           </View>
 
@@ -163,7 +162,7 @@ const RecordingCard = ({
               ]}
               hitSlop={{ top: 4, bottom: 4, left: 4, right: 4 }}
             >
-              <Caption style={{ color: '#fff', fontSize: 10 }}>▶</Caption>
+              <Caption style={styles.whiteTextSm}><Caption>▶</Caption></Caption>
             </TouchableOpacity>
 
             {/* Delete */}
@@ -175,7 +174,7 @@ const RecordingCard = ({
               ]}
               hitSlop={{ top: 4, bottom: 4, left: 4, right: 4 }}
             >
-              <Caption style={{ color: colors.error.text, fontSize: 10 }}>🗑</Caption>
+              <Caption style={[styles.deleteIcon, { color: colors.error.text }]}><Caption>🗑</Caption></Caption>
             </TouchableOpacity>
           </View>
         </View>
@@ -185,14 +184,25 @@ const RecordingCard = ({
 };
 
 const styles = StyleSheet.create({
+  actionBtn: {
+    width:          28,
+    height:         28,
+    borderRadius:   8,
+    alignItems:     'center',
+    justifyContent: 'center',
+  } as ViewStyle,
+  actions: {
+    flexDirection: 'row',
+    gap:           6,
+  } as ViewStyle,
+  bottomRow: {
+    flexDirection:  'row',
+    alignItems:     'center',
+    justifyContent: 'space-between',
+  } as ViewStyle,
   card: {
     padding:     14,
     borderWidth: 1,
-  } as ViewStyle,
-  topRow: {
-    flexDirection: 'row',
-    alignItems:    'center',
-    gap:           10,
   } as ViewStyle,
   checkbox: {
     width:          20,
@@ -202,28 +212,39 @@ const styles = StyleSheet.create({
     alignItems:     'center',
     justifyContent: 'center',
   } as ViewStyle,
-  bottomRow: {
-    flexDirection:  'row',
-    alignItems:     'center',
-    justifyContent: 'space-between',
-  } as ViewStyle,
+  deleteIcon: {
+    fontSize: 10
+  },
+  durationText: {
+    fontSize: 12
+  },
+  favIcon: {
+    fontSize: 16
+  },
+  flex1: {
+    flex: 1
+  },
   metaRow: {
     flexDirection: 'row',
     alignItems:    'center',
     gap:           6,
     flex:          1,
   } as ViewStyle,
-  actions: {
+  recordingDate: {
+    marginTop: 2
+  },
+  recordingTitle: {
+    fontWeight: '600'
+  },
+  topRow: {
     flexDirection: 'row',
-    gap:           6,
+    alignItems:    'center',
+    gap:           10,
   } as ViewStyle,
-  actionBtn: {
-    width:          28,
-    height:         28,
-    borderRadius:   8,
-    alignItems:     'center',
-    justifyContent: 'center',
-  } as ViewStyle,
+  whiteTextSm: {
+    color: '#fff',
+    fontSize: 10
+  },
 });
 
 export { RecordingCard };

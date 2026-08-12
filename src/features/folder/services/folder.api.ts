@@ -18,7 +18,7 @@ export const createFolderApi = async (payload: {
     payload,
   );
   const data = response.data.data;
-  if (data == null) throw new Error(response.data.message);
+  if (data === undefined || data === null) throw new Error(response.data.message);
   return data;
 };
 
@@ -40,7 +40,7 @@ export const getFolderWithRecordingsApi = async (
     folder: Folder; recordings: Recording[]; total: number;
   }>>(ENDPOINTS.FOLDERS.DETAIL(id), { params: { page, limit } });
   const data = response.data.data;
-  if (data == null) throw new Error(response.data.message);
+  if (data === undefined || data === null) throw new Error(response.data.message);
   return data;
 };
 
@@ -57,7 +57,7 @@ export const updateFolderApi = async (
     payload,
   );
   const data = response.data.data;
-  if (data == null) throw new Error(response.data.message);
+  if (data === undefined || data === null) throw new Error(response.data.message);
   return data;
 };
 

@@ -1,8 +1,6 @@
 import * as Keychain from 'react-native-keychain';
 
 const KEYCHAIN_SERVICE = 'AIVoiceRecorder';
-const REFRESH_TOKEN_KEY = 'refresh_token';
-const USER_EMAIL_KEY    = 'user_email';
 
 // ─── Store Refresh Token ──────────────────────────────────────────
 export const storeRefreshToken = async (

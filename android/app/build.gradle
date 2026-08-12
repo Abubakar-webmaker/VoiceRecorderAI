@@ -79,7 +79,7 @@ android {
 
     namespace "com.voicerecorderai"
     defaultConfig {
-        applicationId "com.example.voicerecorder"
+        applicationId "com.voicerecorderai"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1

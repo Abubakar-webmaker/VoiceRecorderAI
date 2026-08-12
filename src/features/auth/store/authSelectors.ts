@@ -1,7 +1,9 @@
 import { createSelector } from '@reduxjs/toolkit';
 import type { RootState }  from '@store/index';
 
-const authState = (state: RootState) => state.auth;
+import type { AuthState } from './authSlice';
+
+const authState = (state: RootState): AuthState => state.auth;
 
 export const selectUser            = createSelector(authState, (s) => s.user);
 export const selectAccessToken     = createSelector(authState, (s) => s.accessToken);
@@ -21,7 +23,7 @@ export const selectUserRole        = createSelector(
 export const selectStorageInfo     = createSelector(authState, (s) => ({
   used:    s.user?.storageUsed  ?? 0,
   limit:   s.user?.storageLimit ?? 0,
-  percent: s.user != null
+  percent: s.user !== null && s.user !== undefined
     ? Math.min(100, Math.round((s.user.storageUsed / s.user.storageLimit) * 100))
     : 0,
 }));

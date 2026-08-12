@@ -11,10 +11,8 @@ import Animated, {
   withRepeat,
   withTiming,
   withDelay,
-  withSpring,
   withSequence,
   Easing,
-  interpolate,
   FadeIn,
   FadeInDown,
 } from 'react-native-reanimated';
@@ -72,12 +70,11 @@ const PulsingRing = ({
   return (
     <Animated.View
       style={[
+        styles.pulsingRing,
         {
-          position:     'absolute',
           width:        size,
           height:       size,
           borderRadius: size / 2,
-          borderWidth:  1.5,
           borderColor:  color,
         },
         animStyle,
@@ -126,8 +123,8 @@ const Particle = ({ x, y, delay, size }: ParticleProps): React.JSX.Element => {
   return (
     <Animated.View
       style={[
+        styles.particle,
         {
-          position:        'absolute',
           left:            x,
           top:             y,
           width:           size,
@@ -171,7 +168,7 @@ const RecordingOrb = (): React.JSX.Element => {
       <PulsingRing delay={1800} size={W * 0.45} color={`${colors.primary.default}40`} duration={2800} />
 
       {/* Orb */}
-      <Animated.View style={[orbStyle]}>
+      <Animated.View style={orbStyle}>
         {/* Outer glow ring */}
         <View
           style={[
@@ -199,11 +196,10 @@ const RecordingOrb = (): React.JSX.Element => {
           {/* Gradient overlay */}
           <View
             style={[
-              StyleSheet.absoluteFill,
+              styles.orbGradient,
               {
                 borderRadius:    ORB_SIZE / 2,
                 backgroundColor: colors.primary.default,
-                opacity:         0.9,
               },
             ]}
           />
@@ -211,34 +207,11 @@ const RecordingOrb = (): React.JSX.Element => {
           {/* Mic icon */}
           <View style={styles.orbIcon}>
             {/* Mic body */}
-            <View
-              style={{
-                width:        28,
-                height:       40,
-                borderRadius: 14,
-                backgroundColor: '#FFFFFF',
-                opacity:      0.95,
-              }}
-            />
+            <View style={styles.micBody} />
             {/* Mic stand */}
-            <View
-              style={{
-                width:  2,
-                height: 14,
-                backgroundColor: '#FFFFFF',
-                opacity: 0.8,
-                marginTop: 4,
-              }}
-            />
+            <View style={styles.micStand} />
             {/* Base */}
-            <View
-              style={{
-                width:        20,
-                height:       2,
-                backgroundColor: '#FFFFFF',
-                opacity: 0.8,
-              }}
-            />
+            <View style={styles.micBase} />
           </View>
         </View>
       </Animated.View>
@@ -311,34 +284,33 @@ const WelcomeScreen = ({ navigation }: Props): React.JSX.Element => {
           >
             <Typography
               variant="labelSm"
-              style={{ color: colors.primary.light, letterSpacing: 1.5 }}
+              style={[styles.badgeText, { color: colors.primary.light }]}
             >
-              ✦ POWERED BY AI
+              <Typography variant="labelSm">✦ POWERED BY AI</Typography>
             </Typography>
           </View>
 
           {/* Headline */}
           <H1
             align="center"
-            style={{ letterSpacing: -1, lineHeight: 38 }}
+            style={styles.headline}
           >
-            Record.{'\n'}
+            <Typography variant="h1">Record.</Typography>{'\n'}
             <Typography
               variant="h1"
-              style={{
-                color: colors.primary.default,
-                letterSpacing: -1,
-                lineHeight: 38,
-              }}
+              style={[
+                styles.headlineMiddle,
+                { color: colors.primary.default }
+              ]}
             >
-              Understand.
+              <Typography variant="h1">Understand.</Typography>
             </Typography>{'\n'}
-            Act.
+            <Typography variant="h1">Act.</Typography>
           </H1>
 
           {/* Subtext */}
           <BodyMd color="secondary" align="center" style={styles.subtext}>
-            Your voice — instantly transcribed, summarized, and analyzed by AI.
+            <BodyMd>Your voice — instantly transcribed, summarized, and analyzed by AI.</BodyMd>
           </BodyMd>
 
           {/* CTA Buttons */}
@@ -361,13 +333,13 @@ const WelcomeScreen = ({ navigation }: Props): React.JSX.Element => {
 
           {/* Terms */}
           <Caption color="tertiary" align="center">
-            By continuing, you agree to our{' '}
-            <Caption color="secondary" style={{ textDecorationLine: 'underline' }}>
-              Terms of Service
+            <Caption color="tertiary">By continuing, you agree to our </Caption>
+            <Caption color="secondary" style={styles.underline}>
+              <Caption color="secondary">Terms of Service</Caption>
             </Caption>
-            {' '}and{' '}
-            <Caption color="secondary" style={{ textDecorationLine: 'underline' }}>
-              Privacy Policy
+            <Caption color="tertiary"> and </Caption>
+            <Caption color="secondary" style={styles.underline}>
+              <Caption color="secondary">Privacy Policy</Caption>
             </Caption>
           </Caption>
         </Animated.View>
@@ -377,8 +349,18 @@ const WelcomeScreen = ({ navigation }: Props): React.JSX.Element => {
 };
 
 const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
+  badge: {
+    paddingHorizontal: spacing[3],
+    paddingVertical:   spacing[1.5],
+    borderRadius:      borderRadius.full,
+    borderWidth:       1,
+  } as ViewStyle,
+  badgeText: {
+    letterSpacing: 1.5,
+  },
+  buttons: {
+    width: '100%',
+    gap:   spacing[3],
   } as ViewStyle,
   centerGlow: {
     position:     'absolute',
@@ -388,16 +370,46 @@ const styles = StyleSheet.create({
     top:          H * 0.05,
     alignSelf:    'center',
   } as ViewStyle,
-  safeArea: {
-    flex:           1,
-    alignItems:     'center',
-    justifyContent: 'space-between',
+  content: {
+    flex:              0.5,
+    width:             '100%',
+    paddingHorizontal: spacing[6],
+    paddingBottom:     spacing[4],
+    alignItems:        'center',
+    gap:               spacing[4],
   } as ViewStyle,
-  orbSection: {
-    flex:           0.5,
+  headline: {
+    letterSpacing: -1,
+    lineHeight: 38,
+  },
+  headlineMiddle: {
+    letterSpacing: -1,
+    lineHeight: 38,
+  },
+  micBase: {
+    backgroundColor: '#FFFFFF',
+    height:       2,
+    opacity: 0.8,
+    width:        20,
+  },
+  micBody: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 14,
+    height:       40,
+    opacity:      0.95,
+    width:        28,
+  },
+  micStand: {
+    backgroundColor: '#FFFFFF',
+    height: 14,
+    marginTop: 4,
+    opacity: 0.8,
+    width:  2,
+  },
+  orb: {
     alignItems:     'center',
     justifyContent: 'center',
-    width:          '100%',
+    overflow:       'hidden',
   } as ViewStyle,
   orbContainer: {
     alignItems:     'center',
@@ -411,37 +423,42 @@ const styles = StyleSheet.create({
     alignItems:     'center',
     justifyContent: 'center',
   } as ViewStyle,
-  orb: {
-    alignItems:     'center',
-    justifyContent: 'center',
-    overflow:       'hidden',
-  } as ViewStyle,
+  orbGradient: {
+    ...StyleSheet.absoluteFillObject,
+    opacity:         0.9,
+  },
   orbIcon: {
     position:       'absolute',
     alignItems:     'center',
     justifyContent: 'center',
   } as ViewStyle,
-  content: {
-    flex:              0.5,
-    width:             '100%',
-    paddingHorizontal: spacing[6],
-    paddingBottom:     spacing[4],
-    alignItems:        'center',
-    gap:               spacing[4],
+  orbSection: {
+    flex:           0.5,
+    alignItems:     'center',
+    justifyContent: 'center',
+    width:          '100%',
   } as ViewStyle,
-  badge: {
-    paddingHorizontal: spacing[3],
-    paddingVertical:   spacing[1.5],
-    borderRadius:      borderRadius.full,
-    borderWidth:       1,
+  particle: {
+    position: 'absolute',
+  } as ViewStyle,
+  pulsingRing: {
+    position: 'absolute',
+    borderWidth:  1.5,
+  } as ViewStyle,
+  safeArea: {
+    flex:           1,
+    alignItems:     'center',
+    justifyContent: 'space-between',
+  } as ViewStyle,
+  screen: {
+    flex: 1,
   } as ViewStyle,
   subtext: {
     maxWidth: 280,
   } as ViewStyle,
-  buttons: {
-    width: '100%',
-    gap:   spacing[3],
-  } as ViewStyle,
+  underline: {
+    textDecorationLine: 'underline',
+  },
 });
 
 export { WelcomeScreen };

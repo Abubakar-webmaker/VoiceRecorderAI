@@ -108,7 +108,7 @@ const VerifyEmailScreen = ({ navigation, route }: Props): React.JSX.Element => {
               { backgroundColor: colors.ai.surface },
             ]}
           >
-            <BodyMd style={{ fontSize: 56 }}>✅</BodyMd>
+            <BodyMd style={styles.emojiLarge}><BodyMd>✅</BodyMd></BodyMd>
           </View>
           <H3 align="center" color="primary">Email Verified!</H3>
           <BodyMd color="secondary" align="center">
@@ -138,20 +138,20 @@ const VerifyEmailScreen = ({ navigation, route }: Props): React.JSX.Element => {
               },
             ]}
           >
-            <BodyMd style={{ fontSize: 56 }}>📧</BodyMd>
+            <BodyMd style={styles.emojiLarge}><BodyMd>📧</BodyMd></BodyMd>
           </View>
         </Animated.View>
 
         {/* Content */}
         <Animated.View
           entering={FadeInDown.delay(200).duration(500)}
-          style={{ gap: spacing[2], alignItems: 'center' }}
+          style={styles.contentContainer}
         >
           <H3 align="center" color="primary">Verify your email</H3>
 
           <BodyMd color="secondary" align="center">
             We sent a verification link to{'\n'}
-            <BodyMd color="primary" style={{ fontWeight: '600' }}>
+            <BodyMd color="primary" style={styles.emailText}>
               {email}
             </BodyMd>
           </BodyMd>
@@ -160,18 +160,18 @@ const VerifyEmailScreen = ({ navigation, route }: Props): React.JSX.Element => {
         {/* Info Card */}
         <Animated.View
           entering={FadeInDown.delay(350).duration(500)}
-          style={{ width: '100%' }}
+          style={styles.fullWidth}
         >
           <Card variant="outlined">
-            <View style={{ gap: spacing[2] }}>
+            <View style={styles.cardContent}>
               <BodySm color="secondary">
-                📬 Check your inbox and click the verification link.
+                <BodySm>📬 Check your inbox and click the verification link.</BodySm>
               </BodySm>
               <BodySm color="secondary">
-                🕐 Link expires in 24 hours.
+                <BodySm>🕐 Link expires in 24 hours.</BodySm>
               </BodySm>
               <BodySm color="secondary">
-                📁 Don't see it? Check your spam folder.
+                <BodySm>📁 Don&apos;t see it? Check your spam folder.</BodySm>
               </BodySm>
             </View>
           </Card>
@@ -180,9 +180,9 @@ const VerifyEmailScreen = ({ navigation, route }: Props): React.JSX.Element => {
         {/* Resend */}
         <Animated.View
           entering={FadeInDown.delay(500).duration(500)}
-          style={{ gap: spacing[3], width: '100%', alignItems: 'center' }}
+          style={styles.resendContainer}
         >
-          {error != null && (
+          {error !== null && (
             <Caption style={{ color: colors.error.text }} align="center">
               {error}
             </Caption>
@@ -196,7 +196,7 @@ const VerifyEmailScreen = ({ navigation, route }: Props): React.JSX.Element => {
                 ? 'Resend Email'
                 : 'Resend Verification Email'
             }
-            onPress={handleResend}
+            onPress={() => { void handleResend(); }}
             variant={cooldown > 0 ? 'ghost' : 'outline'}
             size="md"
             fullWidth
@@ -206,7 +206,7 @@ const VerifyEmailScreen = ({ navigation, route }: Props): React.JSX.Element => {
 
           <Button
             label="Sign in with different account"
-            onPress={handleLogout}
+            onPress={() => { void handleLogout(); }}
             variant="ghost"
             size="sm"
           />
@@ -217,13 +217,8 @@ const VerifyEmailScreen = ({ navigation, route }: Props): React.JSX.Element => {
 };
 
 const styles = StyleSheet.create({
-  screen: { flex: 1 } as ViewStyle,
-  container: {
-    flex:              1,
-    paddingHorizontal: 24,
-    alignItems:        'center',
-    justifyContent:    'center',
-    gap:               24,
+  cardContent: {
+    gap: 8,
   } as ViewStyle,
   center: {
     flex:           1,
@@ -231,6 +226,17 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap:            16,
     paddingHorizontal: 24,
+  } as ViewStyle,
+  container: {
+    flex:              1,
+    paddingHorizontal: 24,
+    alignItems:        'center',
+    justifyContent:    'center',
+    gap:               24,
+  } as ViewStyle,
+  contentContainer: {
+    gap: 8,
+    alignItems: 'center',
   } as ViewStyle,
   emailIcon: {
     width:        120,
@@ -240,6 +246,21 @@ const styles = StyleSheet.create({
     alignItems:   'center',
     justifyContent: 'center',
   } as ViewStyle,
+  emailText: {
+    fontWeight: '600',
+  },
+  emojiLarge: {
+    fontSize: 56,
+  },
+  fullWidth: {
+    width: '100%',
+  } as ViewStyle,
+  resendContainer: {
+    gap: 12,
+    width: '100%',
+    alignItems: 'center',
+  } as ViewStyle,
+  screen: { flex: 1 } as ViewStyle,
   successCircle: {
     width:        120,
     height:       120,

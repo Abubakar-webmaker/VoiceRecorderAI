@@ -31,7 +31,7 @@ const RecordingTimer = ({
   isRecording,
   isPaused,
 }: RecordingTimerProps): React.JSX.Element => {
-  const { colors, spacing } = useTheme();
+  const { colors } = useTheme();
 
   // Blinking dot when recording
   const dotOpacity = useSharedValue(1);
@@ -72,16 +72,16 @@ const RecordingTimer = ({
           ]}
         />
         <Caption
-          style={{
-            color: isPaused
-              ? colors.warning.default
-              : isRecording
-              ? colors.recording.default
-              : colors.text.tertiary,
-            letterSpacing: 1.5,
-            textTransform: 'uppercase',
-            fontSize: 10,
-          }}
+          style={[
+            styles.statusText,
+            {
+              color: isPaused
+                ? colors.warning.default
+                : isRecording
+                ? colors.recording.default
+                : colors.text.tertiary,
+            }
+          ]}
         >
           {isPaused ? 'Paused' : isRecording ? 'Recording' : 'Ready'}
         </Caption>
@@ -89,15 +89,12 @@ const RecordingTimer = ({
 
       {/* Timer */}
       <MonoText
-        style={{
-          fontSize:      48,
-          fontWeight:    '700',
-          color:         colors.text.primary,
-          letterSpacing: -1,
-          lineHeight:    56,
-        }}
+        style={[
+          styles.timer,
+          { color: colors.text.primary }
+        ]}
       >
-        {formatTimer(Math.floor(duration))}
+        <MonoText>{formatTimer(Math.floor(duration))}</MonoText>
       </MonoText>
     </View>
   );
@@ -108,16 +105,27 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap:        8,
   } as ViewStyle,
-  statusRow: {
-    flexDirection: 'row',
-    alignItems:    'center',
-    gap:           6,
-  } as ViewStyle,
   dot: {
     width:        8,
     height:       8,
     borderRadius: 4,
   } as ViewStyle,
+  statusRow: {
+    flexDirection: 'row',
+    alignItems:    'center',
+    gap:           6,
+  } as ViewStyle,
+  statusText: {
+    fontSize: 10,
+    letterSpacing: 1.5,
+    textTransform: 'uppercase',
+  },
+  timer: {
+    fontSize:      48,
+    fontWeight:    '700',
+    letterSpacing: -1,
+    lineHeight:    56,
+  },
 });
 
 export { RecordingTimer };

@@ -22,7 +22,7 @@ const Divider = ({
   const lineColor     = color ?? colors.border.default;
   const verticalSpace = spacingProp ?? spacing[4];
 
-  if (label != null) {
+  if (label !== undefined && label !== null) {
     return (
       <View
         style={[

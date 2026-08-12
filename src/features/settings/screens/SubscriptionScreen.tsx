@@ -18,7 +18,7 @@ import { Button }          from '@components/common/Button';
 import { Badge }           from '@components/common/Badge';
 import { Divider }         from '@components/common/Divider';
 import {
-  H2, H3, H4, H5, BodySm, BodyMd, Caption, Label,
+  H2, H3, H5, BodySm, BodyMd, Caption,
 } from '@components/common/Typography';
 import useTheme            from '@hooks/useTheme';
 import useAuth             from '@features/auth/hooks/useAuth';
@@ -43,7 +43,7 @@ const BillingToggle = ({
   billing:  BillingCycle;
   onChange: (v: BillingCycle) => void;
 }): React.JSX.Element => {
-  const { colors, borderRadius, spacing } = useTheme();
+  const { colors, borderRadius } = useTheme();
   const translateX = useSharedValue(billing === 'monthly' ? 0 : 1);
 
   const handlePress = (v: BillingCycle): void => {
@@ -77,20 +77,20 @@ const BillingToggle = ({
           ]}
         >
           <BodySm
-            style={{
-              color:      billing === cycle ? '#fff' : colors.text.secondary,
-              fontWeight: billing === cycle ? '600' : '400',
-            }}
+            style={[
+              styles.toggleText,
+              { color: billing === cycle ? '#fff' : colors.text.secondary }
+            ]}
           >
-            {cycle === 'monthly' ? 'Monthly' : 'Yearly'}
+            <BodySm>{cycle === 'monthly' ? 'Monthly' : 'Yearly'}</BodySm>
             {cycle === 'yearly' && (
               <BodySm
-                style={{
-                  color:    billing === 'yearly' ? '#FFFFFF80' : colors.ai.default,
-                  fontSize: 11,
-                }}
+                style={[
+                  styles.saveText,
+                  { color: billing === 'yearly' ? '#FFFFFF80' : colors.ai.default }
+                ]}
               >
-                {' '}Save 33%
+                <BodySm> Save 33%</BodySm>
               </BodySm>
             )}
           </BodySm>
@@ -134,7 +134,7 @@ const TIER_CONFIG = {
 const PlanCard = ({
   tier, billing, isActive, isCurrent, onSelect,
 }: PlanCardProps): React.JSX.Element => {
-  const { colors, spacing, borderRadius } = useTheme();
+  const { colors, spacing } = useTheme();
   const config  = TIER_CONFIG[tier];
   const price   = SUBSCRIPTION_PRICES[tier];
   const amount  = billing === 'monthly' ? price.monthly : price.yearly / 12;
@@ -149,8 +149,10 @@ const PlanCard = ({
     <Animated.View style={cardStyle}>
       <TouchableOpacity
         onPress={() => {
-          scale.value = withSpring(0.97, { damping: 12 }, () => {
-            scale.value = withSpring(1);
+          scale.value = withSpring(0.97, { damping: 12 }, (finished) => {
+            if (finished === true) {
+              scale.value = withSpring(1);
+            }
           });
           onSelect();
         }}
@@ -176,18 +178,18 @@ const PlanCard = ({
               { backgroundColor: config.color },
             ]}
           >
-            <Caption style={{ color: '#fff', fontSize: 9, letterSpacing: 1 }}>
-              MOST POPULAR
+            <Caption style={styles.popularText}>
+              <Caption>MOST POPULAR</Caption>
             </Caption>
           </View>
         )}
 
         {/* Icon + Name */}
         <View style={styles.planHeader}>
-          <Caption style={{ fontSize: 28 }}>{config.icon}</Caption>
+          <Caption style={styles.planIcon}><Caption>{config.icon}</Caption></Caption>
           <View>
-            <H5 style={{ color: config.color }}>{config.name}</H5>
-            <Caption color="tertiary">{config.tagline}</Caption>
+            <H5 style={{ color: config.color }}><BodySm>{config.name}</BodySm></H5>
+            <Caption color="tertiary"><Caption>{config.tagline}</Caption></Caption>
           </View>
           {isCurrent && (
             <Badge label="Current" variant="neutral" size="sm" />
@@ -197,20 +199,20 @@ const PlanCard = ({
         {/* Price */}
         <View style={styles.priceRow}>
           {amount === 0 ? (
-            <H2 color="primary">Free</H2>
+            <H2 color="primary"><BodySm>Free</BodySm></H2>
           ) : (
             <>
               <Caption
                 color="secondary"
-                style={{ fontSize: 16, alignSelf: 'flex-start', marginTop: 6 }}
+                style={styles.currencySymbol}
               >
-                $
+                <Caption>$</Caption>
               </Caption>
               <H2 style={{ color: config.color }}>
-                {amount.toFixed(2)}
+                <BodySm>{amount.toFixed(2)}</BodySm>
               </H2>
-              <Caption color="secondary" style={{ alignSelf: 'flex-end', marginBottom: 6 }}>
-                /mo
+              <Caption color="secondary" style={styles.pricePeriod}>
+                <Caption>/mo</Caption>
               </Caption>
             </>
           )}
@@ -218,7 +220,7 @@ const PlanCard = ({
 
         {billing === 'yearly' && amount > 0 && (
           <Caption color="tertiary">
-            Billed ${price.yearly} annually
+            <Caption>Billed ${price.yearly} annually</Caption>
           </Caption>
         )}
 
@@ -251,12 +253,12 @@ const FeatureRow = ({
   enterprise: boolean | string;
   isLast?: boolean;
 }): React.JSX.Element => {
-  const { colors, spacing } = useTheme();
+  const { colors } = useTheme();
 
   const renderValue = (v: boolean | string): React.JSX.Element => {
-    if (v === false) return <Caption style={{ color: colors.border.default }}>—</Caption>;
-    if (v === true)  return <Caption style={{ color: colors.ai.default, fontSize: 16 }}>✓</Caption>;
-    return <Caption color="secondary" style={{ fontSize: 11 }}>{v}</Caption>;
+    if (v === false) return <Caption style={styles.featureFalse}><Caption>—</Caption></Caption>;
+    if (v === true)  return <Caption style={styles.featureTrue}><Caption>✓</Caption></Caption>;
+    return <Caption color="secondary" style={styles.featureValue}><Caption>{v}</Caption></Caption>;
   };
 
   return (
@@ -266,7 +268,7 @@ const FeatureRow = ({
         !isLast && { borderBottomWidth: 1, borderBottomColor: colors.border.default },
       ]}
     >
-      <Caption color="secondary" style={{ flex: 1.4 }}>{label}</Caption>
+      <Caption color="secondary" style={styles.featureLabel}><Caption>{label}</Caption></Caption>
       <View style={styles.featureCell}>{renderValue(free)}</View>
       <View style={styles.featureCell}>{renderValue(pro)}</View>
       <View style={styles.featureCell}>{renderValue(enterprise)}</View>
@@ -313,10 +315,10 @@ const SubscriptionScreen = ({ navigation }: Props): React.JSX.Element => {
             onPress={() => navigation.goBack()}
             style={[styles.backBtn, { backgroundColor: colors.bg.elevated }]}
           >
-            <Caption color="secondary">←</Caption>
+            <Caption color="secondary"><Text>←</Text></Caption>
           </TouchableOpacity>
-          <H3 color="primary">Plans</H3>
-          <View style={{ width: 40 }} />
+          <H3 color="primary"><BodySm>Plans</BodySm></H3>
+          <View style={styles.navRightPlaceholder} />
         </View>
 
         {/* ─── Hero ────────────────────────────────────────── */}
@@ -324,19 +326,19 @@ const SubscriptionScreen = ({ navigation }: Props): React.JSX.Element => {
           entering={FadeInDown.delay(50).duration(400)}
           style={styles.hero}
         >
-          <Caption style={{ fontSize: 40 }}>⚡</Caption>
+          <Caption style={styles.heroIcon}><Text>⚡</Text></Caption>
           <H2 color="primary" align="center">
-            Unlock your{'\n'}full potential
+            <BodySm>Unlock your{"\n"}full potential</BodySm>
           </H2>
           <BodyMd color="secondary" align="center">
-            AI-powered voice recording for creators, students, and professionals
+            <BodySm>AI-powered voice recording for creators, students, and professionals</BodySm>
           </BodyMd>
         </Animated.View>
 
         {/* ─── Billing Toggle ──────────────────────────────── */}
         <Animated.View
           entering={FadeInDown.delay(100).duration(400)}
-          style={{ alignItems: 'center', marginBottom: spacing[5] }}
+          style={styles.billingToggleSection}
         >
           <BillingToggle billing={billing} onChange={setBilling} />
         </Animated.View>
@@ -358,11 +360,9 @@ const SubscriptionScreen = ({ navigation }: Props): React.JSX.Element => {
           ))}
         </Animated.View>
 
-        {/* ─── Subscribe CTA ───────────────────────────────── */}
-        {selected !== currentTier && (
           <Animated.View
             entering={FadeIn.duration(300)}
-            style={{ marginBottom: spacing[5] }}
+            style={styles.subscribeCta}
           >
             <Button
               label={
@@ -374,24 +374,22 @@ const SubscriptionScreen = ({ navigation }: Props): React.JSX.Element => {
                         : (SUBSCRIPTION_PRICES[selected].yearly / 12).toFixed(2)
                     }/mo`
               }
-              onPress={handleSubscribe}
+              onPress={() => { handleSubscribe(); }}
               variant={selected === 'free' ? 'outline' : 'primary'}
               size="lg"
               fullWidth
             />
-            <Caption color="tertiary" align="center" style={{ marginTop: spacing[2] }}>
-              Cancel anytime · Secure payment via Stripe
+            <Caption color="tertiary" align="center" style={styles.subscribeNote}>
+              <Caption>Cancel anytime · Secure payment via Stripe</Caption>
             </Caption>
           </Animated.View>
-        )}
 
-        {/* ─── Feature Comparison ──────────────────────────── */}
         <Animated.View
           entering={FadeInDown.delay(200).duration(400)}
-          style={{ marginBottom: spacing[6] }}
+          style={styles.comparisonSection}
         >
-          <H5 color="primary" style={{ marginBottom: spacing[3] }}>
-            Compare Plans
+          <H5 color="primary" style={styles.marginBottom12}>
+            <BodySm>Compare Plans</BodySm>
           </H5>
 
           <Card variant="filled" padding={0}>
@@ -402,16 +400,16 @@ const SubscriptionScreen = ({ navigation }: Props): React.JSX.Element => {
                 { borderBottomColor: colors.border.default },
               ]}
             >
-              <Caption color="tertiary" style={{ flex: 1.4 }}>Feature</Caption>
+              <Caption color="tertiary" style={styles.featureLabel}><Caption>Feature</Caption></Caption>
               {(['free', 'pro', 'enterprise'] as SubscriptionTier[]).map((t) => (
                 <View key={t} style={styles.featureCell}>
                   <Caption
-                    style={{
-                      color: TIER_CONFIG[t].color,
-                      fontWeight: '600',
-                    }}
+                    style={[
+                      styles.tableHeaderCell,
+                      { color: TIER_CONFIG[t].color }
+                    ]}
                   >
-                    {TIER_CONFIG[t].icon} {TIER_CONFIG[t].name}
+                    <Caption>{TIER_CONFIG[t].icon} {TIER_CONFIG[t].name}</Caption>
                   </Caption>
                 </View>
               ))}
@@ -431,13 +429,12 @@ const SubscriptionScreen = ({ navigation }: Props): React.JSX.Element => {
           </Card>
         </Animated.View>
 
-        {/* ─── FAQ ─────────────────────────────────────────── */}
         <Animated.View
           entering={FadeInDown.delay(250).duration(400)}
-          style={{ marginBottom: spacing[8] }}
+          style={styles.faqSection}
         >
-          <H5 color="primary" style={{ marginBottom: spacing[3] }}>
-            Frequently Asked Questions
+          <H5 color="primary" style={styles.marginBottom12}>
+            <BodySm>Frequently Asked Questions</BodySm>
           </H5>
 
           {[
@@ -457,11 +454,11 @@ const SubscriptionScreen = ({ navigation }: Props): React.JSX.Element => {
             <Card
               key={i}
               variant="outlined"
-              style={{ marginBottom: spacing[2] }}
+              style={styles.faqCard}
             >
-              <View style={{ gap: spacing[1] }}>
-                <BodySm color="primary" style={{ fontWeight: '600' }}>{q}</BodySm>
-                <Caption color="secondary">{a}</Caption>
+              <View style={styles.faqContent}>
+                <BodySm color="primary" style={styles.fontWeight600}><BodySm>{q}</BodySm></BodySm>
+                <Caption color="secondary"><Caption>{a}</Caption></Caption>
               </View>
             </Card>
           ))}
@@ -472,28 +469,147 @@ const SubscriptionScreen = ({ navigation }: Props): React.JSX.Element => {
 };
 
 const styles = StyleSheet.create({
-  screen: { flex: 1 } as ViewStyle,
-  scroll: { flexGrow: 1 } as ViewStyle,
-  navRow: {
-    flexDirection:  'row',
-    alignItems:     'center',
-    justifyContent: 'space-between',
-    paddingVertical: 12,
-    marginBottom:   8,
-  } as ViewStyle,
   backBtn: {
-    width:          40,
-    height:         40,
+    alignItems:     'center',
     borderRadius:   12,
+    height:         40,
+    justifyContent: 'center',
+    width:          40,
+  } as ViewStyle,
+  billingToggleSection: {
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  comparisonSection: {
+    marginBottom: 24,
+  },
+  currencySymbol: {
+    alignSelf: 'flex-start',
+    fontSize: 16,
+    marginTop: 6,
+  },
+  faqCard: {
+    marginBottom: 8,
+  },
+  faqContent: {
+    gap: 4,
+  },
+  faqSection: {
+    marginBottom: 32,
+  },
+  featureCell: {
     alignItems:     'center',
     justifyContent: 'center',
+    width:          64,
   } as ViewStyle,
+  featureFalse: {
+    color: '#ccc', // This should be from theme border default
+  },
+  featureLabel: {
+    flex: 1.4,
+  },
+  featureRow: {
+    alignItems:        'center',
+    flexDirection:     'row',
+    minHeight:         44,
+    paddingHorizontal: 16,
+    paddingVertical:   12,
+  } as ViewStyle,
+  featureTrue: {
+    fontSize: 16,
+    // color: colors.ai.default - handled in renderValue
+  },
+  featureValue: {
+    fontSize: 11,
+  },
+  fontWeight600: {
+    fontWeight: '600'
+  },
   hero: {
     alignItems:   'center',
     gap:          10,
     marginBottom: 28,
     paddingTop:   8,
   } as ViewStyle,
+  heroIcon: {
+    fontSize: 40,
+  },
+  marginBottom12: {
+    marginBottom: 12,
+  },
+  navRightPlaceholder: {
+    width: 40
+  },
+  navRow: {
+    alignItems:     'center',
+    flexDirection:  'row',
+    justifyContent: 'space-between',
+    marginBottom:   8,
+    paddingVertical: 12,
+  } as ViewStyle,
+  planCard: {
+    borderRadius: 18,
+    gap:          6,
+    overflow:     'hidden',
+    padding:      18,
+    position:     'relative',
+  } as ViewStyle,
+  planCards: {
+    gap: 12,
+    marginBottom: 20,
+  } as ViewStyle,
+  planHeader: {
+    alignItems:    'center',
+    flexDirection: 'row',
+    gap:           10,
+    marginBottom:  4,
+  } as ViewStyle,
+  planIcon: {
+    fontSize: 28,
+  },
+  popularBadge: {
+    borderRadius:   20,
+    paddingHorizontal: 8,
+    paddingVertical:   3,
+    position:       'absolute',
+    right:          12,
+    top:            12,
+  } as ViewStyle,
+  popularText: {
+    color: '#fff',
+    fontSize: 9,
+    letterSpacing: 1,
+  },
+  pricePeriod: {
+    alignSelf: 'flex-end',
+    marginBottom: 6,
+  },
+  priceRow: {
+    alignItems:    'baseline',
+    flexDirection: 'row',
+    gap:           2,
+  } as ViewStyle,
+  saveText: {
+    fontSize: 11,
+  },
+  screen: { flex: 1 } as ViewStyle,
+  scroll: { flexGrow: 1 } as ViewStyle,
+  subscribeCta: {
+    marginBottom: 20,
+  },
+  subscribeNote: {
+    marginTop: 8,
+  },
+  tableHeader: {
+    alignItems:      'center',
+    borderBottomWidth: 1,
+    flexDirection:   'row',
+    paddingHorizontal: 16,
+    paddingVertical:   12,
+  } as ViewStyle,
+  tableHeaderCell: {
+    fontWeight: '600',
+  },
   toggleContainer: {
     flexDirection: 'row',
     padding:       4,
@@ -503,55 +619,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical:   8,
   } as ViewStyle,
-  planCards: {
-    gap: 12,
-    marginBottom: 20,
-  } as ViewStyle,
-  planCard: {
-    padding:      18,
-    borderRadius: 18,
-    gap:          6,
-    position:     'relative',
-    overflow:     'hidden',
-  } as ViewStyle,
-  popularBadge: {
-    position:       'absolute',
-    top:            12,
-    right:          12,
-    paddingHorizontal: 8,
-    paddingVertical:   3,
-    borderRadius:   20,
-  } as ViewStyle,
-  planHeader: {
-    flexDirection: 'row',
-    alignItems:    'center',
-    gap:           10,
-    marginBottom:  4,
-  } as ViewStyle,
-  priceRow: {
-    flexDirection: 'row',
-    alignItems:    'baseline',
-    gap:           2,
-  } as ViewStyle,
-  tableHeader: {
-    flexDirection:   'row',
-    alignItems:      'center',
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderBottomWidth: 1,
-  } as ViewStyle,
-  featureRow: {
-    flexDirection:     'row',
-    alignItems:        'center',
-    paddingVertical:   12,
-    paddingHorizontal: 16,
-    minHeight:         44,
-  } as ViewStyle,
-  featureCell: {
-    width:          64,
-    alignItems:     'center',
-    justifyContent: 'center',
-  } as ViewStyle,
+  toggleText: {
+    fontWeight: '600',
+  },
 });
 
 export { SubscriptionScreen };

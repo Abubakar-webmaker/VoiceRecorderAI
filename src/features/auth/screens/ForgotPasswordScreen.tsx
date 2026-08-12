@@ -218,9 +218,9 @@ const ForgotPasswordScreen = ({ navigation }: Props): React.JSX.Element => {
 };
 
 const styles = StyleSheet.create({
+  form:             { paddingHorizontal: 20, marginTop: 24 } as ViewStyle,
   screen:           { flex: 1 } as ViewStyle,
   scroll:           { flexGrow: 1, paddingBottom: 40 } as ViewStyle,
-  form:             { paddingHorizontal: 20, marginTop: 24 } as ViewStyle,
   successContainer: {
     flex:              1,
     paddingHorizontal: 24,

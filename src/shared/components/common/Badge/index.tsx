@@ -68,6 +68,7 @@ const Badge = ({
     return (
       <View
         style={[
+          styles.dot,
           {
             width:        s.dotSize,
             height:       s.dotSize,
@@ -83,14 +84,12 @@ const Badge = ({
   return (
     <View
       style={[
+        styles.container,
         {
           backgroundColor:  v.bg,
-          borderRadius:     borderRadius.full,
           paddingHorizontal: s.px,
           paddingVertical:  s.py,
-          borderWidth:      1,
           borderColor:      v.border,
-          alignSelf:        'flex-start',
         },
         style,
       ]}
@@ -106,5 +105,16 @@ const Badge = ({
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    alignSelf:        'flex-start',
+    borderRadius:     9999, // default to large value
+    borderWidth:      1,
+  },
+  dot: {
+    // sizing handled by inline for dynamic dotSize
+  }
+});
 
 export { Badge };

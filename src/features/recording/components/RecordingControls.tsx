@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
   View,
   TouchableOpacity,
   StyleSheet,
+  Text,
   type ViewStyle,
 } from 'react-native';
 import Animated, {
@@ -12,7 +13,6 @@ import Animated, {
   withRepeat,
   withTiming,
   withSequence,
-  useEffect,
 } from 'react-native-reanimated';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { Caption, BodySm } from '@components/common/Typography';
@@ -73,16 +73,15 @@ const RecordButton = ({
   const RING_SIZE  = SIZE + 24;
 
   return (
-    <View style={{ alignItems: 'center', justifyContent: 'center' }}>
+    <View style={styles.recordButtonWrapper}>
       {/* Pulse ring */}
       <Animated.View
         style={[
+          styles.pulseRing,
           {
-            position:        'absolute',
             width:           RING_SIZE,
             height:          RING_SIZE,
             borderRadius:    RING_SIZE / 2,
-            borderWidth:     2,
             borderColor:     colors.recording.default,
           },
           ringStyle,
@@ -92,37 +91,37 @@ const RecordButton = ({
       {/* Button */}
       <Animated.View style={btnStyle}>
         <TouchableOpacity
-          onPress={handlePress}
+          onPress={() => { handlePress(); }}
           disabled={isDisabled}
           activeOpacity={0.85}
           accessibilityRole="button"
           accessibilityLabel={isRecording ? 'Stop recording' : 'Start recording'}
           style={[
-            {
-              width:           SIZE,
-              height:          SIZE,
-              borderRadius:    SIZE / 2,
-              backgroundColor: isDisabled
-                ? `${colors.recording.default}50`
-                : colors.recording.default,
-              alignItems:     'center',
-              justifyContent: 'center',
-              shadowColor:    colors.recording.default,
-              shadowOffset:   { width: 0, height: 0 },
-              shadowOpacity:  isRecording ? 0.7 : 0.4,
-              shadowRadius:   isRecording ? 24 : 12,
-              elevation:      isRecording ? 12 : 6,
-            },
+              styles.recordBtnMain,
+              {
+                width:           SIZE,
+                height:          SIZE,
+                borderRadius:    SIZE / 2,
+                backgroundColor: isDisabled
+                  ? `${colors.recording.default}50`
+                  : colors.recording.default,
+                shadowColor:    colors.recording.default,
+                shadowOpacity:  isRecording ? 0.7 : 0.4,
+                shadowRadius:   isRecording ? 24 : 12,
+                elevation:      isRecording ? 12 : 6,
+              }
           ]}
         >
           {/* Icon: square when recording, circle when idle */}
           <View
-            style={{
-              width:           isRecording ? 28 : 36,
-              height:          isRecording ? 28 : 36,
-              borderRadius:    isRecording ? 6 : 36,
-              backgroundColor: '#FFFFFF',
-            }}
+            style={[
+              styles.recordBtnIcon,
+              {
+                width:           isRecording ? 28 : 36,
+                height:          isRecording ? 28 : 36,
+                borderRadius:    isRecording ? 6 : 36,
+              }
+            ]}
           />
         </TouchableOpacity>
       </Animated.View>
@@ -153,21 +152,21 @@ const ControlBtn = ({
         ReactNativeHapticFeedback.trigger('impactLight');
         onPress();
       }}
-      style={{
-        width:          size,
-        height:         size,
-        borderRadius:   size / 2,
-        backgroundColor: bg,
-        alignItems:     'center',
-        justifyContent: 'center',
-        gap:            2,
-      }}
+      style={[
+        styles.controlBtn,
+        {
+          width:          size,
+          height:         size,
+          borderRadius:   size / 2,
+          backgroundColor: bg,
+        }
+      ]}
       accessibilityRole="button"
       accessibilityLabel={label}
     >
-      <Caption style={{ fontSize: 22 }}>{icon}</Caption>
-      <Caption style={{ color: textColor, fontSize: 9, letterSpacing: 0.5 }}>
-        {label.toUpperCase()}
+      <Caption style={styles.controlBtnIcon}><Text>{icon}</Text></Caption>
+      <Caption style={[styles.controlBtnLabel, { color: textColor }]}>
+        <Text>{label.toUpperCase()}</Text>
       </Caption>
     </TouchableOpacity>
   );
@@ -177,7 +176,6 @@ const ControlBtn = ({
 interface RecordingControlsProps {
   isRecording:  boolean;
   isPaused:     boolean;
-  isIdle:       boolean;
   isDisabled:   boolean;
   onRecord:     () => void;
   onPause:      () => void;
@@ -189,7 +187,6 @@ interface RecordingControlsProps {
 const RecordingControls = ({
   isRecording,
   isPaused,
-  isIdle,
   isDisabled,
   onRecord,
   onPause,
@@ -209,14 +206,14 @@ const RecordingControls = ({
           <ControlBtn
             icon="✕"
             label="Discard"
-            onPress={onDiscard}
+            onPress={() => { onDiscard(); }}
             bgColor={colors.error.surface}
             color={colors.error.text}
           />
 
           {/* Stop (center — primary action) */}
           <RecordButton
-            onPress={onStop}
+            onPress={() => { onStop(); }}
             isRecording={isRecording}
             isPaused={isPaused}
             isDisabled={isDisabled}
@@ -226,14 +223,14 @@ const RecordingControls = ({
           <ControlBtn
             icon={isPaused ? '▶' : '⏸'}
             label={isPaused ? 'Resume' : 'Pause'}
-            onPress={isPaused ? onResume : onPause}
+            onPress={() => { isPaused ? onResume() : onPause(); }}
             bgColor={colors.bg.elevated}
           />
         </View>
       ) : (
         // ─── Idle state ────────────────────────────────────────
         <RecordButton
-          onPress={onRecord}
+          onPress={() => { onRecord(); }}
           isRecording={false}
           isPaused={false}
           isDisabled={isDisabled}
@@ -244,27 +241,60 @@ const RecordingControls = ({
       <BodySm
         color="secondary"
         align="center"
-        style={{ marginTop: 12 }}
+        style={styles.statusLabel}
       >
-        {isPaused
-          ? 'Recording paused — tap ▶ to resume or ⏹ to finish'
-          : isRecording
-          ? 'Tap ⏹ to finish recording'
-          : 'Tap to start recording'}
+        <BodySm>
+          {isPaused
+            ? 'Recording paused — tap ▶ to resume or ⏹ to finish'
+            : isRecording
+            ? 'Tap ⏹ to finish recording'
+            : 'Tap to start recording'}
+        </BodySm>
       </BodySm>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    alignItems: 'center',
-  } as ViewStyle,
   activeRow: {
     flexDirection:  'row',
     alignItems:     'center',
     justifyContent: 'center',
     gap:            28,
+  } as ViewStyle,
+  container: {
+    alignItems: 'center',
+  } as ViewStyle,
+  controlBtn: {
+    alignItems:     'center',
+    justifyContent: 'center',
+    gap:            2,
+  } as ViewStyle,
+  controlBtnIcon: {
+    fontSize: 22,
+  },
+  controlBtnLabel: {
+    fontSize: 9,
+    letterSpacing: 0.5,
+  },
+  pulseRing: {
+    borderWidth:     2,
+    position:        'absolute',
+  },
+  recordBtnIcon: {
+    backgroundColor: '#FFFFFF',
+  },
+  recordBtnMain: {
+    alignItems:     'center',
+    justifyContent: 'center',
+    shadowOffset:   { width: 0, height: 0 },
+  },
+  recordButtonWrapper: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  statusLabel: {
+    marginTop: 12,
   } as ViewStyle,
 });
 

@@ -7,7 +7,6 @@ import {
   Alert,
   StyleSheet,
   Dimensions,
-  Platform,
   type ViewStyle,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -21,7 +20,7 @@ import { RecordingTimer }    from '../components/RecordingTimer';
 import { LiveWaveform }      from '../components/LiveWaveform';
 import { RecordingControls } from '../components/RecordingControls';
 import {
-  H4, BodySm, Caption, Label,
+  H4, BodySm, Caption,
 } from '@components/common/Typography';
 import { Card }    from '@components/common/Card';
 import { Badge }   from '@components/common/Badge';
@@ -35,18 +34,23 @@ import {
   formatDuration,
   formatFileSize,
 } from '@types/recording.types';
+import type { MainTabParamList } from '@navigation/types';
+import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 
 const { width: W } = Dimensions.get('window');
+
+// ─── Types ────────────────────────────────────────────────────────
+interface UploadingViewProps {
+  progress: number;
+  title:    string;
+}
 
 // ─── Upload Progress Screen ───────────────────────────────────────
 const UploadingView = ({
   progress,
   title,
-}: {
-  progress: number;
-  title:    string;
-}): React.JSX.Element => {
-  const { colors, spacing, borderRadius } = useTheme();
+}: UploadingViewProps): React.JSX.Element => {
+  const { colors, spacing } = useTheme();
   const fillWidth = useSharedValue(0);
 
   useEffect(() => {
@@ -58,11 +62,11 @@ const UploadingView = ({
   }));
 
   return (
-    <View style={[styles.uploadingContainer]}>
+    <View style={styles.uploadingContainer}>
       <Loader variant="ai" color={colors.primary.default} size="lg" />
 
       <H4 color="primary" align="center" style={{ marginTop: spacing[4] }}>
-        Uploading to Cloud
+        <Caption>Uploading to Cloud</Caption>
       </H4>
       <BodySm color="secondary" align="center" numberOfLines={2}>
         {title}
@@ -92,7 +96,7 @@ const UploadingView = ({
       </View>
 
       <Caption color="secondary" style={{ marginTop: spacing[2] }}>
-        {progress}% uploaded
+        <Caption>{progress}% uploaded</Caption>
       </Caption>
     </View>
   );
@@ -121,16 +125,16 @@ const DoneView = ({
           { backgroundColor: colors.ai.surface },
         ]}
       >
-        <Caption style={{ fontSize: 56 }}>✅</Caption>
+        <Caption style={styles.doneIconText}>✅</Caption>
       </View>
 
-      <H4 color="primary" align="center">Recording Saved!</H4>
+      <H4 color="primary" align="center"><BodySm>Recording Saved!</BodySm></H4>
       <BodySm color="secondary" align="center">
         {recording.title}
       </BodySm>
 
       {/* Stats */}
-      <Card variant="outlined" style={{ width: '100%', marginTop: spacing[4] }}>
+      <Card variant="outlined" style={styles.doneCard}>
         <View style={{ gap: spacing[2] }}>
           {[
             { label: 'Duration',  value: formatDuration(recording.duration) },
@@ -154,24 +158,17 @@ const DoneView = ({
             { backgroundColor: colors.primary.default },
           ]}
         >
-          <BodySm style={{ color: '#fff', fontWeight: '600' }}>
-            View Recording
+          <BodySm style={styles.doneBtnText}>
+            <BodySm>View Recording</BodySm>
           </BodySm>
         </TouchableOpacity>
 
         <TouchableOpacity
           onPress={onRecordAnother}
-          style={[
-            styles.doneBtn,
-            {
-              backgroundColor: colors.bg.elevated,
-              borderColor:     colors.border.default,
-              borderWidth:     1,
-            },
-          ]}
+          style={styles.recordAnotherBtn}
         >
-          <BodySm color="secondary" style={{ fontWeight: '600' }}>
-            Record Another
+          <BodySm color="secondary" style={styles.recordAnotherText}>
+            <BodySm>Record Another</BodySm>
           </BodySm>
         </TouchableOpacity>
       </View>
@@ -180,7 +177,7 @@ const DoneView = ({
 };
 
 // ─── Record Screen ────────────────────────────────────────────────
-const RecordScreen = ({ navigation }: { navigation: any }): React.JSX.Element => {
+const RecordScreen = ({ navigation }: { navigation: BottomTabNavigationProp<MainTabParamList> }): React.JSX.Element => {
   const { colors, spacing, borderRadius } = useTheme();
   const folders = useAppSelector(selectFolders);
   const titleRef = useRef<TextInput>(null);
@@ -189,7 +186,7 @@ const RecordScreen = ({ navigation }: { navigation: any }): React.JSX.Element =>
     recorderState, duration, amplitudeList, currentAmplitude,
     title, folderId, uploadProgress, uploadedRecording, error,
     isRecording, isPaused, isUploading, isDone, isIdle,
-    start, pause, resume, stop, discard, reset, setTitle, setFolder,
+    start, pause, resume, stop, discard, reset, setFolder,
   } = useRecorder();
 
   const [localTitle, setLocalTitle] = useState('');
@@ -247,7 +244,7 @@ const RecordScreen = ({ navigation }: { navigation: any }): React.JSX.Element =>
   const handleViewRecording = useCallback((): void => {
     if (!uploadedRecording) return;
     reset();
-    navigation.getParent()?.navigate('RecordingsTab', {
+    (navigation as any).navigate('RecordingsTab', {
       screen: 'RecordingDetail',
       params: { recordingId: uploadedRecording._id },
     });
@@ -298,7 +295,7 @@ const RecordScreen = ({ navigation }: { navigation: any }): React.JSX.Element =>
           entering={FadeInDown.delay(0).duration(400)}
           style={styles.header}
         >
-          <H4 color="primary">New Recording</H4>
+          <H4 color="primary"><BodySm>New Recording</BodySm></H4>
           {isRecording && (
             <Badge label="● REC" variant="error" size="sm" />
           )}
@@ -320,18 +317,19 @@ const RecordScreen = ({ navigation }: { navigation: any }): React.JSX.Element =>
                 },
               ]}
             >
-              <Caption color="tertiary" style={{ marginBottom: 4 }}>Title (optional)</Caption>
+              <Caption color="tertiary" style={styles.titleLabel}>
+                <Caption>Title (optional)</Caption>
+              </Caption>
               <TextInput
                 ref={titleRef}
                 value={localTitle}
                 onChangeText={setLocalTitle}
                 placeholder="e.g. Team Meeting Notes"
                 placeholderTextColor={colors.text.tertiary}
-                style={{
-                  color:    colors.text.primary,
-                  fontSize: 16,
-                  padding:  0,
-                }}
+                style={[
+                  styles.titleTextInput,
+                  { color: colors.text.primary }
+                ]}
                 maxLength={100}
                 returnKeyType="done"
               />
@@ -353,13 +351,13 @@ const RecordScreen = ({ navigation }: { navigation: any }): React.JSX.Element =>
                 },
               ]}
             >
-              <Caption style={{ fontSize: 16 }}>
-                {selectedFolder ? selectedFolder.icon : '📁'}
+              <Caption style={styles.folderIcon}>
+                <Caption>{selectedFolder ? selectedFolder.icon : '📁'}</Caption>
               </Caption>
               <BodySm color={selectedFolder ? 'primary' : 'tertiary'}>
                 {selectedFolder ? selectedFolder.name : 'No folder (save to root)'}
               </BodySm>
-              <Caption color="tertiary">›</Caption>
+              <Caption color="tertiary"><Caption>›</Caption></Caption>
             </TouchableOpacity>
           </Animated.View>
         )}
@@ -371,18 +369,11 @@ const RecordScreen = ({ navigation }: { navigation: any }): React.JSX.Element =>
             styles.waveformContainer,
             {
               backgroundColor: colors.bg.secondary,
-              borderRadius:    32,
-              borderWidth: 1,
               borderColor: colors.border.default,
-              shadowColor: '#000',
-              shadowOffset: { width: 0, height: 10 },
-              shadowOpacity: 0.05,
-              shadowRadius: 20,
-              elevation: 4,
             },
           ]}
         >
-          <View style={{ marginBottom: 12 }}>
+          <View style={styles.waveformBadge}>
             <Badge
               label={isRecording ? "Live Waveform" : "Ready to record"}
               variant={isRecording ? "primary" : "neutral"}
@@ -391,7 +382,6 @@ const RecordScreen = ({ navigation }: { navigation: any }): React.JSX.Element =>
           </View>
           <LiveWaveform
             amplitudes={amplitudeList}
-            currentAmplitude={currentAmplitude}
             isRecording={isRecording}
             isPaused={isPaused}
             width={W - spacing[5] * 2 - spacing[4] * 2}
@@ -419,11 +409,10 @@ const RecordScreen = ({ navigation }: { navigation: any }): React.JSX.Element =>
           <RecordingControls
             isRecording={isRecording}
             isPaused={isPaused}
-            isIdle={isIdle}
             isDisabled={recorderState === RecorderState.PREPARING}
             onRecord={handleStart}
-            onPause={() => void pause()}
-            onResume={() => void resume()}
+            onPause={() => { void pause(); }}
+            onResume={() => { void resume(); }}
             onStop={handleStop}
             onDiscard={handleDiscard}
           />
@@ -433,7 +422,7 @@ const RecordScreen = ({ navigation }: { navigation: any }): React.JSX.Element =>
         {isIdle && (
           <Animated.View
             entering={FadeInUp.delay(400).duration(400)}
-            style={{ marginTop: spacing[6], gap: spacing[2] }}
+            style={styles.tipsSection}
           >
             {[
               { icon: '🤖', text: 'AI will auto-transcribe after recording' },
@@ -441,8 +430,12 @@ const RecordScreen = ({ navigation }: { navigation: any }): React.JSX.Element =>
               { icon: '📁', text: 'Organize recordings in folders' },
             ].map(({ icon, text }) => (
               <View key={text} style={styles.tipRow}>
-                <Caption style={{ fontSize: 16 }}>{icon}</Caption>
-                <Caption color="tertiary">{text}</Caption>
+                <Caption style={styles.tipIcon}>
+                  <Caption>{icon}</Caption>
+                </Caption>
+                <Caption color="tertiary">
+                  <Caption>{text}</Caption>
+                </Caption>
               </View>
             ))}
           </Animated.View>
@@ -480,7 +473,7 @@ const RecordScreen = ({ navigation }: { navigation: any }): React.JSX.Element =>
             </View>
 
             <H4 color="primary" style={{ paddingHorizontal: spacing[5], marginBottom: spacing[3] }}>
-              Select Folder
+              <Caption>Select Folder</Caption>
             </H4>
 
             {/* None option */}
@@ -496,11 +489,17 @@ const RecordScreen = ({ navigation }: { navigation: any }): React.JSX.Element =>
                 },
               ]}
             >
-              <Caption style={{ fontSize: 20 }}>📁</Caption>
+              <Caption style={styles.folderOptionIcon}>
+                <Caption>📁</Caption>
+              </Caption>
               <BodySm color={folderId === null ? 'link' : 'primary'}>
-                No folder (root)
+                <BodySm>No folder (root)</BodySm>
               </BodySm>
-              {folderId === null && <Caption style={{ color: colors.primary.default }}>✓</Caption>}
+              {folderId === null && (
+                <Caption style={{ color: colors.primary.default }}>
+                  <Caption>✓</Caption>
+                </Caption>
+              )}
             </TouchableOpacity>
 
             {/* Folder list */}
@@ -518,15 +517,17 @@ const RecordScreen = ({ navigation }: { navigation: any }): React.JSX.Element =>
                   },
                 ]}
               >
-                <Caption style={{ fontSize: 20, color: folder.color }}>
-                  {folder.icon || '📁'}
+                <Caption style={[styles.folderOptionIcon, { color: folder.color }]}>
+                  <Caption>{folder.icon || '📁'}</Caption>
                 </Caption>
                 <BodySm color={folderId === folder._id ? 'link' : 'primary'}>
                   {folder.name}
                 </BodySm>
                 <Caption color="tertiary">{folder.recordingCount}</Caption>
                 {folderId === folder._id && (
-                  <Caption style={{ color: colors.primary.default }}>✓</Caption>
+                  <Caption style={{ color: colors.primary.default }}>
+                    <Caption>✓</Caption>
+                  </Caption>
                 )}
               </TouchableOpacity>
             ))}
@@ -535,7 +536,9 @@ const RecordScreen = ({ navigation }: { navigation: any }): React.JSX.Element =>
               onPress={() => setShowFolderPicker(false)}
               style={[styles.cancelBtn, { margin: spacing[5] }]}
             >
-              <BodySm color="secondary" align="center">Cancel</BodySm>
+              <BodySm color="secondary" align="center">
+                <BodySm>Cancel</BodySm>
+              </BodySm>
             </TouchableOpacity>
           </View>
         </View>
@@ -545,114 +548,166 @@ const RecordScreen = ({ navigation }: { navigation: any }): React.JSX.Element =>
 };
 
 const styles = StyleSheet.create({
-  screen:  { flex: 1 } as ViewStyle,
-  scroll:  { flexGrow: 1 } as ViewStyle,
-  header: {
-    flexDirection:  'row',
-    alignItems:     'center',
-    justifyContent: 'space-between',
-    paddingVertical: 12,
-    marginBottom:   8,
-  } as ViewStyle,
-  titleInput: {
+  cancelBtn: {
+    borderRadius: 12,
     padding:      14,
-    borderWidth:  1,
-    marginBottom: 12,
-  } as ViewStyle,
-  folderSelector: {
-    flexDirection:   'row',
-    alignItems:      'center',
-    padding:         14,
-    borderWidth:     1,
-    gap:             10,
-    marginBottom:    20,
-  } as ViewStyle,
-  waveformContainer: {
-    padding:      24,
-    alignItems:   'center',
-    marginBottom: 32,
-  } as ViewStyle,
-  timerSection: {
-    alignItems:   'center',
-    marginBottom: 32,
   } as ViewStyle,
   controlsSection: {
     alignItems:   'center',
     marginBottom: 24,
   } as ViewStyle,
-  tipRow: {
-    flexDirection: 'row',
-    alignItems:    'center',
-    gap:           10,
+  doneActions: {
+    gap:   10,
+    width: '100%',
   } as ViewStyle,
-  uploadingContainer: {
-    flex:           1,
+  doneBtn: {
     alignItems:     'center',
+    borderRadius:   16,
+    height:         52,
     justifyContent: 'center',
-    padding:        32,
-    gap:            8,
   } as ViewStyle,
-  uploadTrack: {
-    width:  '100%',
-    height: 6,
-    overflow: 'hidden',
-  } as ViewStyle,
-  uploadFill: {
-    height: '100%',
-  } as ViewStyle,
+  doneBtnText: {
+    color: '#fff',
+    fontWeight: '600'
+  },
+  doneCard: {
+    marginTop: 16,
+    width: '100%'
+  },
   doneContainer: {
-    flex:              1,
     alignItems:        'center',
+    flex:              1,
+    gap:               12,
     justifyContent:    'center',
     padding:           32,
-    gap:               12,
   } as ViewStyle,
   doneIcon: {
-    width:           100,
-    height:          100,
-    borderRadius:    30,
     alignItems:      'center',
+    borderRadius:    30,
+    height:          100,
     justifyContent:  'center',
     marginBottom:    8,
+    width:           100,
   } as ViewStyle,
+  doneIconText: {
+    fontSize: 56
+  },
   doneStatRow: {
     flexDirection:  'row',
     justifyContent: 'space-between',
   } as ViewStyle,
-  doneActions: {
-    width: '100%',
-    gap:   10,
+  folderIcon: {
+    fontSize: 16
+  },
+  folderOption: {
+    alignItems:      'center',
+    borderBottomWidth: 1,
+    flexDirection:   'row',
+    gap:             12,
+    paddingHorizontal: 20,
+    paddingVertical: 14,
   } as ViewStyle,
-  doneBtn: {
-    height:         52,
-    borderRadius:   16,
-    alignItems:     'center',
-    justifyContent: 'center',
-  } as ViewStyle,
+  folderOptionIcon: {
+    fontSize: 20
+  },
   folderPickerSheet: {
     maxHeight:     '70%',
     paddingBottom: 34,
   } as ViewStyle,
+  folderSelector: {
+    alignItems:      'center',
+    borderWidth:     1,
+    flexDirection:   'row',
+    gap:             10,
+    marginBottom:    20,
+    padding:         14,
+  } as ViewStyle,
+  handle: {
+    borderRadius: 2,
+    height:       4,
+    width:        40,
+  } as ViewStyle,
+  header: {
+    alignItems:     'center',
+    flexDirection:  'row',
+    justifyContent: 'space-between',
+    marginBottom:   8,
+    paddingVertical: 12,
+  } as ViewStyle,
+  recordAnotherBtn: {
+    alignItems:     'center',
+    backgroundColor: 'transparent',
+    borderColor: '#ccc',
+    borderRadius:   16,
+    borderWidth: 1,
+    height:         52,
+    justifyContent: 'center',
+  },
+  recordAnotherText: {
+    fontWeight: '600'
+  },
+  screen:  { flex: 1 } as ViewStyle,
+  scroll:  { flexGrow: 1 } as ViewStyle,
   sheetHandle: {
     alignItems:     'center',
     paddingVertical: 12,
   } as ViewStyle,
-  handle: {
-    width:        40,
-    height:       4,
-    borderRadius: 2,
+  timerSection: {
+    alignItems:   'center',
+    marginBottom: 32,
   } as ViewStyle,
-  folderOption: {
-    flexDirection:   'row',
-    alignItems:      'center',
-    paddingVertical: 14,
-    paddingHorizontal: 20,
-    borderBottomWidth: 1,
-    gap:             12,
+  tipIcon: {
+    fontSize: 16
+  },
+  tipRow: {
+    alignItems:    'center',
+    flexDirection: 'row',
+    gap:           10,
   } as ViewStyle,
-  cancelBtn: {
+  tipsSection: {
+    gap: 8,
+    marginTop: 24,
+  },
+  titleInput: {
+    borderWidth:  1,
+    marginBottom: 12,
     padding:      14,
-    borderRadius: 12,
+  } as ViewStyle,
+  titleLabel: {
+    marginBottom: 4
+  },
+  titleTextInput: {
+    fontSize: 16,
+    padding:  0,
+  },
+  uploadFill: {
+    height: '100%',
+  } as ViewStyle,
+  uploadTrack: {
+    height: 6,
+    overflow: 'hidden',
+    width:  '100%',
+  } as ViewStyle,
+  uploadingContainer: {
+    alignItems:     'center',
+    flex:           1,
+    gap:            8,
+    justifyContent: 'center',
+    padding:        32,
+  } as ViewStyle,
+  waveformBadge: {
+    marginBottom: 12
+  },
+  waveformContainer: {
+    alignItems:   'center',
+    borderRadius:    32,
+    borderWidth: 1,
+    elevation: 4,
+    marginBottom: 32,
+    padding:      24,
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.05,
+    shadowRadius: 20,
   } as ViewStyle,
 });
 

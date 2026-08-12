@@ -27,7 +27,34 @@ import {
   selectIsIdle,
 } from '../store/recorderSlice';
 
-const useRecorder = () => {
+import type { Recording } from '@types/recording.types';
+import type { RecorderState } from '../store/recorderSlice';
+
+const useRecorder = (): {
+  recorderState: RecorderState;
+  duration: number;
+  amplitudeList: number[];
+  currentAmplitude: number;
+  title: string;
+  folderId: string | null;
+  uploadProgress: number;
+  uploadedRecording: Recording | null;
+  error: string | null;
+  isRecording: boolean;
+  isPaused: boolean;
+  isUploading: boolean;
+  isDone: boolean;
+  isIdle: boolean;
+  start: (opts?: { title?: string; folderId?: string | null }) => void;
+  pause: () => void;
+  resume: () => void;
+  stop: () => void;
+  discard: () => void;
+  reset: () => void;
+  setTitle: (t: string) => void;
+  setFolder: (id: string | null) => void;
+  clearError: () => void;
+} => {
   const dispatch = useAppDispatch();
 
   const recorderState    = useAppSelector(selectRecorderState);

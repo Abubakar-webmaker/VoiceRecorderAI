@@ -58,13 +58,10 @@ const WaveformView = ({
   return (
     <View
       style={[
+        styles.container,
         {
           width,
           height,
-          flexDirection:  'row',
-          alignItems:     'flex-end',
-          justifyContent: 'flex-start',
-          overflow:       'hidden',
         },
         style,
       ]}
@@ -76,18 +73,33 @@ const WaveformView = ({
         return (
           <View
             key={i}
-            style={{
-              width:           barWidth,
-              height:          barHeight,
-              marginRight:     barGap,
-              borderRadius:    barWidth / 2,
-              backgroundColor: isActive ? active : inactive,
-            }}
+            style={[
+              styles.bar,
+              {
+                width:           barWidth,
+                height:          barHeight,
+                marginRight:     barGap,
+                borderRadius:    barWidth / 2,
+                backgroundColor: isActive ? active : inactive,
+              }
+            ]}
           />
         );
       })}
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  bar: {
+    // sizing and color dynamic
+  },
+  container: {
+    alignItems:     'flex-end',
+    flexDirection:  'row',
+    justifyContent: 'flex-start',
+    overflow:       'hidden',
+  },
+});
 
 export { WaveformView };

@@ -11,7 +11,6 @@ import Animated, {
   useAnimatedStyle,
   withSpring,
   withTiming,
-  runOnJS,
 } from 'react-native-reanimated';
 import {
   Gesture,
@@ -19,15 +18,13 @@ import {
 } from 'react-native-gesture-handler';
 
 import { WaveformView }   from './WaveformView';
-import { Typography, BodySm, Caption, Label } from '@components/common/Typography';
+import { Typography, Caption } from '@components/common/Typography';
 import { Badge }          from '@components/common/Badge';
 import useTheme           from '@hooks/useTheme';
 import {
   type Recording,
   AIStatus,
   formatDuration,
-  formatFileSize,
-  getAIStatusColor,
 } from '@types/recording.types';
 
 const { width: W } = Dimensions.get('window');
@@ -57,7 +54,7 @@ const RecordingCard = ({
   isSelecting  = false,
   style,
 }: RecordingCardProps): React.JSX.Element => {
-  const { colors, spacing, borderRadius, textStyles } = useTheme();
+  const { colors } = useTheme();
 
   const translateX = useSharedValue(0);
   const cardScale  = useSharedValue(1);
@@ -105,9 +102,6 @@ const RecordingCard = ({
 
   const transcriptionStatus = recording.ai.transcriptionStatus;
   const hasAI               = transcriptionStatus === AIStatus.COMPLETED;
-  const isProcessing        = transcriptionStatus === AIStatus.PROCESSING;
-
-  const aiColor = getAIStatusColor(transcriptionStatus);
 
   // ─── Selection mode ───────────────────────────────────────────
   if (isSelecting) {
@@ -141,7 +135,7 @@ const RecordingCard = ({
             ]}
           >
             {isSelected && (
-              <Caption style={{ color: '#fff', fontSize: 10 }}>✓</Caption>
+              <Caption style={styles.whiteTextSm}><Caption>✓</Caption></Caption>
             )}
           </View>
         </View>
@@ -160,10 +154,10 @@ const RecordingCard = ({
           onPress={() => { handleClose(); onFavorite(); }}
         >
           <Typography variant="bodyLg">
-            {recording.isFavorite ? '💛' : '🤍'}
+            <Typography variant="bodyLg">{recording.isFavorite ? '💛' : '🤍'}</Typography>
           </Typography>
-          <Caption style={{ color: colors.ai.default, marginTop: 2 }}>
-            {recording.isFavorite ? 'Unfav' : 'Fav'}
+          <Caption style={[styles.actionBtnLabel, { color: colors.ai.default }]}>
+            <Caption>{recording.isFavorite ? 'Unfav' : 'Fav'}</Caption>
           </Caption>
         </TouchableOpacity>
 
@@ -171,8 +165,10 @@ const RecordingCard = ({
           style={[styles.actionBtn, { backgroundColor: colors.error.surface }]}
           onPress={() => { handleClose(); onDelete(); }}
         >
-          <Typography variant="bodyLg">🗑</Typography>
-          <Caption style={{ color: colors.error.text, marginTop: 2 }}>Delete</Caption>
+          <Typography variant="bodyLg"><Typography variant="bodyLg">🗑</Typography></Typography>
+          <Caption style={[styles.actionBtnLabel, { color: colors.error.text }]}>
+            <Caption>Delete</Caption>
+          </Caption>
         </TouchableOpacity>
       </Animated.View>
 
@@ -202,8 +198,8 @@ const RecordingCard = ({
               ]}
               hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
             >
-              <Caption style={{ color: colors.primary.default, fontSize: 16 }}>
-                ▶
+              <Caption style={[styles.playBtnIcon, { color: colors.primary.default }]}>
+                <Caption>▶</Caption>
               </Caption>
             </TouchableOpacity>
           </TouchableOpacity>
@@ -225,39 +221,39 @@ const CardContent = ({
   date,
   hasAI,
 }: CardContentProps): React.JSX.Element => {
-  const { colors, spacing } = useTheme();
+  const { colors } = useTheme();
 
   return (
     <View style={styles.content}>
       {/* Title Row */}
       <View style={styles.titleRow}>
         <Typography
-          variant="h6"
+          variant="h5"
           color="primary"
           numberOfLines={1}
-          style={{ flex: 1, marginRight: spacing[2] }}
+          style={styles.titleText}
         >
           {recording.title}
         </Typography>
         {recording.isFavorite && (
-          <Caption style={{ fontSize: 14 }}>💛</Caption>
+          <Caption style={styles.favIconSmall}><Caption>💛</Caption></Caption>
         )}
       </View>
 
       {/* Meta Row */}
-      <View style={[styles.metaRow, { marginTop: spacing[1] }]}>
+      <View style={styles.metaRow}>
         <Caption
           style={{ color: colors.text.secondary }}
         >
-          {formatDuration(recording.duration)}
+          <Caption>{formatDuration(recording.duration)}</Caption>
         </Caption>
-        <View style={styles.dot} />
+        <View style={[styles.dot, { backgroundColor: colors.text.tertiary }]} />
         <Caption style={{ color: colors.text.tertiary }}>
-          {recording.format.toUpperCase()}
+          <Caption>{recording.format.toUpperCase()}</Caption>
         </Caption>
-        <View style={styles.dot} />
+        <View style={[styles.dot, { backgroundColor: colors.text.tertiary }]} />
         <Caption style={{ color: colors.text.tertiary }}>
-          {date}
+          <Caption>{date}</Caption>
         </Caption>
       </View>
 
@@ -286,50 +282,15 @@ const CardContent = ({
 };
 
 const styles = StyleSheet.create({
-  cardWrapper: {
-    position: 'relative',
-    overflow: 'hidden',
-    borderRadius: 16,
-    marginBottom: 10,
-  } as ViewStyle,
-  card: {
-    flexDirection:   'row',
-    alignItems:      'center',
-    padding:         14,
-    borderRadius:    16,
-    borderWidth:     1,
-  } as ViewStyle,
-  content: {
-    flex: 1,
-  } as ViewStyle,
-  titleRow: {
-    flexDirection:  'row',
-    alignItems:     'center',
-  } as ViewStyle,
-  metaRow: {
-    flexDirection: 'row',
-    alignItems:    'center',
-    gap:           4,
-  } as ViewStyle,
-  dot: {
-    width:           3,
-    height:          3,
-    borderRadius:    1.5,
-    backgroundColor: '#3D4F73',
-  } as ViewStyle,
-  bottomRow: {
-    flexDirection:  'row',
-    alignItems:     'center',
-    justifyContent: 'space-between',
-  } as ViewStyle,
-  playBtn: {
-    width:          40,
-    height:         40,
-    borderRadius:   20,
+  actionBtn: {
+    width:          80,
     alignItems:     'center',
     justifyContent: 'center',
-    marginLeft:     10,
+    gap:            2,
   } as ViewStyle,
+  actionBtnLabel: {
+    marginTop: 2
+  },
   actions: {
     position:       'absolute',
     right:          0,
@@ -339,17 +300,53 @@ const styles = StyleSheet.create({
     borderRadius:   16,
     overflow:       'hidden',
   } as ViewStyle,
-  actionBtn: {
-    width:          80,
+  bottomRow: {
+    flexDirection:  'row',
+    alignItems:     'center',
+    justifyContent: 'space-between',
+    marginTop: 8
+  } as ViewStyle,
+  card: {
+    flexDirection:   'row',
+    alignItems:      'center',
+    padding:         14,
+    borderRadius:    16,
+    borderWidth:     1,
+  } as ViewStyle,
+  cardWrapper: {
+    position: 'relative',
+    overflow: 'hidden',
+    borderRadius: 16,
+    marginBottom: 10,
+  } as ViewStyle,
+  content: {
+    flex: 1,
+  } as ViewStyle,
+  dot: {
+    width:           3,
+    height:          3,
+    borderRadius:    1.5,
+  } as ViewStyle,
+  favIconSmall: {
+    fontSize: 14
+  },
+  metaRow: {
+    flexDirection: 'row',
+    alignItems:    'center',
+    gap:           4,
+    marginTop: 4
+  } as ViewStyle,
+  playBtn: {
+    width:          40,
+    height:         40,
+    borderRadius:   20,
     alignItems:     'center',
     justifyContent: 'center',
-    gap:            2,
+    marginLeft:     10,
   } as ViewStyle,
-  selectIndicator: {
-    width:          48,
-    alignItems:     'center',
-    justifyContent: 'center',
-  } as ViewStyle,
+  playBtnIcon: {
+    fontSize: 16
+  },
   selectCircle: {
     width:          24,
     height:         24,
@@ -358,6 +355,23 @@ const styles = StyleSheet.create({
     alignItems:     'center',
     justifyContent: 'center',
   } as ViewStyle,
+  selectIndicator: {
+    width:          48,
+    alignItems:     'center',
+    justifyContent: 'center',
+  } as ViewStyle,
+  titleRow: {
+    flexDirection:  'row',
+    alignItems:     'center',
+  } as ViewStyle,
+  titleText: {
+    flex: 1,
+    marginRight: 8
+  },
+  whiteTextSm: {
+    color: '#fff',
+    fontSize: 10
+  },
 });
 
 export { RecordingCard };

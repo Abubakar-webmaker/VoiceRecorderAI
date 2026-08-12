@@ -82,15 +82,6 @@ const AuthHeader = ({
 };
 
 const styles = StyleSheet.create({
-  container: {
-    paddingHorizontal: 20,
-    paddingBottom:     8,
-  } as ViewStyle,
-  row: {
-    flexDirection:  'row',
-    justifyContent: 'space-between',
-    alignItems:     'center',
-  } as ViewStyle,
   backBtn: {
     width:        40,
     height:       40,
@@ -102,6 +93,15 @@ const styles = StyleSheet.create({
   backPlaceholder: {
     width:  40,
     height: 40,
+  } as ViewStyle,
+  container: {
+    paddingHorizontal: 20,
+    paddingBottom:     8,
+  } as ViewStyle,
+  row: {
+    flexDirection:  'row',
+    justifyContent: 'space-between',
+    alignItems:     'center',
   } as ViewStyle,
   titleBlock: {
     gap: 4,

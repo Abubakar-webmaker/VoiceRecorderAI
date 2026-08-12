@@ -15,14 +15,11 @@ const PlaceholderScreen = (): React.JSX.Element => {
 
 const styles = StyleSheet.create({
   container: {
-    flex:            1,
-    backgroundColor: colors.bg.primary,
     alignItems:      'center',
-    justifyContent:  'center',
+    backgroundColor: colors.bg.primary,
+    flex:            1,
     gap:             12,
-  },
-  text: {
-    fontSize: 48,
+    justifyContent:  'center',
   },
   label: {
     ...textStyles.h3,
@@ -31,6 +28,9 @@ const styles = StyleSheet.create({
   sub: {
     ...textStyles.bodyMd,
     color: colors.text.secondary,
+  },
+  text: {
+    fontSize: 48,
   },
 });
 

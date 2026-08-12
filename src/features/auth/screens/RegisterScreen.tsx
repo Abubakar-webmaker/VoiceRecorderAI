@@ -43,7 +43,7 @@ const getPasswordStrength = (password: string, colors: ReturnType<typeof useThem
     4: { score: 4, label: 'Strong',    color: colors.ai.default },
   };
 
-  return map[score] ?? map[0]!;
+  return map[score] ?? map[0];
 };
 
 // ─── Zod Schema ───────────────────────────────────────────────────
@@ -285,10 +285,10 @@ const RegisterScreen = ({ navigation }: Props): React.JSX.Element => {
 };
 
 const styles = StyleSheet.create({
+  footer: { marginTop: 32, paddingHorizontal: 20, alignItems: 'center' } as ViewStyle,
+  form:   { paddingHorizontal: 20, marginTop: 24 } as ViewStyle,
   screen: { flex: 1 } as ViewStyle,
   scroll: { flexGrow: 1, paddingBottom: 40 } as ViewStyle,
-  form:   { paddingHorizontal: 20, marginTop: 24 } as ViewStyle,
-  footer: { marginTop: 32, paddingHorizontal: 20, alignItems: 'center' } as ViewStyle,
   strengthBar: {
     flexDirection: 'row',
     gap:           4,

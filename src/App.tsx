@@ -80,7 +80,7 @@ const AppContent = (): React.JSX.Element => {
         void store.dispatch(processQueueThunk());
 
         // Reconnect socket if we have an access token
-        const accessToken = (store.getState() as ReturnType<typeof store.getState>).auth?.accessToken;
+        const accessToken = (store.getState()).auth?.accessToken;
         if (accessToken != null) {
           updateSocketToken(accessToken);
         }
@@ -93,7 +93,7 @@ const AppContent = (): React.JSX.Element => {
     });
 
     // 8. Connect socket if already authenticated
-    const authState = (store.getState() as ReturnType<typeof store.getState>).auth;
+    const authState = (store.getState()).auth;
     if (authState?.isAuthenticated && authState.accessToken != null) {
       connectSocket(authState.accessToken);
       void registerFCMToken();
@@ -101,7 +101,7 @@ const AppContent = (): React.JSX.Element => {
 
     // 9. Subscribe to auth state changes for socket lifecycle
     const unsubStore = store.subscribe(() => {
-      const state = store.getState() as ReturnType<typeof store.getState>;
+      const state = store.getState();
       const { isAuthenticated, accessToken } = state.auth ?? {};
 
       if (isAuthenticated && accessToken != null) {

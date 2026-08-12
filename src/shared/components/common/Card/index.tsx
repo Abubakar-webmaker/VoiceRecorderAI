@@ -2,14 +2,12 @@ import React from 'react';
 import {
   View,
   TouchableOpacity,
-  StyleSheet,
   type ViewStyle,
 } from 'react-native';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withSpring,
-  withTiming,
 } from 'react-native-reanimated';
 import useTheme from '@hooks/useTheme';
 
@@ -63,7 +61,7 @@ const Card = ({
     overflow:     'hidden',
   };
 
-  if (onPress != null) {
+  if (onPress !== undefined && onPress !== null) {
     return (
       <AnimatedTouchable
         onPress={onPress}

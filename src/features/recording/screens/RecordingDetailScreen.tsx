@@ -7,6 +7,7 @@ import {
   Dimensions,
   Share,
   Alert,
+  Text,
   type ViewStyle,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -18,7 +19,7 @@ import { Card }           from '@components/common/Card';
 import { Loader }         from '@components/common/Loader';
 import { Divider }        from '@components/common/Divider';
 import {
-  H3, H4, H5, BodyMd, BodySm, Caption, Label, MonoText,
+  H5, BodySm, Caption, MonoText,
 } from '@components/common/Typography';
 import useTheme           from '@hooks/useTheme';
 import useRecordings      from '../hooks/useRecordings';
@@ -47,7 +48,7 @@ type DetailTab = 'info' | 'ai' | 'notes';
 
 const RecordingDetailScreen = ({ navigation, route }: Props): React.JSX.Element => {
   const { recordingId } = route.params;
-  const { colors, spacing, borderRadius } = useTheme();
+  const { colors, spacing } = useTheme();
   const dispatch   = useAppDispatch();
   const recording  = useAppSelector(selectSelectedRec);
   const { play }   = usePlayer();
@@ -119,7 +120,7 @@ const RecordingDetailScreen = ({ navigation, route }: Props): React.JSX.Element 
       edges={['top', 'bottom']}
     >
       <ScrollView
-        contentContainerStyle={{ paddingBottom: 40 }}
+        contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
         {/* ─── Nav Bar ─────────────────────────────────────── */}
@@ -130,27 +131,27 @@ const RecordingDetailScreen = ({ navigation, route }: Props): React.JSX.Element 
             onPress={() => navigation.goBack()}
             style={[styles.navBtn, { backgroundColor: colors.bg.elevated }]}
           >
-            <Caption color="secondary">←</Caption>
+            <Caption color="secondary"><Text>←</Text></Caption>
           </TouchableOpacity>
 
-          <H5 color="primary" numberOfLines={1} style={{ flex: 1, textAlign: 'center', marginHorizontal: 12 }}>
+          <H5 color="primary" numberOfLines={1} style={styles.navTitle}>
             {recording.title}
           </H5>
 
-          <View style={{ flexDirection: 'row', gap: 8 }}>
+          <View style={styles.navActions}>
             <TouchableOpacity
-              onPress={() => toggleFavorite(recordingId)}
+              onPress={() => { void toggleFavorite(recordingId); }}
               style={[styles.navBtn, { backgroundColor: colors.bg.elevated }]}
             >
-              <Caption style={{ fontSize: 16 }}>
-                {recording.isFavorite ? '💛' : '🤍'}
+              <Caption style={styles.favIcon}>
+                <Text>{recording.isFavorite ? '💛' : '🤍'}</Text>
               </Caption>
             </TouchableOpacity>
             <TouchableOpacity
               onPress={handleDelete}
               style={[styles.navBtn, { backgroundColor: colors.error.surface }]}
             >
-              <Caption style={{ color: colors.error.text, fontSize: 14 }}>🗑</Caption>
+              <Caption style={[styles.deleteIcon, { color: colors.error.text }]}><Text>🗑</Text></Caption>
             </TouchableOpacity>
           </View>
         </View>
@@ -172,7 +173,7 @@ const RecordingDetailScreen = ({ navigation, route }: Props): React.JSX.Element 
 
           {/* Duration badge */}
           <View style={styles.durationBadge}>
-            <MonoText style={{ color: colors.primary.default, fontSize: 20, fontWeight: '700' }}>
+            <MonoText style={[styles.durationText, { color: colors.primary.default }]}>
               {formatDuration(recording.duration)}
             </MonoText>
           </View>
@@ -185,11 +186,11 @@ const RecordingDetailScreen = ({ navigation, route }: Props): React.JSX.Element 
         >
           {/* Play */}
           <TouchableOpacity
-            onPress={() => play(recording)}
+            onPress={() => { void play(recording); }}
             style={[styles.actionBtn, styles.playActionBtn, { backgroundColor: colors.primary.default }]}
           >
-            <Caption style={{ color: '#fff', fontSize: 20 }}>▶</Caption>
-            <Caption style={{ color: '#fff' }}>Play</Caption>
+            <Caption style={styles.actionIcon}><Text>▶</Text></Caption>
+            <Caption style={styles.whiteText}><Text>Play</Text></Caption>
           </TouchableOpacity>
 
           {/* AI */}
@@ -197,28 +198,28 @@ const RecordingDetailScreen = ({ navigation, route }: Props): React.JSX.Element 
             onPress={() => navigation.getParent()?.navigate('AIScreen' as never, { recordingId } as never)}
             style={[styles.actionBtn, { backgroundColor: colors.ai.surface }]}
           >
-            <Caption style={{ fontSize: 18 }}>🤖</Caption>
-            <Caption style={{ color: colors.ai.default }}>AI</Caption>
+            <Caption style={styles.actionIconSm}><Text>🤖</Text></Caption>
+            <Caption style={{ color: colors.ai.default }}><Text>AI</Text></Caption>
           </TouchableOpacity>
 
           {/* Share */}
           <TouchableOpacity
-            onPress={handleShare}
+            onPress={() => { void handleShare(); }}
             disabled={isSharing}
             style={[styles.actionBtn, { backgroundColor: colors.bg.elevated }]}
           >
-            <Caption style={{ fontSize: 18 }}>
-              {isSharing ? '⟳' : '↗'}
+            <Caption style={styles.actionIconSm}>
+              <Text>{isSharing ? '⟳' : '↗'}</Text>
             </Caption>
-            <Caption color="secondary">Share</Caption>
+            <Caption color="secondary"><Text>Share</Text></Caption>
           </TouchableOpacity>
 
           {/* Download — Phase 9 mein */}
           <TouchableOpacity
             style={[styles.actionBtn, { backgroundColor: colors.bg.elevated }]}
           >
-            <Caption style={{ fontSize: 18 }}>⬇</Caption>
-            <Caption color="secondary">Save</Caption>
+            <Caption style={styles.actionIconSm}><Text>⬇</Text></Caption>
+            <Caption color="secondary"><Text>Save</Text></Caption>
           </TouchableOpacity>
         </Animated.View>
 
@@ -238,14 +239,13 @@ const RecordingDetailScreen = ({ navigation, route }: Props): React.JSX.Element 
               ]}
             >
               <BodySm
-                style={{
-                  color: activeTab === tab.id
-                    ? colors.primary.light
-                    : colors.text.secondary,
-                  fontWeight: activeTab === tab.id ? '600' : '400',
-                }}
+                style={[
+                  styles.tabText,
+                  { color: activeTab === tab.id ? colors.primary.light : colors.text.secondary },
+                  activeTab === tab.id ? styles.fontWeight600 : styles.fontWeight400
+                ]}
               >
-                {tab.label}
+                <BodySm>{tab.label}</BodySm>
               </BodySm>
             </TouchableOpacity>
           ))}
@@ -259,8 +259,8 @@ const RecordingDetailScreen = ({ navigation, route }: Props): React.JSX.Element 
             <Animated.View entering={FadeInDown.duration(300)} style={{ gap: spacing[4] }}>
               {/* Metadata */}
               <Card variant="filled">
-                <View style={{ gap: spacing[3] }}>
-                  <H5 color="primary">File Info</H5>
+                <View style={styles.cardContent}>
+                  <H5 color="primary"><BodySm>File Info</BodySm></H5>
                   {[
                     { label: 'Format',      value: recording.format.toUpperCase() },
                     { label: 'Quality',     value: recording.quality },
@@ -272,8 +272,8 @@ const RecordingDetailScreen = ({ navigation, route }: Props): React.JSX.Element 
                     { label: 'Plays',       value: String(recording.playCount) },
                   ].map(({ label, value }) => (
                     <View key={label} style={styles.infoRow}>
-                      <Caption color="tertiary">{label}</Caption>
-                      <BodySm color="secondary">{value}</BodySm>
+                      <Caption color="tertiary"><Caption>{label}</Caption></Caption>
+                      <BodySm color="secondary"><BodySm>{value}</BodySm></BodySm>
                     </View>
                   ))}
                 </View>
@@ -281,8 +281,8 @@ const RecordingDetailScreen = ({ navigation, route }: Props): React.JSX.Element 
 
               {/* Tags */}
               {recording.tags.length > 0 && (
-                <View style={{ gap: spacing[2] }}>
-                  <H5 color="primary">Tags</H5>
+                <View style={styles.cardContentSmall}>
+                  <H5 color="primary"><BodySm>Tags</BodySm></H5>
                   <View style={styles.tags}>
                     {recording.tags.map((tag) => (
                       <Badge key={tag} label={tag} variant="neutral" size="md" />
@@ -297,9 +297,9 @@ const RecordingDetailScreen = ({ navigation, route }: Props): React.JSX.Element 
             <Animated.View entering={FadeInDown.duration(300)} style={{ gap: spacing[4] }}>
               {/* Transcription Status */}
               <Card variant="filled">
-                <View style={{ gap: spacing[3] }}>
+                <View style={styles.cardContent}>
                   <View style={styles.aiStatusRow}>
-                    <H5 color="primary">Transcription</H5>
+                    <H5 color="primary"><BodySm>Transcription</BodySm></H5>
                     <Badge
                       label={recording.ai.transcriptionStatus}
                       variant={
@@ -315,19 +315,19 @@ const RecordingDetailScreen = ({ navigation, route }: Props): React.JSX.Element 
                     />
                   </View>
 
-                  {recording.ai.transcriptionStatus === AIStatus.NONE && (
+          {recording.ai.transcriptionStatus === AIStatus.NONE && (
                     <BodySm color="secondary">
-                      Transcription not started. Open the AI panel to process this recording.
+                      <Text>Transcription not started. Open the AI panel to process this recording.</Text>
                     </BodySm>
                   )}
                   {recording.ai.transcriptionStatus === AIStatus.COMPLETED && (
                     <>
                       <BodySm color="secondary">
-                        Detected language: {recording.ai.language.toUpperCase()}
+                        <Text>Detected language: {recording.ai.language.toUpperCase()}</Text>
                       </BodySm>
-                      {recording.ai.confidence != null && (
+                      {recording.ai.confidence !== undefined && recording.ai.confidence !== null && (
                         <BodySm color="secondary">
-                          Confidence: {Math.round(recording.ai.confidence * 100)}%
+                          <Text>Confidence: {Math.round(recording.ai.confidence * 100)}%</Text>
                         </BodySm>
                       )}
                     </>
@@ -348,14 +348,14 @@ const RecordingDetailScreen = ({ navigation, route }: Props): React.JSX.Element 
                   },
                 ]}
               >
-                <Caption style={{ fontSize: 28 }}>🤖</Caption>
-                <View style={{ flex: 1 }}>
-                  <H5 style={{ color: colors.ai.default }}>Open AI Panel</H5>
+                <Caption style={styles.actionIconLg}><Text>🤖</Text></Caption>
+                <View style={styles.flex1}>
+                  <H5 style={{ color: colors.ai.default }}><Text>Open AI Panel</Text></H5>
                   <BodySm color="secondary">
-                    Transcribe, summarize, translate, and chat with this recording
+                    <Text>Transcribe, summarize, translate, and chat with this recording</Text>
                   </BodySm>
                 </View>
-                <Caption color="secondary">→</Caption>
+                <Caption color="secondary"><Text>→</Text></Caption>
               </TouchableOpacity>
             </Animated.View>
           )}
@@ -364,8 +364,8 @@ const RecordingDetailScreen = ({ navigation, route }: Props): React.JSX.Element 
             <Animated.View entering={FadeInDown.duration(300)}>
               <Card variant="filled">
                 <BodySm color="secondary">
-                  Notes will appear here after AI processing.{'\n'}
-                  Open the AI panel to generate and edit notes.
+                  <Text>Notes will appear here after AI processing.{"\n"}</Text>
+                  <Text>Open the AI panel to generate and edit notes.</Text>
                 </BodySm>
               </Card>
             </Animated.View>
@@ -377,33 +377,6 @@ const RecordingDetailScreen = ({ navigation, route }: Props): React.JSX.Element 
 };
 
 const styles = StyleSheet.create({
-  screen: { flex: 1 } as ViewStyle,
-  navbar: {
-    flexDirection:  'row',
-    alignItems:     'center',
-    paddingVertical: 12,
-  } as ViewStyle,
-  navBtn: {
-    width:          40,
-    height:         40,
-    borderRadius:   12,
-    alignItems:     'center',
-    justifyContent: 'center',
-  } as ViewStyle,
-  waveformSection: {
-    paddingHorizontal: 20,
-    paddingVertical:   24,
-    alignItems:        'center',
-    gap:               16,
-  } as ViewStyle,
-  durationBadge: {
-    alignItems: 'center',
-  } as ViewStyle,
-  actions: {
-    flexDirection:  'row',
-    gap:            10,
-    paddingVertical: 16,
-  } as ViewStyle,
   actionBtn: {
     flex:           1,
     height:         64,
@@ -412,34 +385,19 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap:            4,
   } as ViewStyle,
-  playActionBtn: {
-    flex: 1.5,
-  } as ViewStyle,
-  tabs: {
+  actionIcon: {
+    fontSize: 20
+  },
+  actionIconLg: {
+    fontSize: 28
+  },
+  actionIconSm: {
+    fontSize: 18
+  },
+  actions: {
     flexDirection:  'row',
-    marginTop:      8,
-    gap:            4,
-  } as ViewStyle,
-  tab: {
-    flex:            1,
-    alignItems:      'center',
-    paddingVertical: 10,
-    borderBottomWidth: 2,
-  } as ViewStyle,
-  infoRow: {
-    flexDirection:  'row',
-    justifyContent: 'space-between',
-    alignItems:     'center',
-  } as ViewStyle,
-  tags: {
-    flexDirection: 'row',
-    flexWrap:      'wrap',
-    gap:           8,
-  } as ViewStyle,
-  aiStatusRow: {
-    flexDirection:  'row',
-    justifyContent: 'space-between',
-    alignItems:     'center',
+    gap:            10,
+    paddingVertical: 16,
   } as ViewStyle,
   aiCta: {
     flexDirection:   'row',
@@ -449,6 +407,100 @@ const styles = StyleSheet.create({
     borderWidth:     1,
     gap:             12,
   } as ViewStyle,
+  aiStatusRow: {
+    alignItems:     'center',
+    flexDirection:  'row',
+    justifyContent: 'space-between',
+  } as ViewStyle,
+  cardContent: {
+    gap: 12
+  },
+  cardContentSmall: {
+    gap: 8
+  },
+  deleteIcon: {
+    fontSize: 14
+  },
+  durationBadge: {
+    alignItems: 'center',
+  } as ViewStyle,
+  durationText: {
+    fontSize: 20,
+    fontWeight: '700'
+  },
+  favIcon: {
+    fontSize: 16
+  },
+  flex1: {
+    flex: 1
+  },
+  fontWeight400: {
+    fontWeight: '400'
+  },
+  fontWeight600: {
+    fontWeight: '600'
+  },
+  infoRow: {
+    alignItems:     'center',
+    flexDirection:  'row',
+    justifyContent: 'space-between',
+  } as ViewStyle,
+  navActions: {
+    flexDirection: 'row',
+    gap: 8
+  },
+  navBtn: {
+    alignItems:     'center',
+    borderRadius:   12,
+    height:         40,
+    justifyContent: 'center',
+    width:          40,
+  } as ViewStyle,
+  navTitle: {
+    flex: 1,
+    marginHorizontal: 12,
+    textAlign: 'center'
+  },
+  navbar: {
+    alignItems:     'center',
+    flexDirection:  'row',
+    paddingVertical: 12,
+  } as ViewStyle,
+  playActionBtn: {
+    flex: 1.5,
+  } as ViewStyle,
+  screen: { flex: 1 } as ViewStyle,
+  scrollContent: {
+    paddingBottom: 40
+  },
+  tab: {
+    alignItems:      'center',
+    borderBottomWidth: 2,
+    flex:            1,
+    paddingVertical: 10,
+  } as ViewStyle,
+  tabText: {
+    // colors handled inline
+  },
+  tabs: {
+    flexDirection:  'row',
+    gap:            4,
+    marginTop:      8,
+  } as ViewStyle,
+  tags: {
+    flexDirection: 'row',
+    flexWrap:      'wrap',
+    gap:           8,
+  } as ViewStyle,
+  waveformSection: {
+    alignItems:        'center',
+    gap:               16,
+    paddingHorizontal: 20,
+    paddingVertical:   24,
+  } as ViewStyle,
+  whiteText: {
+    color: '#fff'
+  }
 });
 
 export { RecordingDetailScreen };

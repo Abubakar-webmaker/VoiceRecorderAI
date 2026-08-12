@@ -274,15 +274,6 @@ const AIChatView = ({
 };
 
 const styles = StyleSheet.create({
-  messageList: {
-    paddingBottom: 16,
-    gap:           12,
-  } as ViewStyle,
-  bubbleWrapper: {
-    flexDirection: 'row',
-    alignItems:    'flex-end',
-    gap:           8,
-  } as ViewStyle,
   avatar: {
     width:          32,
     height:         32,
@@ -293,22 +284,15 @@ const styles = StyleSheet.create({
   bubble: {
     padding: 12,
   } as ViewStyle,
+  bubbleWrapper: {
+    flexDirection: 'row',
+    alignItems:    'flex-end',
+    gap:           8,
+  } as ViewStyle,
   emptyChat: {
     flex:           1,
     alignItems:     'center',
     paddingTop:     32,
-  } as ViewStyle,
-  suggestions: {
-    flexWrap:       'wrap',
-    flexDirection:  'row',
-    gap:            8,
-    justifyContent: 'center',
-  } as ViewStyle,
-  suggestionChip: {
-    paddingHorizontal: 12,
-    paddingVertical:   6,
-    borderRadius:      20,
-    borderWidth:       1,
   } as ViewStyle,
   inputBar: {
     flexDirection:   'row',
@@ -327,10 +311,26 @@ const styles = StyleSheet.create({
     borderWidth:     1,
     minHeight:       44,
   } as ViewStyle,
+  messageList: {
+    paddingBottom: 16,
+    gap:           12,
+  } as ViewStyle,
   sendBtn: {
     width:          44,
     height:         44,
     alignItems:     'center',
+    justifyContent: 'center',
+  } as ViewStyle,
+  suggestionChip: {
+    paddingHorizontal: 12,
+    paddingVertical:   6,
+    borderRadius:      20,
+    borderWidth:       1,
+  } as ViewStyle,
+  suggestions: {
+    flexWrap:       'wrap',
+    flexDirection:  'row',
+    gap:            8,
     justifyContent: 'center',
   } as ViewStyle,
 });

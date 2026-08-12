@@ -12,7 +12,6 @@ import Animated, {
   useAnimatedStyle,
   withSpring,
   withTiming,
-  runOnJS,
 } from 'react-native-reanimated';
 import useTheme from '@hooks/useTheme';
 import { Typography } from '@components/common/Typography';
@@ -116,22 +115,24 @@ const AppModal = ({
         )}
 
         {/* Title */}
-        {title != null && (
+        {title !== undefined && title !== null && (
           <View style={[styles.titleWrapper, { paddingHorizontal: spacing[5] }]}>
             <Typography variant="h4" color="primary">
-              {title}
+              <Typography variant="h4">{title}</Typography>
             </Typography>
             <TouchableOpacity
               onPress={onClose}
               hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
             >
-              <Typography variant="bodyLg" color="secondary">✕</Typography>
+              <Typography variant="bodyLg" color="secondary">
+                <Typography variant="bodyLg">✕</Typography>
+              </Typography>
             </TouchableOpacity>
           </View>
         )}
 
         {/* Content */}
-        <View style={{ paddingHorizontal: spacing[5] }}>
+        <View style={styles.content}>
           {children}
         </View>
       </Animated.View>
@@ -140,20 +141,23 @@ const AppModal = ({
 };
 
 const styles = StyleSheet.create({
-  sheet: {
-    position: 'absolute',
-    bottom:   0,
-    left:     0,
-    right:    0,
+  content: {
+    paddingHorizontal: 20,
+  },
+  handle: {
+    width:        40,
+    height:       4,
+    borderRadius: 2,
   } as ViewStyle,
   handleWrapper: {
     alignItems:     'center',
     paddingVertical: 12,
   } as ViewStyle,
-  handle: {
-    width:        40,
-    height:       4,
-    borderRadius: 2,
+  sheet: {
+    position: 'absolute',
+    bottom:   0,
+    left:     0,
+    right:    0,
   } as ViewStyle,
   titleWrapper: {
     flexDirection:  'row',

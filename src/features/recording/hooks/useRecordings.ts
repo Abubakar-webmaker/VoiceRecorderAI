@@ -34,9 +34,41 @@ import {
   selectTotalRecordings,
 } from '../store/recordingSlice';
 import { selectFolders } from '@features/folder/store/folderSlice';
-import type { FilterTab, RecordingQueryParams } from '@types/recording.types';
+import type { FilterTab, RecordingQueryParams, Recording, PaginationInfo, Folder } from '@types/recording.types';
 
-const useRecordings = () => {
+const useRecordings = (): {
+  recordings: Recording[];
+  pagination: PaginationInfo | null;
+  isLoading: boolean;
+  isLoadingMore: boolean;
+  favorites: Recording[];
+  searchResults: Recording[];
+  searchQuery: string;
+  isSearching: boolean;
+  activeFilter: FilterTab;
+  sortConfig: { sortBy: string; sortOrder: string };
+  isSelecting: boolean;
+  selectedIds: string[];
+  isUploading: boolean;
+  uploadProgress: number;
+  error: string | null;
+  totalRecordings: number;
+  folders: Folder[];
+  fetchRecordings: (params?: RecordingQueryParams) => void;
+  fetchMore: (params: RecordingQueryParams) => void;
+  fetchFavorites: () => void;
+  search: (q: string) => void;
+  setQuery: (q: string) => void;
+  toggleFavorite: (id: string) => void;
+  deleteRecording: (id: string) => void;
+  updateRecording: (id: string, updates: any) => void;
+  bulkDelete: (ids: string[]) => void;
+  changeFilter: (filter: FilterTab) => void;
+  changeSort: (params: any) => void;
+  startSelecting: () => void;
+  toggleSelect: (id: string) => void;
+  clearSelections: () => void;
+} => {
   const dispatch = useAppDispatch();
 
   const recordings      = useAppSelector(selectRecordings);

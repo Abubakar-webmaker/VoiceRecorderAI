@@ -43,7 +43,7 @@ class ErrorBoundary extends React.Component<Props, State> {
     return (
       <SafeAreaView style={styles.screen} edges={['top', 'bottom']}>
         <View style={styles.container}>
-          <View style={[styles.iconWrap, { backgroundColor: colors.recording.surface }]}>
+          <View style={styles.iconWrap}>
             <Text style={styles.emoji}>⚠️</Text>
           </View>
 
@@ -74,10 +74,18 @@ class ErrorBoundary extends React.Component<Props, State> {
 }
 
 const styles = StyleSheet.create({
-  screen: {
-    flex:            1,
-    backgroundColor: colors.bg.primary,
+  btn: {
+    backgroundColor:   colors.primary.default,
+    paddingHorizontal: 32,
+    paddingVertical:   14,
+    borderRadius:      14,
+    marginTop:         8,
   } as ViewStyle,
+  btnText: {
+    color:      colors.text.inverse,
+    fontSize:   16,
+    fontWeight: '600',
+  },
   container: {
     flex:              1,
     alignItems:        'center',
@@ -85,28 +93,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 32,
     gap:               16,
   } as ViewStyle,
-  iconWrap: {
-    width:          96,
-    height:         96,
-    borderRadius:   24,
-    alignItems:     'center',
-    justifyContent: 'center',
-    marginBottom:   8,
-  } as ViewStyle,
   emoji: {
     fontSize: 48,
-  },
-  title: {
-    fontSize:   24,
-    fontWeight: '700',
-    color:      colors.text.primary,
-    textAlign:  'center',
-  },
-  subtitle: {
-    fontSize:   15,
-    color:      colors.text.secondary,
-    textAlign:  'center',
-    lineHeight: 22,
   },
   errorBox: {
     backgroundColor: colors.bg.elevated,
@@ -117,21 +105,34 @@ const styles = StyleSheet.create({
     borderColor:     colors.border.default,
   } as ViewStyle,
   errorText: {
-    fontSize:   12,
     color:      colors.recording.light,
     fontFamily: 'monospace',
+    fontSize:   12,
   },
-  btn: {
-    backgroundColor:   colors.primary.default,
-    paddingHorizontal: 32,
-    paddingVertical:   14,
-    borderRadius:      14,
-    marginTop:         8,
+  iconWrap: {
+    width:          96,
+    height:         96,
+    borderRadius:   24,
+    alignItems:     'center',
+    justifyContent: 'center',
+    marginBottom:   8,
+    backgroundColor: colors.error.surface,
   } as ViewStyle,
-  btnText: {
-    color:      '#fff',
-    fontSize:   16,
-    fontWeight: '600',
+  screen: {
+    flex:            1,
+    backgroundColor: colors.bg.primary,
+  } as ViewStyle,
+  subtitle: {
+    color:      colors.text.secondary,
+    fontSize:   15,
+    lineHeight: 22,
+    textAlign:  'center',
+  },
+  title: {
+    color:      colors.text.primary,
+    fontSize:   24,
+    fontWeight: '700',
+    textAlign:  'center',
   },
 });
 

@@ -2,7 +2,6 @@ import React, { useCallback } from 'react';
 import {
   TouchableOpacity,
   ActivityIndicator,
-  View,
   Text,
   StyleSheet,
   type ViewStyle,
@@ -202,11 +201,11 @@ const Button = ({
         />
       ) : (
         <>
-          {leftIcon != null && leftIcon}
+          {leftIcon !== undefined && leftIcon !== null && leftIcon}
           <Text style={[sStyle.text, vStyle.text, textStyle]}>
             {label}
           </Text>
-          {rightIcon != null && rightIcon}
+          {rightIcon !== undefined && rightIcon !== null && rightIcon}
         </>
       )}
     </AnimatedTouchable>

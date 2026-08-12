@@ -1,9 +1,10 @@
-import React, { useCallback } from 'react';
+import React from 'react';
 import {
   View,
   TouchableOpacity,
   StyleSheet,
   Dimensions,
+  Text,
   type ViewStyle,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -12,13 +13,11 @@ import Animated, {
   useSharedValue, useAnimatedStyle,
   withSpring,
 } from 'react-native-reanimated';
-import { State as TrackState } from 'react-native-track-player';
 
 import { WaveformView }   from '@components/recording/WaveformView';
 import {
-  H4, H5, BodySm, Caption, MonoText, Label,
+  H4, BodySm, Caption, MonoText,
 } from '@components/common/Typography';
-import { Badge }          from '@components/common/Badge';
 import useTheme           from '@hooks/useTheme';
 import usePlayer          from '../hooks/usePlayer';
 import {
@@ -28,7 +27,7 @@ import {
 } from '@features/player/store/playerSlice';
 export { formatDuration } from '@types/recording.types';
 
-const { width: W, height: H } = Dimensions.get('window');
+const { width: W } = Dimensions.get('window');
 
 // ─── Seek Bar ─────────────────────────────────────────────────────
 interface SeekBarProps {
@@ -42,7 +41,7 @@ const SeekBar = ({ position, duration, onSeek }: SeekBarProps): React.JSX.Elemen
   const progress = duration > 0 ? position / duration : 0;
 
   return (
-    <View style={{ gap: spacing[1.5] }}>
+    <View style={styles.seekContainer}>
       {/* Track */}
       <View
         style={[
@@ -86,11 +85,11 @@ const SeekBar = ({ position, duration, onSeek }: SeekBarProps): React.JSX.Elemen
 
       {/* Times */}
       <View style={styles.timesRow}>
-        <MonoText style={{ color: colors.text.secondary, fontSize: 12 }}>
-          {formatDuration(Math.floor(position))}
+        <MonoText style={styles.timeText}>
+          <MonoText>{formatDuration(Math.floor(position))}</MonoText>
         </MonoText>
-        <MonoText style={{ color: colors.text.tertiary, fontSize: 12 }}>
-          -{formatDuration(Math.max(0, Math.floor(duration - position)))}
+        <MonoText style={styles.remainingTimeText}>
+          <MonoText>-{formatDuration(Math.max(0, Math.floor(duration - position)))}</MonoText>
         </MonoText>
       </View>
     </View>
@@ -129,10 +128,9 @@ const SpeedSelector = ({ current, onChange }: SpeedSelectorProps): React.JSX.Ele
               color: current === speed
                 ? colors.primary.light
                 : colors.text.secondary,
-              fontWeight: current === speed ? '700' : '400',
             }}
           >
-            {speed}x
+            <Text style={current === speed ? styles.speedTextActive : styles.speedText}>{speed}x</Text>
           </Caption>
         </TouchableOpacity>
       ))}
@@ -159,8 +157,10 @@ const MainControls = ({
   }));
 
   const handlePlayPress = (): void => {
-    btnScale.value = withSpring(0.92, { damping: 12, stiffness: 400 }, () => {
-      btnScale.value = withSpring(1, { damping: 10, stiffness: 300 });
+    btnScale.value = withSpring(0.92, { damping: 12, stiffness: 400 }, (finished) => {
+      if (finished === true) {
+        btnScale.value = withSpring(1, { damping: 10, stiffness: 300 });
+      }
     });
     onPlay();
   };
@@ -168,15 +168,15 @@ const MainControls = ({
   return (
     <View style={styles.controls}>
       {/* Skip -15 */}
-      <TouchableOpacity onPress={onSkipBwd} style={styles.skipBtn}>
-        <Caption style={{ fontSize: 28, color: colors.text.secondary }}>⏮</Caption>
-        <Caption style={{ color: colors.text.tertiary, fontSize: 10 }}>15s</Caption>
+      <TouchableOpacity onPress={() => { onSkipBwd(); }} style={styles.skipBtn}>
+        <Caption style={styles.skipIcon}><Text>⏮</Text></Caption>
+        <Caption style={styles.skipTime}><Text>15s</Text></Caption>
       </TouchableOpacity>
 
       {/* Play / Pause */}
       <Animated.View style={btnStyle}>
         <TouchableOpacity
-          onPress={handlePlayPress}
+          onPress={() => { handlePlayPress(); }}
           disabled={isLoading}
           style={[
             styles.playBtn,
@@ -191,21 +191,17 @@ const MainControls = ({
           accessibilityLabel={isPlaying ? 'Pause' : 'Play'}
         >
           <Caption
-            style={{
-              fontSize: 28,
-              color:    '#fff',
-              includeFontPadding: false,
-            }}
+            style={styles.playIcon}
           >
-            {isLoading ? '⟳' : isPlaying ? '⏸' : '▶'}
+            <Caption>{isLoading ? '⟳' : isPlaying ? '⏸' : '▶'}</Caption>
           </Caption>
         </TouchableOpacity>
       </Animated.View>
 
       {/* Skip +15 */}
-      <TouchableOpacity onPress={onSkipFwd} style={styles.skipBtn}>
-        <Caption style={{ fontSize: 28, color: colors.text.secondary }}>⏭</Caption>
-        <Caption style={{ color: colors.text.tertiary, fontSize: 10 }}>15s</Caption>
+      <TouchableOpacity onPress={() => { onSkipFwd(); }} style={styles.skipBtn}>
+        <Caption style={styles.skipIcon}><Text>⏭</Text></Caption>
+        <Caption style={styles.skipTime}><Text>15s</Text></Caption>
       </TouchableOpacity>
     </View>
   );
@@ -237,12 +233,12 @@ const PlayerScreen = (): React.JSX.Element => {
         entering={FadeIn.duration(300)}
         style={[styles.header, { paddingHorizontal: spacing[5] }]}
       >
-        <TouchableOpacity onPress={() => showMini(true)}>
-          <Caption style={{ fontSize: 20, color: colors.text.secondary }}>⌄</Caption>
+        <TouchableOpacity onPress={() => { void showMini(true); }}>
+          <Caption style={styles.headerIcon}><Text>⌄</Text></Caption>
         </TouchableOpacity>
-        <Caption color="secondary">Now Playing</Caption>
+        <Caption color="secondary"><Text>Now Playing</Text></Caption>
         <TouchableOpacity onPress={() => {}}>
-          <Caption style={{ fontSize: 20, color: colors.text.secondary }}>⋯</Caption>
+          <Caption style={styles.headerIcon}><Text>⋯</Text></Caption>
         </TouchableOpacity>
       </Animated.View>
 
@@ -275,17 +271,17 @@ const PlayerScreen = (): React.JSX.Element => {
         entering={FadeInUp.delay(150).duration(400)}
         style={[styles.trackInfo, { paddingHorizontal: spacing[5] }]}
       >
-        <View style={{ flex: 1 }}>
+        <View style={styles.flex1}>
           <H4 color="primary" numberOfLines={2}>
             {currentRecording.title}
           </H4>
-          <BodySm color="secondary" style={{ marginTop: 4 }}>
-            {date} · {currentRecording.format.toUpperCase()}
+          <BodySm color="secondary" style={styles.trackMeta}>
+            <BodySm>{date} · {currentRecording.format.toUpperCase()}</BodySm>
           </BodySm>
         </View>
         <TouchableOpacity onPress={() => {}}>
-          <Caption style={{ fontSize: 22 }}>
-            {currentRecording.isFavorite ? '💛' : '🤍'}
+          <Caption style={styles.favIcon}>
+            <Text>{currentRecording.isFavorite ? '💛' : '🤍'}</Text>
           </Caption>
         </TouchableOpacity>
       </Animated.View>
@@ -298,7 +294,7 @@ const PlayerScreen = (): React.JSX.Element => {
         <SeekBar
           position={position}
           duration={duration || currentRecording.duration}
-          onSeek={(s) => seek(s)}
+          onSeek={(s) => { seek(s); }}
         />
       </Animated.View>
 
@@ -310,9 +306,9 @@ const PlayerScreen = (): React.JSX.Element => {
         <MainControls
           isPlaying={isPlaying}
           isLoading={isLoading}
-          onPlay={togglePlay}
-          onSkipBwd={skipBwd}
-          onSkipFwd={skipFwd}
+          onPlay={() => { void togglePlay(); }}
+          onSkipBwd={() => { void skipBwd(); }}
+          onSkipFwd={() => { void skipFwd(); }}
         />
       </Animated.View>
 
@@ -322,10 +318,10 @@ const PlayerScreen = (): React.JSX.Element => {
         style={{ paddingHorizontal: spacing[5] }}
       >
         <View style={[styles.speedSection, { gap: spacing[2] }]}>
-          <Caption color="tertiary" align="center">Playback Speed</Caption>
+          <Caption color="tertiary" align="center"><Text>Playback Speed</Text></Caption>
           <SpeedSelector
             current={speed}
-            onChange={changeSpeed}
+            onChange={(s) => { void changeSpeed(s); }}
           />
         </View>
       </Animated.View>
@@ -337,31 +333,31 @@ const PlayerScreen = (): React.JSX.Element => {
       >
         <TouchableOpacity
           style={[styles.extraBtn, { backgroundColor: colors.bg.elevated }]}
-          onPress={stop}
+          onPress={() => { void stop(); }}
         >
-          <Caption style={{ fontSize: 18 }}>⏹</Caption>
-          <Caption color="tertiary">Stop</Caption>
+          <Caption style={styles.extraIcon}><Text>⏹</Text></Caption>
+          <Caption color="tertiary"><Text>Stop</Text></Caption>
         </TouchableOpacity>
 
         <TouchableOpacity
           style={[styles.extraBtn, { backgroundColor: colors.bg.elevated }]}
         >
-          <Caption style={{ fontSize: 18 }}>🔁</Caption>
-          <Caption color="tertiary">Repeat</Caption>
+          <Caption style={styles.extraIcon}><Text>🔁</Text></Caption>
+          <Caption color="tertiary"><Text>Repeat</Text></Caption>
         </TouchableOpacity>
 
         <TouchableOpacity
           style={[styles.extraBtn, { backgroundColor: colors.bg.elevated }]}
         >
-          <Caption style={{ fontSize: 18 }}>💤</Caption>
-          <Caption color="tertiary">Sleep</Caption>
+          <Caption style={styles.extraIcon}><Text>💤</Text></Caption>
+          <Caption color="tertiary"><Text>Sleep</Text></Caption>
         </TouchableOpacity>
 
         <TouchableOpacity
           style={[styles.extraBtn, { backgroundColor: colors.ai.surface }]}
         >
-          <Caption style={{ fontSize: 18 }}>🤖</Caption>
-          <Caption style={{ color: colors.ai.default }}>AI</Caption>
+          <Caption style={styles.extraIcon}><Text>🤖</Text></Caption>
+          <Caption style={{ color: colors.ai.default }}><Text>AI</Text></Caption>
         </TouchableOpacity>
       </Animated.View>
     </SafeAreaView>
@@ -369,30 +365,70 @@ const PlayerScreen = (): React.JSX.Element => {
 };
 
 const styles = StyleSheet.create({
-  screen:      { flex: 1 } as ViewStyle,
-  header: {
-    flexDirection:  'row',
-    alignItems:     'center',
-    justifyContent: 'space-between',
-    paddingVertical: 12,
-  } as ViewStyle,
   artwork: {
     padding:        20,
     marginVertical: 16,
     alignItems:     'center',
     justifyContent: 'center',
   } as ViewStyle,
-  trackInfo: {
+  controls: {
     flexDirection:  'row',
     alignItems:     'center',
-    marginBottom:   20,
+    justifyContent: 'center',
+    gap:            24,
+    paddingVertical: 24,
   } as ViewStyle,
-  seekTrack: {
-    height:   6,
-    width:    '100%',
-    overflow: 'hidden',
-    position: 'relative',
+  extraBtn: {
+    flex:           1,
+    height:         60,
+    borderRadius:   14,
+    alignItems:     'center',
+    justifyContent: 'center',
+    gap:            4,
   } as ViewStyle,
+  extraControls: {
+    flexDirection:  'row',
+    gap:            10,
+    marginTop:      20,
+  } as ViewStyle,
+  extraIcon: {
+    fontSize: 18
+  },
+  favIcon: {
+    fontSize: 22
+  },
+  flex1: {
+    flex: 1
+  },
+  header: {
+    flexDirection:  'row',
+    alignItems:     'center',
+    justifyContent: 'space-between',
+    paddingVertical: 12,
+  } as ViewStyle,
+  headerIcon: {
+    fontSize: 20
+  },
+  playBtn: {
+    alignItems:     'center',
+    justifyContent: 'center',
+    shadowColor:    '#6C63FF', // Use primary default or theme
+    shadowOffset:   { width: 0, height: 0 },
+    shadowOpacity:  0.5,
+    shadowRadius:   20,
+    elevation:      10,
+  } as ViewStyle,
+  playIcon: {
+    color:    '#fff',
+    fontSize: 28,
+  },
+  remainingTimeText: {
+    fontSize: 12
+  },
+  screen:      { flex: 1 } as ViewStyle,
+  seekContainer: {
+    gap: 6
+  },
   seekFill: {
     position: 'absolute',
     left:     0,
@@ -407,16 +443,11 @@ const styles = StyleSheet.create({
     top:         -5,
     marginLeft:  -8,
   } as ViewStyle,
-  timesRow: {
-    flexDirection:  'row',
-    justifyContent: 'space-between',
-  } as ViewStyle,
-  controls: {
-    flexDirection:  'row',
-    alignItems:     'center',
-    justifyContent: 'center',
-    gap:            24,
-    paddingVertical: 24,
+  seekTrack: {
+    height:   6,
+    width:    '100%',
+    overflow: 'hidden',
+    position: 'relative',
   } as ViewStyle,
   skipBtn: {
     alignItems:     'center',
@@ -425,22 +456,12 @@ const styles = StyleSheet.create({
     height:         56,
     gap:            2,
   } as ViewStyle,
-  playBtn: {
-    alignItems:     'center',
-    justifyContent: 'center',
-    shadowColor:    '#6366F1',
-    shadowOffset:   { width: 0, height: 0 },
-    shadowOpacity:  0.5,
-    shadowRadius:   20,
-    elevation:      10,
-  } as ViewStyle,
-  speedSection: {
-    marginTop: 8,
-  } as ViewStyle,
-  speedRow: {
-    flexDirection: 'row',
-    gap:           6,
-  } as ViewStyle,
+  skipIcon: {
+    fontSize: 28
+  },
+  skipTime: {
+    fontSize: 10
+  },
   speedBtn: {
     flex:            1,
     height:          36,
@@ -448,19 +469,34 @@ const styles = StyleSheet.create({
     justifyContent:  'center',
     borderWidth:     1,
   } as ViewStyle,
-  extraControls: {
+  speedRow: {
+    flexDirection: 'row',
+    gap:           6,
+  } as ViewStyle,
+  speedSection: {
+    marginTop: 8,
+  } as ViewStyle,
+  speedText: {
+    fontWeight: '400'
+  },
+  speedTextActive: {
+    fontWeight: '700'
+  },
+  timeText: {
+    fontSize: 12
+  },
+  timesRow: {
     flexDirection:  'row',
-    gap:            10,
-    marginTop:      20,
+    justifyContent: 'space-between',
   } as ViewStyle,
-  extraBtn: {
-    flex:           1,
-    height:         60,
-    borderRadius:   14,
+  trackInfo: {
+    flexDirection:  'row',
     alignItems:     'center',
-    justifyContent: 'center',
-    gap:            4,
+    marginBottom:   20,
   } as ViewStyle,
+  trackMeta: {
+    marginTop: 4
+  },
 });
 
 export { PlayerScreen };

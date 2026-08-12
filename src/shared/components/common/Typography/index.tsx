@@ -9,7 +9,7 @@ type ColorKey     = 'primary' | 'secondary' | 'tertiary' | 'disabled' | 'link' |
 interface TypographyProps {
   children:    React.ReactNode;
   variant?:    TextStyleKey;
-  color?:      ColorKey | string; // preset ya custom hex
+  color?:      ColorKey | (string & Record<never, never>); // preset ya custom hex
   align?:      'left' | 'center' | 'right';
   numberOfLines?: number;
   style?:      TextStyle;

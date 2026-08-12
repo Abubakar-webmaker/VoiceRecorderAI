@@ -6,7 +6,6 @@ import type {
   LoginResponseData,
   RegisterPayload,
   RegisterResponseData,
-  RefreshTokenResponseData,
   ForgotPasswordPayload,
   ResetPasswordPayload,
   ChangePasswordPayload,
@@ -23,7 +22,7 @@ export const registerApi = async (
   );
 
   const data = response.data.data;
-  if (data == null) throw new Error(response.data.message);
+  if (data === undefined || data === null) throw new Error(response.data.message);
   return data;
 };
 
@@ -37,7 +36,7 @@ export const loginApi = async (
   );
 
   const data = response.data.data;
-  if (data == null) throw new Error(response.data.message);
+  if (data === undefined || data === null) throw new Error(response.data.message);
   return data;
 };
 
@@ -57,7 +56,7 @@ export const getMeApi = async (): Promise<AuthUser> => {
     ENDPOINTS.AUTH.ME,
   );
   const data = response.data.data;
-  if (data == null) throw new Error(response.data.message);
+  if (data === undefined || data === null) throw new Error(response.data.message);
   return data;
 };
 
@@ -102,6 +101,6 @@ export const updateProfileApi = async (
     payload,
   );
   const data = response.data.data;
-  if (data == null) throw new Error(response.data.message);
+  if (data === undefined || data === null) throw new Error(response.data.message);
   return data;
 };

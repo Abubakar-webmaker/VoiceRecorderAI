@@ -85,7 +85,7 @@ const PulseRing = ({ color, size }: { color: string; size: number }): React.JSX.
   }));
 
   return (
-    <View style={{ width: size, height: size, alignItems: 'center', justifyContent: 'center' }}>
+    <View style={[styles.pulseRingContainer, { width: size, height: size }]}>
       {[
         ring1Style,
         ring2Style,
@@ -93,12 +93,11 @@ const PulseRing = ({ color, size }: { color: string; size: number }): React.JSX.
         <Animated.View
           key={i}
           style={[
+            styles.ring,
             {
-              position:     'absolute',
               width:        size,
               height:       size,
               borderRadius: size / 2,
-              borderWidth:  2,
               borderColor:  color,
             },
             aStyle,
@@ -138,7 +137,7 @@ const Loader = ({
       ) : (
         <PulseRing color={loaderColor} size={sizePx} />
       )}
-      {label != null && (
+      {label !== undefined && label !== null && (
         <Typography variant="bodySm" color="secondary" align="center">
           {label}
         </Typography>
@@ -158,11 +157,6 @@ const Loader = ({
 };
 
 const styles = StyleSheet.create({
-  fullScreen: {
-    flex:           1,
-    alignItems:     'center',
-    justifyContent: 'center',
-  } as ViewStyle,
   content: {
     alignItems:     'center',
     justifyContent: 'center',
@@ -172,6 +166,19 @@ const styles = StyleSheet.create({
     alignItems:     'center',
     justifyContent: 'center',
   } as ViewStyle,
+  fullScreen: {
+    flex:           1,
+    alignItems:     'center',
+    justifyContent: 'center',
+  } as ViewStyle,
+  pulseRingContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  ring: {
+    borderWidth:  2,
+    position:     'absolute',
+  },
 });
 
 export { Loader };

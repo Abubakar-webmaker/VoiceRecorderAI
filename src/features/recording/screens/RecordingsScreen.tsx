@@ -4,16 +4,15 @@ import React, {
 import {
   View, ScrollView, TouchableOpacity,
   TextInput, FlatList, StyleSheet,
+  Text,
   type ViewStyle,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import Animated, { FadeInDown, FadeIn } from 'react-native-reanimated';
 
 import { RecordingCard }  from '@components/recording/RecordingCard';
 import {
-  H3, BodySm, Caption, Label,
+  H3, BodySm, Caption,
 } from '@components/common/Typography';
-import { Badge }          from '@components/common/Badge';
 import { EmptyState }     from '@components/common/EmptyState';
 import { Loader }         from '@components/common/Loader';
 import { AppModal }       from '@components/common/Modal';
@@ -46,12 +45,12 @@ const SORT_OPTIONS: {
 ];
 
 const RecordingsScreen = ({ navigation }: Props): React.JSX.Element => {
-  const { colors, spacing, borderRadius } = useTheme();
+  const { colors, spacing } = useTheme();
   const {
     recordings, isLoading, isLoadingMore, pagination,
-    searchResults, searchQuery, isSearching,
+    searchResults, searchQuery,
     activeFilter, sortConfig, isSelecting, selectedIds,
-    fetchRecordings, fetchMore, fetchFavorites, search,
+    fetchRecordings, fetchMore, search,
     setQuery, toggleFavorite, deleteRecording,
     changeFilter, changeSort, startSelecting,
     toggleSelect, clearSelections, bulkDelete,
@@ -72,7 +71,7 @@ const RecordingsScreen = ({ navigation }: Props): React.JSX.Element => {
       sortOrder: sortConfig.sortOrder,
       limit:     20,
     });
-  }, [activeFilter, sortConfig.sortBy, sortConfig.sortOrder]);
+  }, [activeFilter, sortConfig.sortBy, sortConfig.sortOrder, fetchRecordings]);
 
   // Search debounce
   useEffect(() => {
@@ -81,7 +80,7 @@ const RecordingsScreen = ({ navigation }: Props): React.JSX.Element => {
       void search(searchQuery);
     }, 400);
     return () => clearTimeout(timer);
-  }, [searchQuery]);
+  }, [searchQuery, search]);
 
   // Load more
   const handleEndReached = useCallback((): void => {
@@ -141,7 +140,7 @@ const RecordingsScreen = ({ navigation }: Props): React.JSX.Element => {
                 ]}
               >
                 <Caption style={{ color: colors.error.text }}>
-                  Delete ({selectedIds.length})
+                  <Text>Delete ({selectedIds.length})</Text>
                 </Caption>
               </TouchableOpacity>
               <TouchableOpacity
@@ -151,7 +150,7 @@ const RecordingsScreen = ({ navigation }: Props): React.JSX.Element => {
                   { backgroundColor: colors.bg.elevated },
                 ]}
               >
-                <Caption color="secondary">Cancel</Caption>
+                <Caption color="secondary"><Text>Cancel</Text></Caption>
               </TouchableOpacity>
             </>
           ) : (
@@ -160,13 +159,13 @@ const RecordingsScreen = ({ navigation }: Props): React.JSX.Element => {
                 onPress={() => setShowSort(true)}
                 style={[styles.headerBtn, { backgroundColor: colors.bg.elevated }]}
               >
-                <Caption color="secondary">⇅ Sort</Caption>
+                <Caption color="secondary"><Text>⇅ Sort</Text></Caption>
               </TouchableOpacity>
               <TouchableOpacity
                 onPress={startSelecting}
                 style={[styles.headerBtn, { backgroundColor: colors.bg.elevated }]}
               >
-                <Caption color="secondary">Select</Caption>
+                <Caption color="secondary"><Text>Select</Text></Caption>
               </TouchableOpacity>
             </>
           )}
@@ -184,20 +183,20 @@ const RecordingsScreen = ({ navigation }: Props): React.JSX.Element => {
           },
         ]}
       >
-        <Caption color="tertiary" style={{ marginRight: 6 }}>🔍</Caption>
+        <Caption color="tertiary" style={styles.searchIcon}><Text>🔍</Text></Caption>
         <TextInput
           ref={searchRef}
           value={searchQuery}
           onChangeText={setQuery}
           placeholder="Search recordings..."
           placeholderTextColor={colors.text.tertiary}
-          style={{ flex: 1, color: colors.text.primary, fontSize: 14 }}
+          style={[styles.searchInput, { color: colors.text.primary }]}
           returnKeyType="search"
           clearButtonMode="while-editing"
         />
         {searchQuery.length > 0 && (
           <TouchableOpacity onPress={() => setQuery('')}>
-            <Caption color="secondary">✕</Caption>
+            <Caption color="secondary"><Text>✕</Text></Caption>
           </TouchableOpacity>
         )}
       </View>
@@ -207,7 +206,7 @@ const RecordingsScreen = ({ navigation }: Props): React.JSX.Element => {
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
-          style={{ maxHeight: 48 }}
+          style={styles.filterTabsContainer}
           contentContainerStyle={[
             styles.filterTabs,
             { paddingHorizontal: spacing[5] },
@@ -236,7 +235,7 @@ const RecordingsScreen = ({ navigation }: Props): React.JSX.Element => {
                     : colors.text.secondary,
                 }}
               >
-                {tab.icon} {tab.label}
+                <Text>{tab.icon} {tab.label}</Text>
               </Caption>
             </TouchableOpacity>
           ))}
@@ -286,7 +285,7 @@ const RecordingsScreen = ({ navigation }: Props): React.JSX.Element => {
           onEndReachedThreshold={0.4}
           ListFooterComponent={
             isLoadingMore ? (
-              <View style={{ padding: 16 }}>
+              <View style={styles.footerLoader}>
                 <Loader size="sm" />
               </View>
             ) : null
@@ -335,7 +334,9 @@ const RecordingsScreen = ({ navigation }: Props): React.JSX.Element => {
                   {opt.label}
                 </BodySm>
                 {isActive && (
-                  <Caption style={{ color: colors.primary.default }}>✓</Caption>
+                  <Caption style={{ color: colors.primary.default }}>
+                    <Text>✓</Text>
+                  </Caption>
                 )}
               </TouchableOpacity>
             );
@@ -347,7 +348,28 @@ const RecordingsScreen = ({ navigation }: Props): React.JSX.Element => {
 };
 
 const styles = StyleSheet.create({
-  screen:     { flex: 1 } as ViewStyle,
+  center: {
+    flex:           1,
+    alignItems:     'center',
+    justifyContent: 'center',
+  } as ViewStyle,
+  filterTab: {
+    paddingHorizontal: 14,
+    paddingVertical:   6,
+    borderRadius:      20,
+    borderWidth:       1,
+  } as ViewStyle,
+  filterTabs: {
+    flexDirection:  'row',
+    gap:            8,
+    paddingBottom:  12,
+  } as ViewStyle,
+  filterTabsContainer: {
+    maxHeight: 48,
+  },
+  footerLoader: {
+    padding: 16,
+  },
   header: {
     flexDirection:  'row',
     alignItems:     'center',
@@ -363,6 +385,11 @@ const styles = StyleSheet.create({
     paddingVertical:   6,
     borderRadius:      10,
   } as ViewStyle,
+  list: {
+    paddingTop:    8,
+    paddingBottom: 100,
+  } as ViewStyle,
+  screen:     { flex: 1 } as ViewStyle,
   searchBar: {
     flexDirection:   'row',
     alignItems:      'center',
@@ -372,26 +399,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     marginBottom:    12,
   } as ViewStyle,
-  filterTabs: {
-    flexDirection:  'row',
-    gap:            8,
-    paddingBottom:  12,
-  } as ViewStyle,
-  filterTab: {
-    paddingHorizontal: 14,
-    paddingVertical:   6,
-    borderRadius:      20,
-    borderWidth:       1,
-  } as ViewStyle,
-  list: {
-    paddingTop:    8,
-    paddingBottom: 100,
-  } as ViewStyle,
-  center: {
-    flex:           1,
-    alignItems:     'center',
-    justifyContent: 'center',
-  } as ViewStyle,
+  searchIcon: {
+    marginRight: 6
+  },
+  searchInput: {
+    flex: 1,
+    fontSize: 14
+  },
   sortOption: {
     flexDirection:   'row',
     alignItems:      'center',

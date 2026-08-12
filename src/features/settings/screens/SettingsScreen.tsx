@@ -15,7 +15,7 @@ import { Card }          from '@components/common/Card';
 import { Badge }         from '@components/common/Badge';
 import { Divider }       from '@components/common/Divider';
 import {
-  H3, H5, BodySm, Caption, Label,
+  H3, BodySm, Caption, Label,
 } from '@components/common/Typography';
 import useTheme          from '@hooks/useTheme';
 import useAuth           from '@features/auth/hooks/useAuth';
@@ -42,7 +42,7 @@ interface SettingsRowProps {
 const SettingsRow = ({
   icon, label, value, onPress, rightElement, isLast,
 }: SettingsRowProps): React.JSX.Element => {
-  const { colors, spacing } = useTheme();
+  const { colors } = useTheme();
 
   return (
     <TouchableOpacity
@@ -55,17 +55,17 @@ const SettingsRow = ({
       ]}
     >
       <View style={styles.rowLeft}>
-        <Caption style={{ fontSize: 20, width: 28 }}>{icon}</Caption>
+        <Caption style={styles.rowIcon}><Text>{icon}</Text></Caption>
         <BodySm color="primary">{label}</BodySm>
       </View>
       <View style={styles.rowRight}>
-        {value != null && (
+        {value !== undefined && value !== null && (
           <Caption color="tertiary">{value}</Caption>
         )}
-        {rightElement != null
+        {rightElement !== undefined && rightElement !== null
           ? rightElement
-          : onPress != null && (
-            <Caption color="tertiary">›</Caption>
+          : onPress !== undefined && onPress !== null && (
+            <Caption color="tertiary"><Text>›</Text></Caption>
           )
         }
       </View>
@@ -81,10 +81,10 @@ const SectionCard = ({
   title: string;
   children: React.ReactNode;
 }): React.JSX.Element => {
-  const { colors, spacing } = useTheme();
+  const { spacing } = useTheme();
   return (
     <View style={{ gap: spacing[2] }}>
-      <Label color="secondary" style={{ marginLeft: 4 }}>{title}</Label>
+      <Label color="secondary" style={styles.sectionTitle}>{title}</Label>
       <Card variant="filled" padding={0}>
         {children}
       </Card>
@@ -97,7 +97,6 @@ const SettingsScreen = ({ navigation }: Props): React.JSX.Element => {
   const { colors, spacing } = useTheme();
   const { user }            = useAuth();
   const storage             = useAppSelector(selectStorageInfo);
-  const isDark              = useAppSelector(selectIsDark);
   const {
     settings, themeMode,
     changeTheme,
@@ -109,12 +108,12 @@ const SettingsScreen = ({ navigation }: Props): React.JSX.Element => {
 
   useEffect(() => {
     void fetchSettings();
-  }, []);
+  }, [fetchSettings]);
 
   const handleThemePress = useCallback((): void => {
     const modes = ['dark', 'light', 'system'] as const;
     const cur   = modes.indexOf(themeMode);
-    const next  = modes[(cur + 1) % modes.length]!;
+    const next  = modes[(cur + 1) % modes.length];
     changeTheme(next);
   }, [themeMode, changeTheme]);
 
@@ -145,17 +144,17 @@ const SettingsScreen = ({ navigation }: Props): React.JSX.Element => {
         showsVerticalScrollIndicator={false}
       >
         {/* ─── Header ──────────────────────────────────────── */}
-        <View style={[styles.header, { paddingVertical: 12 }]}>
-          <H3 color="primary">Settings</H3>
+        <View style={styles.header}>
+          <H3 color="primary"><BodySm>Settings</BodySm></H3>
         </View>
 
         {/* ─── Profile Card ────────────────────────────────── */}
         <Animated.View
           entering={FadeInDown.delay(0).duration(400)}
-          style={{ marginBottom: spacing[5] }}
+          style={styles.marginBottom20}
         >
           <TouchableOpacity
-            onPress={() => navigation.navigate('Profile')}
+            onPress={() => { navigation.navigate('Profile' as any); }}
             style={[
               styles.profileCard,
               {
@@ -170,12 +169,12 @@ const SettingsScreen = ({ navigation }: Props): React.JSX.Element => {
               uri={user?.avatar ?? undefined}
               size="lg"
             />
-            <View style={{ flex: 1 }}>
-              <BodySm color="primary" style={{ fontWeight: '600' }}>
+            <View style={styles.flex1}>
+              <BodySm color="primary" style={styles.fontWeight600}>
                 {user?.name ?? 'User'}
               </BodySm>
               <Caption color="secondary">{user?.email}</Caption>
-              <View style={[styles.storagePreview, { marginTop: 6 }]}>
+              <View style={styles.storagePreview}>
                 <View
                   style={[
                     styles.miniStorageBar,
@@ -192,21 +191,21 @@ const SettingsScreen = ({ navigation }: Props): React.JSX.Element => {
                   />
                 </View>
                 <Caption color="tertiary">
-                  {formatStorageSize(storage.used)} / {formatStorageSize(storage.limit)}
+                  <Caption>{formatStorageSize(storage.used)} / {formatStorageSize(storage.limit)}</Caption>
                 </Caption>
               </View>
             </View>
-            <Caption color="tertiary">›</Caption>
+            <Caption color="tertiary"><Caption>›</Caption></Caption>
           </TouchableOpacity>
         </Animated.View>
 
         {/* ─── Subscription ────────────────────────────────── */}
         <Animated.View
           entering={FadeInDown.delay(60).duration(400)}
-          style={{ marginBottom: spacing[5] }}
+          style={styles.marginBottom20}
         >
           <TouchableOpacity
-            onPress={() => navigation.navigate('Subscription')}
+            onPress={() => { (navigation as any).navigate('Subscription'); }}
             style={[
               styles.upgradeCard,
               {
@@ -215,13 +214,13 @@ const SettingsScreen = ({ navigation }: Props): React.JSX.Element => {
               },
             ]}
           >
-            <Caption style={{ fontSize: 24 }}>⚡</Caption>
-            <View style={{ flex: 1 }}>
-              <BodySm style={{ color: colors.primary.light, fontWeight: '700' }}>
-                Upgrade to Pro
+            <Caption style={styles.upgradeIcon}><Text>⚡</Text></Caption>
+            <View style={styles.flex1}>
+              <BodySm style={[styles.upgradeTitle, { color: colors.primary.light }]}>
+                <BodySm>Upgrade to Pro</BodySm>
               </BodySm>
               <Caption style={{ color: colors.primary.default }}>
-                Unlimited recordings · AI features · Cloud sync
+                <Caption>Unlimited recordings · AI features · Cloud sync</Caption>
               </Caption>
             </View>
             <Badge label="PRO" variant="primary" size="sm" />
@@ -450,9 +449,24 @@ const SettingsScreen = ({ navigation }: Props): React.JSX.Element => {
 };
 
 const styles = StyleSheet.create({
-  screen:  { flex: 1 } as ViewStyle,
-  scroll:  { flexGrow: 1 } as ViewStyle,
-  header:  {} as ViewStyle,
+  flex1: {
+    flex: 1
+  },
+  fontWeight600: {
+    fontWeight: '600'
+  },
+  header:  {
+    paddingVertical: 12
+  } as ViewStyle,
+  marginBottom20: {
+    marginBottom: 20
+  },
+  miniStorageBar: {
+    width:        120,
+    height:       3,
+    borderRadius: 2,
+    overflow:     'hidden',
+  } as ViewStyle,
   profileCard: {
     flexDirection:   'row',
     alignItems:      'center',
@@ -461,22 +475,10 @@ const styles = StyleSheet.create({
     borderWidth:     1,
     gap:             12,
   } as ViewStyle,
-  upgradeCard: {
-    flexDirection:   'row',
-    alignItems:      'center',
-    padding:         16,
-    borderRadius:    16,
-    borderWidth:     1,
-    gap:             12,
-  } as ViewStyle,
-  settingsRow: {
-    flexDirection:   'row',
-    alignItems:      'center',
-    justifyContent:  'space-between',
-    paddingVertical: 14,
-    paddingHorizontal: 16,
-    minHeight:       52,
-  } as ViewStyle,
+  rowIcon: {
+    fontSize: 20,
+    width: 28
+  },
   rowLeft: {
     flexDirection: 'row',
     alignItems:    'center',
@@ -488,15 +490,37 @@ const styles = StyleSheet.create({
     alignItems:    'center',
     gap:           8,
   } as ViewStyle,
+  screen:  { flex: 1 } as ViewStyle,
+  scroll:  { flexGrow: 1 } as ViewStyle,
+  sectionTitle: {
+    marginLeft: 4
+  },
+  settingsRow: {
+    flexDirection:   'row',
+    alignItems:      'center',
+    justifyContent:  'space-between',
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    minHeight:       52,
+  } as ViewStyle,
   storagePreview: {
     gap: 4,
+    marginTop: 6
   } as ViewStyle,
-  miniStorageBar: {
-    width:        120,
-    height:       3,
-    borderRadius: 2,
-    overflow:     'hidden',
+  upgradeCard: {
+    flexDirection:   'row',
+    alignItems:      'center',
+    padding:         16,
+    borderRadius:    16,
+    borderWidth:     1,
+    gap:             12,
   } as ViewStyle,
+  upgradeIcon: {
+    fontSize: 24
+  },
+  upgradeTitle: {
+    fontWeight: '700'
+  },
 });
 
 export { SettingsScreen };

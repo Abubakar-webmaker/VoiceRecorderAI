@@ -316,7 +316,7 @@ const ActionsTab = ({
               {item.task}
             </BodySm>
 
-            <View style={[styles.actionMeta]}>
+            <View style={styles.actionMeta}>
               {item.assignee && (
                 <Caption color="tertiary">👤 {item.assignee}</Caption>
               )}
@@ -661,12 +661,36 @@ const AIScreen = ({ navigation, route }: Props): React.JSX.Element => {
 };
 
 const styles = StyleSheet.create({
-  screen:  { flex: 1 } as ViewStyle,
-  header: {
-    flexDirection:  'row',
+  actionItem: {
+    flexDirection:   'row',
+    alignItems:      'flex-start',
+    padding:         14,
+    borderRadius:    14,
+    borderWidth:     1,
+    gap:             12,
+  } as ViewStyle,
+  actionMeta: {
+    flexDirection: 'row',
+    flexWrap:      'wrap',
+    gap:           6,
+    alignItems:    'center',
+  } as ViewStyle,
+  actionProgress: {
+    gap: 6,
+  } as ViewStyle,
+  center: {
+    flex:           1,
     alignItems:     'center',
-    justifyContent: 'space-between',
-    paddingVertical: 12,
+    justifyContent: 'center',
+  } as ViewStyle,
+  checkbox: {
+    width:          22,
+    height:         22,
+    borderRadius:   11,
+    borderWidth:    2,
+    alignItems:     'center',
+    justifyContent: 'center',
+    marginTop:      1,
   } as ViewStyle,
   closeBtn: {
     width:          40,
@@ -675,27 +699,37 @@ const styles = StyleSheet.create({
     alignItems:     'center',
     justifyContent: 'center',
   } as ViewStyle,
-  tabBar: {
-    flexDirection:  'row',
-    gap:            8,
-    paddingBottom:  12,
-  } as ViewStyle,
-  tab: {
-    paddingHorizontal: 14,
-    paddingVertical:   7,
-    borderRadius:      20,
-    borderWidth:       1,
-  } as ViewStyle,
   content: {
     paddingTop:    12,
     paddingBottom: 40,
     gap:           16,
   } as ViewStyle,
-  center: {
-    flex:           1,
+  header: {
+    flexDirection:  'row',
     alignItems:     'center',
-    justifyContent: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 12,
   } as ViewStyle,
+  keyword: {
+    flexDirection:   'row',
+    alignItems:      'center',
+    paddingHorizontal: 10,
+    paddingVertical:  5,
+    borderRadius:    20,
+    borderWidth:     1,
+    gap:             4,
+  } as ViewStyle,
+  keywordGrid: {
+    flexDirection: 'row',
+    flexWrap:      'wrap',
+    gap:           8,
+  } as ViewStyle,
+  progressTrack: {
+    height:   4,
+    width:    '100%',
+    overflow: 'hidden',
+  } as ViewStyle,
+  screen:  { flex: 1 } as ViewStyle,
   statusRow: {
     flexDirection:   'row',
     alignItems:      'center',
@@ -709,50 +743,16 @@ const styles = StyleSheet.create({
     alignItems:     'center',
     justifyContent: 'space-between',
   } as ViewStyle,
-  keywordGrid: {
-    flexDirection: 'row',
-    flexWrap:      'wrap',
-    gap:           8,
+  tab: {
+    paddingHorizontal: 14,
+    paddingVertical:   7,
+    borderRadius:      20,
+    borderWidth:       1,
   } as ViewStyle,
-  keyword: {
-    flexDirection:   'row',
-    alignItems:      'center',
-    paddingHorizontal: 10,
-    paddingVertical:  5,
-    borderRadius:    20,
-    borderWidth:     1,
-    gap:             4,
-  } as ViewStyle,
-  actionProgress: {
-    gap: 6,
-  } as ViewStyle,
-  progressTrack: {
-    height:   4,
-    width:    '100%',
-    overflow: 'hidden',
-  } as ViewStyle,
-  actionItem: {
-    flexDirection:   'row',
-    alignItems:      'flex-start',
-    padding:         14,
-    borderRadius:    14,
-    borderWidth:     1,
-    gap:             12,
-  } as ViewStyle,
-  checkbox: {
-    width:          22,
-    height:         22,
-    borderRadius:   11,
-    borderWidth:    2,
-    alignItems:     'center',
-    justifyContent: 'center',
-    marginTop:      1,
-  } as ViewStyle,
-  actionMeta: {
-    flexDirection: 'row',
-    flexWrap:      'wrap',
-    gap:           6,
-    alignItems:    'center',
+  tabBar: {
+    flexDirection:  'row',
+    gap:            8,
+    paddingBottom:  12,
   } as ViewStyle,
 });
 

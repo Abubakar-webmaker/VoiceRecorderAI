@@ -101,12 +101,11 @@ const SettingsStackScreen = (): React.JSX.Element => (
 
 // ─── Custom Tab Bar ────────────────────────────────────────────────
 interface TabIconProps {
-  name:     string;
   focused:  boolean;
   isRecord: boolean;
 }
 
-const TabIcon = ({ name, focused, isRecord }: TabIconProps): React.JSX.Element => {
+const TabIcon = ({ focused, isRecord }: TabIconProps): React.JSX.Element => {
   const scale = useSharedValue(1);
 
   const animatedStyle = useAnimatedStyle(() => ({
@@ -137,7 +136,7 @@ const TabIcon = ({ name, focused, isRecord }: TabIconProps): React.JSX.Element =
         <View
           style={[
             styles.tabIconDot,
-            { backgroundColor: focused ? colors.primary.default : 'transparent' },
+            focused && styles.tabIconDotActive,
           ]}
         />
       </View>
@@ -154,7 +153,7 @@ interface CustomTabBarProps {
   };
 }
 
-const CustomTabBar = ({ state, descriptors, navigation }: CustomTabBarProps): React.JSX.Element => {
+const CustomTabBar = ({ state, navigation }: Omit<CustomTabBarProps, 'descriptors'>): React.JSX.Element => {
   return (
     <View style={styles.tabBar}>
       {state.routes.map((route, index) => {
@@ -181,7 +180,7 @@ const CustomTabBar = ({ state, descriptors, navigation }: CustomTabBarProps): Re
             accessibilityState={{ selected: isFocused }}
             activeOpacity={0.7}
           >
-            <TabIcon name={route.name} focused={isFocused} isRecord={isRecord} />
+            <TabIcon focused={isFocused} isRecord={isRecord} />
           </TouchableOpacity>
         );
       })}
@@ -194,7 +193,7 @@ const Tab = createBottomTabNavigator<MainTabParamList>();
 
 const MainNavigator = (): React.JSX.Element => {
   return (
-    <View style={{ flex: 1 }}>
+    <View style={styles.mainContainer}>
       <Tab.Navigator
         initialRouteName="HomeTab"
         tabBar={(props) => <CustomTabBar {...(props as unknown as CustomTabBarProps)} />}
@@ -213,43 +212,8 @@ const MainNavigator = (): React.JSX.Element => {
 
 // ─── Styles ───────────────────────────────────────────────────────
 const styles = StyleSheet.create({
-  tabBar: {
-    flexDirection:   'row',
-    backgroundColor: colors.tab.bg,
-    borderTopWidth:  1,
-    borderTopColor:  colors.tab.border,
-    paddingBottom:   Platform.OS === 'ios' ? spacing[6] : spacing[3],
-    paddingTop:      spacing[2],
-    height:          componentSize.tabBar,
-  } as ViewStyle,
-
-  tabItem: {
-    flex:           1,
-    alignItems:     'center',
-    justifyContent: 'center',
-    paddingTop:     spacing[1],
-  } as ViewStyle,
-
-  tabItemRecord: {
-    marginTop: -spacing[8],
-  } as ViewStyle,
-
-  tabIconWrapper: {
-    width:          44,
-    height:         44,
-    alignItems:     'center',
-    justifyContent: 'center',
-    borderRadius:   borderRadius.md,
-  } as ViewStyle,
-
-  tabIconActive: {
-    backgroundColor: colors.primary.muted,
-  } as ViewStyle,
-
-  tabIconDot: {
-    width:        6,
-    height:       6,
-    borderRadius: borderRadius.full,
+  mainContainer: {
+    flex: 1
   } as ViewStyle,
 
   recordBtn: {
@@ -276,6 +240,49 @@ const styles = StyleSheet.create({
     borderRadius:    borderRadius.sm,
     backgroundColor: colors.bg.primary,
     opacity:         0.9,
+  } as ViewStyle,
+
+  tabBar: {
+    flexDirection:   'row',
+    backgroundColor: colors.tab.bg,
+    borderTopWidth:  1,
+    borderTopColor:  colors.tab.border,
+    paddingBottom:   Platform.OS === 'ios' ? spacing[6] : spacing[3],
+    paddingTop:      spacing[2],
+    height:          componentSize.tabBar,
+  } as ViewStyle,
+
+  tabIconActive: {
+    backgroundColor: colors.primary.muted,
+  } as ViewStyle,
+
+  tabIconDot: {
+    width:        6,
+    height:       6,
+    borderRadius: borderRadius.full,
+    backgroundColor: 'transparent',
+  } as ViewStyle,
+
+  tabIconDotActive: {
+    backgroundColor: colors.primary.default,
+  } as ViewStyle,
+
+  tabIconWrapper: {
+    width:          44,
+    height:         44,
+    alignItems:     'center',
+    justifyContent: 'center',
+    borderRadius:   borderRadius.md,
+  } as ViewStyle,
+
+  tabItem: {
+    flex:           1,
+    alignItems:     'center',
+    justifyContent: 'center',
+    paddingTop:     spacing[1],
+  } as ViewStyle,
+  tabItemRecord: {
+    marginTop: -spacing[8],
   } as ViewStyle,
 });
 

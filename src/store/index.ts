@@ -33,7 +33,7 @@ export const persistor = persistStore(store);
 
 injectInterceptorDeps({
   getAccessToken: () =>
-    (store.getState() as ReturnType<typeof store.getState>).auth?.accessToken ?? null,
+    (store.getState()).auth?.accessToken ?? null,
   onTokenRefreshed: (token: string) => store.dispatch(setAccessToken(token)),
   onAuthError: ()   => store.dispatch(forceLogout()),
 });
