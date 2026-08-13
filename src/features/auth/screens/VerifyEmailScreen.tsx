@@ -83,14 +83,14 @@ const VerifyEmailScreen = ({ route }: Props): React.JSX.Element => {
 
   const handleResend = useCallback(async (): Promise<void> => {
     if (cooldown > 0) return;
-    resendVerification();
+    await resendVerification();
     setResendCount((c) => c + 1);
     setCooldown(RESEND_COOLDOWN);
     dismissSuccess();
   }, [cooldown, resendVerification, dismissSuccess]);
 
   const handleLogout = useCallback(async (): Promise<void> => {
-    logout();
+    await logout();
   }, [logout]);
 
   if (isEmailVerified) {

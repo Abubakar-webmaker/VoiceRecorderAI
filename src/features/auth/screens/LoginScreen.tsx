@@ -70,7 +70,7 @@ const LoginScreen = ({ navigation }: Props): React.JSX.Element => {
 
   const onSubmit = useCallback(
     async (data: LoginForm): Promise<void> => {
-      login(data);
+      await login(data);
     },
     [login],
   );

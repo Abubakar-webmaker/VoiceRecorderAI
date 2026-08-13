@@ -109,7 +109,7 @@ const RegisterScreen = ({ navigation }: Props): React.JSX.Element => {
 
   const onSubmit = useCallback(
     async (data: RegisterForm): Promise<void> => {
-      register(data);
+      await register(data);
     },
     [register],
   );
