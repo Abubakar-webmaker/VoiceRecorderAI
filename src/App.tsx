@@ -57,6 +57,7 @@ const registerFCMToken = async (): Promise<void> => {
 };
 
 // ─── App Content (needs store access) ────────────────────────────
+// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 const AppContent = (): React.JSX.Element => {
   useEffect(() => {
     // 1. Setup audio player

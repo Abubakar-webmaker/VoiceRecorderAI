@@ -68,9 +68,8 @@ const MessageBubble = ({ message }: BubbleProps): React.JSX.Element => {
                 ? colors.primary.default
                 : colors.bg.elevated,
               borderRadius: borderRadius.xl,
-              borderBottomRightRadius: isUser ? 4 : borderRadius.xl,
-              borderBottomLeftRadius: isUser ? borderRadius.xl : 4,
             },
+            isUser ? styles.bubbleUser : styles.bubbleAI,
           ]}
         >
           <BodySm
@@ -86,7 +85,8 @@ const MessageBubble = ({ message }: BubbleProps): React.JSX.Element => {
         <Caption
           style={[
             styles.bubbleTime,
-            { color: colors.text.tertiary, textAlign: isUser ? 'right' : 'left' },
+            { color: colors.text.tertiary },
+            isUser ? styles.textAlignRight : styles.textAlignLeft,
           ]}
         >
           {time}
@@ -167,7 +167,7 @@ const AIChatView = ({
 
   return (
     <KeyboardAvoidingView
-      style={{ flex: 1 }}
+      style={styles.flex1}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       keyboardVerticalOffset={Platform.OS === 'ios' ? 120 : 80}
     >
@@ -281,6 +281,9 @@ const styles = StyleSheet.create({
   bubble: {
     padding: 12,
   } as ViewStyle,
+  bubbleAI: {
+    borderBottomLeftRadius: 4,
+  } as ViewStyle,
   bubbleMaxWidth: {
     maxWidth: '78%',
   } as ViewStyle,
@@ -290,6 +293,9 @@ const styles = StyleSheet.create({
   bubbleTime: {
     marginTop: 4,
   },
+  bubbleUser: {
+    borderBottomRightRadius: 4,
+  } as ViewStyle,
   bubbleWrapper: {
     flexDirection: 'row',
     alignItems:    'flex-end',
@@ -352,6 +358,12 @@ const styles = StyleSheet.create({
     gap:            8,
     justifyContent: 'center',
   } as ViewStyle,
+  textAlignLeft: {
+    textAlign: 'left' as const,
+  },
+  textAlignRight: {
+    textAlign: 'right' as const,
+  },
   textInput: {
     flex:      1,
     fontSize:  15,

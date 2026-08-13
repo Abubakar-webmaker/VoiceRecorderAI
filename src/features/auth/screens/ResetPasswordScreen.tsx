@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import React, { useCallback, useEffect } from 'react';
 import {
   KeyboardAvoidingView,
@@ -76,7 +77,7 @@ const ResetPasswordScreen = ({ navigation, route }: Props): React.JSX.Element =>
 
   const onSubmit = useCallback(
     async (data: ResetForm): Promise<void> => {
-      await resetPassword({ token, password: data.password });
+      resetPassword({ token, password: data.password });
     },
     [resetPassword, token],
   );

@@ -5,7 +5,6 @@ import {
   TouchableOpacity,
   Alert,
   StyleSheet,
-  Text,
   type ViewStyle,
 } from 'react-native';
 import { SafeAreaView }  from 'react-native-safe-area-context';
@@ -86,7 +85,7 @@ const ProfileScreen = ({ navigation }: Props): React.JSX.Element => {
 
   // ─── Change Avatar ────────────────────────────────────────────
   const handleChangeAvatar = useCallback((): void => {
-    launchImageLibrary(
+    void launchImageLibrary(
       {
         mediaType:   'photo',
         quality:     0.8,

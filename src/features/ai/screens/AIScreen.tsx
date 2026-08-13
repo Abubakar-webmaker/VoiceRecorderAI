@@ -716,7 +716,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   } as ViewStyle,
   checkIcon: {
-    color:    '#FFFFFF',
+    color:    colors.text.inverse,
     fontSize: 10,
   },
   checkbox: {

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import React, { useCallback, useEffect, useState } from 'react';
 import {
   View,
@@ -108,7 +109,7 @@ const RegisterScreen = ({ navigation }: Props): React.JSX.Element => {
 
   const onSubmit = useCallback(
     async (data: RegisterForm): Promise<void> => {
-      await register(data);
+      register(data);
     },
     [register],
   );

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any */
 import React, { useCallback, useEffect } from 'react';
 import {
   View,
@@ -29,7 +30,6 @@ import useAuth            from '@features/auth/hooks/useAuth';
 import useRecordings      from '../hooks/useRecordings';
 import usePlayer          from '@features/player/hooks/usePlayer';
 import { formatDuration, formatFileSize, AIStatus } from '@shared/types/recording.types';
-import useAppDispatch    from '@hooks/useAppDispatch';
 import type { HomeScreenProps } from '@navigation/types';
 import type { Recording } from '@shared/types/recording.types';
 

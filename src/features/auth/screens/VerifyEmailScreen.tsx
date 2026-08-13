@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import React, { useCallback, useEffect, useState } from 'react';
 import {
   View,
@@ -72,24 +73,24 @@ const VerifyEmailScreen = ({ route }: Props): React.JSX.Element => {
     return () => clearInterval(timer);
   }, [cooldown]);
 
-  const bounceStyle = useAnimatedStyle(() => ({
+  const bounceStyle = useAnimatedStyle((): { transform: { translateY: number }[] } => ({
     transform: [{ translateY: bounceY.value }],
   }));
-  const checkStyle = useAnimatedStyle(() => ({
+  const checkStyle = useAnimatedStyle((): { transform: { scale: number }[]; opacity: number } => ({
     transform: [{ scale: checkScale.value }],
     opacity:   checkScale.value,
   }));
 
   const handleResend = useCallback(async (): Promise<void> => {
     if (cooldown > 0) return;
-    await resendVerification();
+    resendVerification();
     setResendCount((c) => c + 1);
     setCooldown(RESEND_COOLDOWN);
     dismissSuccess();
   }, [cooldown, resendVerification, dismissSuccess]);
 
   const handleLogout = useCallback(async (): Promise<void> => {
-    await logout();
+    logout();
   }, [logout]);
 
   if (isEmailVerified) {

@@ -33,7 +33,6 @@ import type {
   ChangePasswordPayload,
 } from '@shared/types/api.types';
 import type { AuthUser } from '@shared/types/api.types';
-import type { AppDispatch } from '@store/index';
 
 interface StorageInfo {
   used: number;
@@ -50,16 +49,16 @@ interface UseAuthReturn {
   isEmailVerified: boolean;
   userRole: string;
   storage: StorageInfo;
-  login: (payload: LoginPayload) => Promise<any>;
-  register: (payload: RegisterPayload) => Promise<any>;
-  logout: () => Promise<any>;
-  logoutAll: () => Promise<any>;
-  forgotPassword: (payload: ForgotPasswordPayload) => Promise<any>;
-  resetPassword: (payload: ResetPasswordPayload & { token: string }) => Promise<any>;
-  changePassword: (payload: ChangePasswordPayload) => Promise<any>;
-  verifyEmail: (token: string) => Promise<any>;
-  resendVerification: () => Promise<any>;
-  refreshProfile: () => Promise<any>;
+  login: (payload: LoginPayload) => ReturnType<ReturnType<typeof useAppDispatch>>;
+  register: (payload: RegisterPayload) => ReturnType<ReturnType<typeof useAppDispatch>>;
+  logout: () => ReturnType<ReturnType<typeof useAppDispatch>>;
+  logoutAll: () => ReturnType<ReturnType<typeof useAppDispatch>>;
+  forgotPassword: (payload: ForgotPasswordPayload) => ReturnType<ReturnType<typeof useAppDispatch>>;
+  resetPassword: (payload: ResetPasswordPayload & { token: string }) => ReturnType<ReturnType<typeof useAppDispatch>>;
+  changePassword: (payload: ChangePasswordPayload) => ReturnType<ReturnType<typeof useAppDispatch>>;
+  verifyEmail: (token: string) => ReturnType<ReturnType<typeof useAppDispatch>>;
+  resendVerification: () => ReturnType<ReturnType<typeof useAppDispatch>>;
+  refreshProfile: () => ReturnType<ReturnType<typeof useAppDispatch>>;
   dismissError: () => void;
   dismissSuccess: () => void;
 }
