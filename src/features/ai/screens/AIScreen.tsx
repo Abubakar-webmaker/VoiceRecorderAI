@@ -309,7 +309,7 @@ const ActionsTab = ({
             ]}
           >
             {item.completed && (
-              <Caption style={styles.checkIcon}>✓</Caption>
+              <Caption style={[styles.checkIcon, { color: colors.text.inverse }]}>✓</Caption>
             )}
           </View>
 
@@ -489,8 +489,8 @@ const AIScreen = ({ navigation, route }: Props): React.JSX.Element => {
                   color: activeTab === tab.id
                     ? colors.primary.light
                     : colors.text.secondary,
-                  fontWeight: (activeTab === tab.id ? '600' : '400'),
                 },
+                activeTab === tab.id ? styles.tabLabelActive : styles.tabLabelInactive,
               ]}
             >
               <Text>{tab.icon}</Text>
@@ -716,7 +716,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   } as ViewStyle,
   checkIcon: {
-    color:    colors.text.inverse,
     fontSize: 10,
   },
   checkbox: {
@@ -841,6 +840,12 @@ const styles = StyleSheet.create({
   tabLabel: {
     flexDirection: 'row',
     alignItems:    'center',
+  } as ViewStyle,
+  tabLabelActive: {
+    fontWeight: '600',
+  } as ViewStyle,
+  tabLabelInactive: {
+    fontWeight: '400',
   } as ViewStyle,
   taskText: {
     fontWeight: '500',

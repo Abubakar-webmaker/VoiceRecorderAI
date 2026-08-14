@@ -153,7 +153,7 @@ const AIChatView = ({
 
   const handleSend = useCallback((): void => {
     const text = inputText.trim();
-    if (!text || isLoading) return;
+    if (text.length === 0 || isLoading) return;
     setInputText('');
     onSend(text);
   }, [inputText, isLoading, onSend]);
