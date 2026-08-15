@@ -75,7 +75,7 @@ const AppContent = (): React.JSX.Element => {
     store.dispatch(syncSystemTheme());
 
     // 6. Monitor network — process queue + connect socket when online
-    const unsubNet = NetInfo.addEventListener((netState) => {
+    const unsubNet = NetInfo.addEventListener((netState): void => {
       if (netState.isConnected === true && netState.isInternetReachable !== false) {
         void store.dispatch(processQueueThunk());
 
@@ -88,7 +88,7 @@ const AppContent = (): React.JSX.Element => {
     });
 
     // 7. Listen for system theme changes
-    const themeSub = Appearance.addChangeListener(() => {
+    const themeSub = Appearance.addChangeListener((): void => {
       store.dispatch(syncSystemTheme());
     });
 
@@ -100,7 +100,7 @@ const AppContent = (): React.JSX.Element => {
     }
 
     // 9. Subscribe to auth state changes for socket lifecycle
-    const unsubStore = store.subscribe(() => {
+    const unsubStore = store.subscribe((): void => {
       const state = store.getState();
       const { isAuthenticated, accessToken } = state.auth ?? {};
 
@@ -111,7 +111,7 @@ const AppContent = (): React.JSX.Element => {
       }
     });
 
-    return () => {
+    return (): void => {
       unsubForeground?.();
       unsubNet?.();
       themeSub.remove();

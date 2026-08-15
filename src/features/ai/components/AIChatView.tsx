@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import React, {
   useCallback, useRef, useEffect, useState,
 } from 'react';
@@ -140,7 +141,7 @@ const AIChatView = ({
 }: AIChatViewProps): React.JSX.Element => {
   const { colors, spacing, borderRadius } = useTheme();
   const [inputText, setInputText] = useState('');
-  const listRef = useRef<FlatList>(null);
+  const listRef = useRef<FlatList<ChatMessage> | null>(null);
 
   const displayMessages = messages.filter((m) => m.role !== 'system');
 

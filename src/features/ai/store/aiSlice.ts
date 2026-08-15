@@ -450,7 +450,7 @@ export const {
 } = aiSlice.actions;
 
 // ─── Selectors ────────────────────────────────────────────────────
-const aiState = (s: RootState) => s.ai;
+const aiState = (s: RootState): AIState => s.ai;
 
 export const selectCurrentAISummary = createSelector(
   [aiState, (_: RootState, recordingId: string): string => recordingId],

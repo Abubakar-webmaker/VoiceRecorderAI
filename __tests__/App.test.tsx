@@ -1,13 +1,14 @@
 /**
  * @format
  */
+/* eslint-disable @typescript-eslint/no-unsafe-call, @typescript-eslint/no-floating-promises */
 
 import React from 'react';
-import ReactTestRenderer from 'react-test-renderer';
+import { act, create } from 'react-test-renderer';
 import App from '../App';
 
-test('renders correctly', async () => {
-  await ReactTestRenderer.act(() => {
-    ReactTestRenderer.create(<App />);
+test('renders correctly', () => {
+  void act(() => {
+    create(<App />);
   });
 });
