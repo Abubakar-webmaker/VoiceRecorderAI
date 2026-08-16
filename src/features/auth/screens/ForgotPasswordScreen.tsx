@@ -86,9 +86,9 @@ const ForgotPasswordScreen = ({ navigation }: Props): React.JSX.Element => {
   }, [successMessage, successScale, dismissSuccess]);
 
   const onSubmit = useCallback(
-    async (data: ForgotForm): Promise<void> => {
+    (data: ForgotForm): void => {
       setSentEmail(data.email);
-      await forgotPassword(data);
+      void forgotPassword(data);
     },
     [forgotPassword],
   );

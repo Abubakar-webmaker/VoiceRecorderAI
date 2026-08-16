@@ -76,8 +76,8 @@ const ResetPasswordScreen = ({ navigation, route }: Props): React.JSX.Element =>
   }, [successMessage, dismissSuccess, navigation]);
 
   const onSubmit = useCallback(
-    async (data: ResetForm): Promise<void> => {
-      await resetPassword({ token, password: data.password });
+    (data: ResetForm): void => {
+      void resetPassword({ token, password: data.password });
     },
     [resetPassword, token],
   );

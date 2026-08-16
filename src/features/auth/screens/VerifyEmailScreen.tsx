@@ -70,7 +70,7 @@ const VerifyEmailScreen = ({ route }: Props): React.JSX.Element => {
     const timer = setInterval(() => {
       setCooldown((c) => Math.max(0, c - 1));
     }, 1000);
-    return () => clearInterval(timer);
+    return (): void => clearInterval(timer);
   }, [cooldown]);
 
   const bounceStyle = useAnimatedStyle((): { transform: { translateY: number }[] } => ({
@@ -81,16 +81,16 @@ const VerifyEmailScreen = ({ route }: Props): React.JSX.Element => {
     opacity:   checkScale.value,
   }));
 
-  const handleResend = useCallback(async (): Promise<void> => {
+  const handleResend = useCallback((): void => {
     if (cooldown > 0) return;
-    await resendVerification();
+    void resendVerification();
     setResendCount((c) => c + 1);
     setCooldown(RESEND_COOLDOWN);
     dismissSuccess();
   }, [cooldown, resendVerification, dismissSuccess]);
 
-  const handleLogout = useCallback(async (): Promise<void> => {
-    await logout();
+  const handleLogout = useCallback((): void => {
+    void logout();
   }, [logout]);
 
   if (isEmailVerified) {
