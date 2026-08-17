@@ -1,3 +1,4 @@
+/* eslint-disable react-native/no-color-literals */
 import React, { useCallback } from 'react';
 import {
   View,

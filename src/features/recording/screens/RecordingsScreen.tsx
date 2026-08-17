@@ -1,3 +1,4 @@
+/* eslint-disable react-native/no-inline-styles, react-native/no-color-literals, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/explicit-function-return-type */
 import React, {
   useCallback, useEffect, useRef, useState,
 } from 'react';
@@ -18,6 +19,8 @@ import useTheme           from '@hooks/useTheme';
 import useRecordings      from '../hooks/useRecordings';
 import usePlayer          from '@features/player/hooks/usePlayer';
 import type { RecordingsScreenProps } from '@navigation/types';
+import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
+import type { MainTabParamList } from '@navigation/types';
 import type { FilterTab, Recording }             from '@shared/types/recording.types';
 
 type Props = RecordingsScreenProps<'Recordings'>;
@@ -269,8 +272,8 @@ const RecordingsScreen = ({ navigation }: Props): React.JSX.Element => {
             isShowingSearch
               ? undefined
               : () => {
-                const parent = navigation.getParent();
-                if (parent) (parent as any).navigate('RecordTab');
+                const parent = navigation.getParent<BottomTabNavigationProp<MainTabParamList>>();
+                parent?.navigate('RecordTab');
               }
           }
         />

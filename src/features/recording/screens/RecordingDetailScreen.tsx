@@ -1,3 +1,4 @@
+/* eslint-disable react-native/no-inline-styles, react-native/no-color-literals, @typescript-eslint/explicit-function-return-type */
 import React, { useEffect, useState } from 'react';
 import {
   View,

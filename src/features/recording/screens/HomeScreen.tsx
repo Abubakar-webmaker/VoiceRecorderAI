@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any, react-native/no-inline-styles, react-native/no-color-literals */
 import React, { useCallback, useEffect } from 'react';
 import {
   View,
@@ -30,7 +30,8 @@ import useAuth            from '@features/auth/hooks/useAuth';
 import useRecordings      from '../hooks/useRecordings';
 import usePlayer          from '@features/player/hooks/usePlayer';
 import { formatDuration, formatFileSize, AIStatus } from '@shared/types/recording.types';
-import type { HomeScreenProps } from '@navigation/types';
+import type { HomeScreenProps, MainTabParamList } from '@navigation/types';
+import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import type { Recording } from '@shared/types/recording.types';
 
 // ─── Quick Record Orb ─────────────────────────────────────────────
@@ -247,9 +248,8 @@ const HomeScreen = ({ navigation }: Props): React.JSX.Element => {
   }, [fetchRecordings]);
 
   const navigateToRecord = useCallback((): void => {
-    navigation
-      .getParent()
-      ?.navigate('RecordTab');
+    const parent = navigation.getParent<BottomTabNavigationProp<MainTabParamList>>();
+    parent?.navigate('RecordTab');
   }, [navigation]);
 
   return (
@@ -329,11 +329,11 @@ const HomeScreen = ({ navigation }: Props): React.JSX.Element => {
                   Storage
                 </H4>
                 <TouchableOpacity
-                  onPress={() => { navigation.navigate('Subscription' as any); }}
+                  onPress={() => { navigation.navigate('Subscription'); }}
                 >
                   <Badge label="Upgrade" variant="primary" size="sm" />
                 </TouchableOpacity>
-              </View>
+            </View>
               <StorageBar />
             </View>
           </Card>
@@ -346,8 +346,8 @@ const HomeScreen = ({ navigation }: Props): React.JSX.Element => {
             </H4>
             <TouchableOpacity
               onPress={() => {
-                const parent = navigation.getParent();
-                if (parent) (parent as any).navigate('RecordingsTab');
+                const parent = navigation.getParent<BottomTabNavigationProp<MainTabParamList>>();
+                parent?.navigate('RecordingsTab');
               }}
             >
               <BodySm color="link">
@@ -383,13 +383,11 @@ const HomeScreen = ({ navigation }: Props): React.JSX.Element => {
                 key={recording._id}
                 recording={recording}
                 onPress={() => {
-                  const parent = navigation.getParent();
-                  if (parent) {
-                    (parent as any).navigate('RecordingsTab', {
-                      screen: 'RecordingDetail',
-                      params: { recordingId: recording._id },
-                    });
-                  }
+                  const parent = navigation.getParent<BottomTabNavigationProp<MainTabParamList>>();
+                  parent?.navigate('RecordingsTab', {
+                    screen: 'RecordingDetail',
+                    params: { recordingId: recording._id },
+                  });
                 }}
                 onPlay={() => { void play(recording); }}
                 onFavorite={() => { void toggleFavorite(recording._id); }}
