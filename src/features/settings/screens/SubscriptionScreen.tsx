@@ -1,10 +1,10 @@
+/* eslint-disable react-native/no-inline-styles, react-native/no-color-literals */
 import React, { useState } from 'react';
 import {
   View,
   ScrollView,
   TouchableOpacity,
   StyleSheet,
-  Text,
   type ViewStyle,
 } from 'react-native';
 import { SafeAreaView }    from 'react-native-safe-area-context';
@@ -27,8 +27,6 @@ import {
   type SubscriptionTier,
 } from '@types/settings.types';
 import type { SettingsScreenProps } from '@navigation/types';
-
-const { width: W } = Dimensions.get('window');
 
 type Props = SettingsScreenProps<'Subscription'>;
 

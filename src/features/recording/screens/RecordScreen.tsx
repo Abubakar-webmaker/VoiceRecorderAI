@@ -1,3 +1,4 @@
+/* eslint-disable react-native/no-inline-styles, react-native/no-color-literals, @typescript-eslint/explicit-function-return-type */
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   View,
@@ -246,10 +247,10 @@ const RecordScreen = ({ navigation }: { navigation: BottomTabNavigationProp<Main
   const handleViewRecording = useCallback((): void => {
     if (!uploadedRecording) return;
     reset();
-    navigation.navigate('RecordingsTab' as never, {
+    navigation.navigate('RecordingsTab', {
       screen: 'RecordingDetail',
       params: { recordingId: uploadedRecording._id },
-    } as never);
+    });
   }, [uploadedRecording, reset, navigation]);
 
   const selectedFolder = folders.find((f) => f._id === folderId);

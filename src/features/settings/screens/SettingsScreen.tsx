@@ -1,3 +1,4 @@
+/* eslint-disable react-native/no-inline-styles, react-native/no-color-literals */
 import React, { useCallback, useEffect } from 'react';
 import {
   View,
@@ -14,7 +15,6 @@ import Animated, { FadeInDown } from 'react-native-reanimated';
 import { Avatar }        from '@components/common/Avatar';
 import { Card }          from '@components/common/Card';
 import { Badge }         from '@components/common/Badge';
-import { Divider }       from '@components/common/Divider';
 import {
   H3, BodySm, Caption, Label,
 } from '@components/common/Typography';

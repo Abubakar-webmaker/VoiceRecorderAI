@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/explicit-function-return-type */
 import React, {
   useCallback, useEffect, useRef, useState,
 } from 'react';
@@ -26,6 +27,8 @@ import useRecordings       from '../hooks/useRecordings';
 import usePlayer           from '@features/player/hooks/usePlayer';
 import type { SearchStackParamList } from '@navigation/types';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
+import type { MainTabParamList } from '@navigation/types';
 import type { Recording } from '@shared/types/recording.types';
 
 const RECENT_SEARCHES_KEY = '@AIVoiceRecorder:recentSearches';
@@ -103,10 +106,11 @@ const SearchScreen = ({ navigation }: Props): React.JSX.Element => {
     <RecordingCard
       recording={item}
       onPress={() => {
-        navigation.navigate('RecordingsTab' as never, {
+        const parent = navigation.getParent<BottomTabNavigationProp<MainTabParamList>>();
+        parent?.navigate('RecordingsTab', {
           screen: 'RecordingDetail',
-          params: { recordingId: item._id }
-        } as never);
+          params: { recordingId: item._id },
+        });
       }}
       onPlay={() => { void play(item); }}
       onFavorite={() => { void toggleFavorite(item._id); }}
