@@ -1,3 +1,4 @@
+/* eslint-disable react-native/no-color-literals */
 import React, { useState } from 'react';
 import {
   View,
@@ -97,6 +98,7 @@ const Avatar = ({
         <Text
           style={[
             styles.initials,
+            { color: colors.text.inverse },
             { fontSize: fontSizeMap }
           ]}
         >
@@ -117,7 +119,6 @@ const styles = StyleSheet.create({
     overflow:        'hidden',
   },
   initials: {
-    color: '#FFFFFF',
     fontWeight: '700',
     letterSpacing: -0.5,
   },

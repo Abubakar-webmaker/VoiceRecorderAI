@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/explicit-function-return-type */
 import {
   createSlice,
   createAsyncThunk,
@@ -71,7 +72,7 @@ const settingsSlice = createSlice({
         (state.data[section] as Record<string, unknown>)[key] = value;
       }
     },
-    clearSettingsError: (state) => { state.error = null; },
+    clearSettingsError: (state): void => { state.error = null; },
   },
 
   extraReducers: (builder) => {

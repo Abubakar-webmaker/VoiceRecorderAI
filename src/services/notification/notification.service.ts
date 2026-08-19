@@ -54,14 +54,14 @@ export const requestNotificationPermission = async (): Promise<boolean> => {
     if (Platform.OS === 'android') {
       try {
         const status = await messaging().requestPermission();
-        return status === (messaging.AuthorizationStatus.AUTHORIZED as any) ||
-               status === (messaging.AuthorizationStatus.PROVISIONAL as any);
+        const numericStatus = Number(status);
+        return numericStatus === 1 || numericStatus === 2;
       } catch (err) {
         logger.warn('[Notification] Firebase messaging permission request skipped:', err);
       }
     }
 
-    return settings.authorizationStatus >= 1;
+    return Number(settings.authorizationStatus) >= 1;
   } catch (err) {
     logger.error('[Notification] Permission request failed:', err);
     return false;

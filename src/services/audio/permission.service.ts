@@ -68,7 +68,7 @@ export const ensureMicPermission = async (): Promise<boolean> => {
       'Please enable microphone access in Settings to record audio.',
       [
         { text: 'Cancel',       style: 'cancel' },
-        { text: 'Open Settings', onPress: () => void Linking.openSettings() },
+        { text: 'Open Settings', onPress: (): void => { void Linking.openSettings(); } },
       ],
     );
     return false;

@@ -20,7 +20,7 @@ const Badge = ({
   dot     = false,
   style,
 }: BadgeProps): React.JSX.Element => {
-  const { colors, spacing, borderRadius, textStyles } = useTheme();
+  const { colors, spacing, textStyles } = useTheme();
 
   const variantMap: Record<BadgeVariant, { bg: string; text: string; border: string }> = {
     primary: {

@@ -260,7 +260,6 @@ const styles = StyleSheet.create({
     width:        6,
     height:       6,
     borderRadius: borderRadius.full,
-    backgroundColor: 'transparent',
   } as ViewStyle,
 
   tabIconDotActive: {

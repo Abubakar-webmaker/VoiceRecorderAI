@@ -1,6 +1,6 @@
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import type { BottomTabScreenProps }    from '@react-navigation/bottom-tabs';
-import type { CompositeScreenProps }    from '@react-navigation/native';
+import type { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
+import type { CompositeScreenProps, NavigatorScreenParams } from '@react-navigation/native';
 
 // ─── Auth Stack ───────────────────────────────────────────────────
 export type AuthStackParamList = {
@@ -49,11 +49,11 @@ export type SettingsStackParamList = {
 
 // ─── Main Tab Navigator ───────────────────────────────────────────
 export type MainTabParamList = {
-  HomeTab:       undefined;
-  RecordingsTab: undefined;
-  RecordTab:     undefined;  // Center tab — special
-  SearchTab:     undefined;
-  SettingsTab:   undefined;
+  HomeTab:       NavigatorScreenParams<HomeStackParamList> | undefined;
+  RecordingsTab: NavigatorScreenParams<RecordingsStackParamList> | undefined;
+  RecordTab:     NavigatorScreenParams<RecordStackParamList> | undefined;  // Center tab — special
+  SearchTab:     NavigatorScreenParams<SearchStackParamList> | undefined;
+  SettingsTab:   NavigatorScreenParams<SettingsStackParamList> | undefined;
 };
 
 // ─── Root Navigator (Modal screens) ──────────────────────────────

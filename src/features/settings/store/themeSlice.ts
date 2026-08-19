@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/explicit-function-return-type */
 import {
   createSlice,
   createSelector,
@@ -36,7 +37,7 @@ const themeSlice = createSlice({
       state.isDark = resolveIsDark(action.payload);
     },
     // Called when system appearance changes
-    syncSystemTheme: (state) => {
+    syncSystemTheme: (state): void => {
       if (state.mode === 'system') {
         state.isDark = getSystemDark();
       }

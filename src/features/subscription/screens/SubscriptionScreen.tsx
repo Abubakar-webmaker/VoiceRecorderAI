@@ -15,7 +15,7 @@ import { Badge } from '@components/common/Badge';
 import { Loader } from '@components/common/Loader';
 import useTheme from '@hooks/useTheme';
 import axios from 'axios';
-import { env } from '@config/env';
+import Config from 'react-native-config';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '@navigation/types';
 
@@ -31,7 +31,7 @@ const SubscriptionScreen = ({ navigation }: Props): React.JSX.Element => {
       const response = await axios.post<{
         success: boolean;
         data: { url: string };
-      }>(`${(env as Record<string, any>).API_URL}/payments/create-session`, {
+      }>(`${Config.API_BASE_URL ?? 'http://10.0.2.2:5000/api/v1'}/payments/create-session`, {
         plan: 'pro'
       });
 
@@ -93,7 +93,11 @@ const SubscriptionScreen = ({ navigation }: Props): React.JSX.Element => {
             disabled={loading}
             style={[styles.upgradeBtn, { backgroundColor: colors.primary.default }]}
           >
-            {loading ? <Loader color={colors.text.inverse} /> : <H4 style={styles.upgradeBtnText}>Upgrade Now</H4>}
+            {loading ? (
+              <Loader color={colors.text.inverse} />
+            ) : (
+              <H4 style={[styles.upgradeBtnText, { color: colors.text.inverse }]}>Upgrade Now</H4>
+            )}
           </TouchableOpacity>
           <Caption color="tertiary" align="center" style={styles.secureNote}>
             Secure payment via Stripe. Cancel anytime.
@@ -123,7 +127,7 @@ const styles = StyleSheet.create({
   scrollContent: { padding: 20 },
   secureNote: { marginTop: 12 },
   upgradeBtn: { alignItems: 'center', borderRadius: 16, height: 56, justifyContent: 'center', marginTop: 12 },
-  upgradeBtnText: { color: '#fff' },
+  upgradeBtnText: { },
 });
 
 export default SubscriptionScreen;
