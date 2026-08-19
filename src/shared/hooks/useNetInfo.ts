@@ -1,7 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import NetInfo, {
   type NetInfoState,
-  type NetInfoSubscription,
   NetInfoStateType,
 } from '@react-native-community/netinfo';
 
@@ -34,16 +33,16 @@ const useNetInfo = (): NetInfoResult & {
 
   useEffect(() => {
     // Get initial state
-    void NetInfo.fetch().then((state) => {
+    void NetInfo.fetch().then((state): void => {
       setNetInfo(mapState(state));
     });
 
     // Subscribe to changes
-    const sub = NetInfo.addEventListener((state) => {
+    const sub = NetInfo.addEventListener((state): void => {
       setNetInfo(mapState(state));
     });
 
-    return () => { sub(); };
+    return (): void => { sub(); };
   }, []);
 
   const checkConnection = useCallback(async (): Promise<boolean> => {

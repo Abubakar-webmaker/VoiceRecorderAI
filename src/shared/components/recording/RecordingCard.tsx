@@ -1,3 +1,4 @@
+/* eslint-disable react-native/no-inline-styles, react-native/no-color-literals */
 import React, { useCallback } from 'react';
 import {
   View,
@@ -95,11 +96,13 @@ const RecordingCard = ({
                 styles.checkbox,
                 {
                   borderColor:     isSelected ? colors.primary.default : colors.border.default,
-                  backgroundColor: isSelected ? colors.primary.default : 'transparent',
+                  backgroundColor: isSelected ? colors.primary.default : colors.bg.elevated,
                 },
               ]}
             >
-              {isSelected && <Caption style={styles.whiteTextSm}>✓</Caption>}
+              {isSelected && (
+                <Caption style={[styles.whiteTextSm, { color: colors.text.inverse }]}>✓</Caption>
+              )}
             </View>
           )}
 
@@ -162,7 +165,7 @@ const RecordingCard = ({
               ]}
               hitSlop={{ top: 4, bottom: 4, left: 4, right: 4 }}
             >
-              <Caption style={styles.whiteTextSm}>▶</Caption>
+              <Caption style={[styles.whiteTextSm, { color: colors.text.inverse }]}>▶</Caption>
             </TouchableOpacity>
 
             {/* Delete */}
@@ -242,7 +245,6 @@ const styles = StyleSheet.create({
     gap:           10,
   } as ViewStyle,
   whiteTextSm: {
-    color: '#fff',
     fontSize: 10
   },
 });

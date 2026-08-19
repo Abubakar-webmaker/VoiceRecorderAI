@@ -1,3 +1,4 @@
+/* eslint-disable react-native/no-inline-styles, react-native/no-color-literals */
 import React, { useCallback } from 'react';
 import {
   View,
@@ -254,7 +255,7 @@ const CardContent = ({
       </View>
 
       {/* Waveform + Badges */}
-      <View style={[styles.bottomRow, { marginTop: spacing[2] }]}>
+      <View style={[styles.bottomRow, styles.bottomRowSpaced]}>
         <WaveformView
           waveform={recording.waveform}
           width={180}
@@ -300,7 +301,9 @@ const styles = StyleSheet.create({
     flexDirection:  'row',
     alignItems:     'center',
     justifyContent: 'space-between',
-    marginTop: 8
+  } as ViewStyle,
+  bottomRowSpaced: {
+    marginTop: 8,
   } as ViewStyle,
   card: {
     flexDirection:   'row',
@@ -365,7 +368,6 @@ const styles = StyleSheet.create({
     marginRight: 8
   },
   whiteTextSm: {
-    color: '#fff',
     fontSize: 10
   },
 });

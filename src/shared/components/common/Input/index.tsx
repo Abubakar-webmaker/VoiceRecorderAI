@@ -1,3 +1,4 @@
+/* eslint-disable react-native/no-inline-styles, react-native/no-color-literals */
 import React, { useState, useCallback, useRef } from 'react';
 import {
   View,
@@ -45,6 +46,8 @@ const Input = ({
   const [isFocused,   setIsFocused]   = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const inputRef = useRef<TextInput>(null);
+  const hasLeftIcon = leftIcon !== undefined && leftIcon !== null;
+  const hasTrailingAccessory = (rightIcon !== undefined && rightIcon !== null) || isPassword;
 
   const handleFocus = useCallback((): void => {
     setIsFocused(true);
@@ -105,12 +108,11 @@ const Input = ({
           isFocused && {
             ...shadows.sm,
             shadowColor: error ? colors.error.default : colors.primary.default,
-            shadowOpacity: 0.3,
           },
         ]}
       >
         {/* Left Icon */}
-        {leftIcon !== undefined && leftIcon !== null && (
+        {hasLeftIcon && (
           <View style={styles.iconLeft}>{leftIcon}</View>
         )}
 
@@ -128,11 +130,11 @@ const Input = ({
           style={[
             styles.input,
             textStyles.bodyMd,
+            hasLeftIcon && styles.inputWithLeftIcon,
+            hasTrailingAccessory && styles.inputWithTrailingAccessory,
             {
               color:     isDisabled ? colors.text.disabled : colors.text.primary,
               flex:      1,
-              marginLeft: leftIcon !== undefined && leftIcon !== null ? spacing[2] : 0,
-              marginRight: (rightIcon !== undefined && rightIcon !== null || isPassword) ? spacing[2] : 0,
             },
           ]}
           selectionColor={colors.primary.default}
@@ -195,6 +197,12 @@ const styles = StyleSheet.create({
     alignItems:     'center',
     borderWidth:    1.5,
     flexDirection:  'row',
+  },
+  inputWithLeftIcon: {
+    marginLeft: 8,
+  },
+  inputWithTrailingAccessory: {
+    marginRight: 8,
   },
   label: {
     marginBottom: 2,

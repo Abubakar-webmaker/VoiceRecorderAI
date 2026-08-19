@@ -105,7 +105,7 @@ const styles = StyleSheet.create({
     borderColor:     colors.border.default,
   } as ViewStyle,
   errorText: {
-    color:      colors.recording.light,
+    color:      colors.error.light,
     fontFamily: 'monospace',
     fontSize:   12,
   },
