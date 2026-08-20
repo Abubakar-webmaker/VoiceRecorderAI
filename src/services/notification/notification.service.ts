@@ -3,16 +3,23 @@ import notifee, {
   EventType,
   type Notification,
 } from '@notifee/react-native';
-import messaging    from '@react-native-firebase/messaging';
+import { getApp } from '@react-native-firebase/app';
+import {
+  getMessaging,
+  getToken,
+  onMessage,
+  setBackgroundMessageHandler,
+  requestPermission,
+} from '@react-native-firebase/messaging';
 import { Platform } from 'react-native';
 import { logger }   from '@utils/logger';
 
 // ─── Channel IDs ──────────────────────────────────────────────────
 export const CHANNEL = {
-  DEFAULT:         'default',
-  AI:              'ai_processing',
-  UPLOAD:          'upload',
-  SYNC:            'sync',
+  DEFAULT: 'default',
+  AI:      'ai_processing',
+  UPLOAD:  'upload',
+  SYNC:    'sync',
 } as const;
 
 // ─── Setup Notification Channels (Android) ────────────────────────
@@ -26,21 +33,21 @@ export const setupNotificationChannels = async (): Promise<void> => {
       importance: AndroidImportance.DEFAULT,
     },
     {
-      id:         CHANNEL.AI,
-      name:       'AI Processing',
-      importance: AndroidImportance.HIGH,
+      id:          CHANNEL.AI,
+      name:        'AI Processing',
+      importance:  AndroidImportance.HIGH,
       description: 'Notifications for AI transcription and analysis',
     },
     {
-      id:         CHANNEL.UPLOAD,
-      name:       'Uploads',
-      importance: AndroidImportance.DEFAULT,
+      id:          CHANNEL.UPLOAD,
+      name:        'Uploads',
+      importance:  AndroidImportance.DEFAULT,
       description: 'Notifications for audio upload progress',
     },
     {
-      id:         CHANNEL.SYNC,
-      name:       'Sync',
-      importance: AndroidImportance.LOW,
+      id:          CHANNEL.SYNC,
+      name:        'Sync',
+      importance:  AndroidImportance.LOW,
       description: 'Cloud sync status notifications',
     },
   ]);
@@ -53,7 +60,7 @@ export const requestNotificationPermission = async (): Promise<boolean> => {
 
     if (Platform.OS === 'android') {
       try {
-        const status = await messaging().requestPermission();
+        const status = await requestPermission(getMessaging(getApp()));
         const numericStatus = Number(status);
         return numericStatus === 1 || numericStatus === 2;
       } catch (err) {
@@ -71,7 +78,7 @@ export const requestNotificationPermission = async (): Promise<boolean> => {
 // ─── Get FCM Token ────────────────────────────────────────────────
 export const getFCMToken = async (): Promise<string | null> => {
   try {
-    const token = await messaging().getToken();
+    const token = await getToken(getMessaging(getApp()));
     return token;
   } catch (err) {
     logger.warn('[Notification] Could not get FCM token:', err);
@@ -93,9 +100,9 @@ export const showLocalNotification = async (params: {
     body,
     data,
     android: {
-      channelId:  channel,
-      smallIcon:  'ic_launcher', // Changed from ic_notification to avoid build error if missing
-      importance: AndroidImportance.DEFAULT,
+      channelId:   channel,
+      smallIcon:   'ic_launcher',
+      importance:  AndroidImportance.DEFAULT,
       pressAction: { id: 'default' },
     },
     ios: {
@@ -107,9 +114,7 @@ export const showLocalNotification = async (params: {
 };
 
 // ─── Transcription Complete ───────────────────────────────────────
-export const notifyTranscriptionComplete = async (
-  title: string,
-): Promise<void> => {
+export const notifyTranscriptionComplete = async (title: string): Promise<void> => {
   await showLocalNotification({
     title:   '✅ Transcription Complete',
     body:    `"${title}" has been transcribed successfully`,
@@ -147,7 +152,7 @@ export const notifyOfflineUploaded = async (count: number): Promise<void> => {
 // ─── Handle Background Push ───────────────────────────────────────
 export const setupBackgroundMessageHandler = (): void => {
   try {
-    messaging().setBackgroundMessageHandler(async (remoteMessage) => {
+    setBackgroundMessageHandler(getMessaging(getApp()), async (remoteMessage) => {
       logger.info('[Notification] Background message:', remoteMessage.data);
       return Promise.resolve();
     });
@@ -159,7 +164,7 @@ export const setupBackgroundMessageHandler = (): void => {
 // ─── Handle Foreground Push ───────────────────────────────────────
 export const setupForegroundMessageHandler = (): (() => void) => {
   try {
-    return messaging().onMessage(async (remoteMessage) => {
+    return onMessage(getMessaging(getApp()), async (remoteMessage) => {
       logger.info('[Notification] Foreground message:', remoteMessage.data);
       if (remoteMessage.notification) {
         await showLocalNotification({

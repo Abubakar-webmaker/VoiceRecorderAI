@@ -80,6 +80,8 @@ app.use('/api/v1/auth/register',        authLimiter);
 app.use('/api/v1/auth/forgot-password', authLimiter);
 
 // ─── Body Parsing ─────────────────────────────────────────────────
+// Stripe webhook needs raw body — must be before express.json()
+app.use(`/api/${env.API_VERSION}/payments/webhook`, express.raw({ type: 'application/json' }));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(cookieParser());
